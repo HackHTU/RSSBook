@@ -2,10 +2,10 @@
  * Deno entrypoint
  */
 
-import { assetsPlugin } from "@/plugins";
 import { Cache } from "@/utils";
-import { RSSBookApp } from "./app";
-export default RSSBookApp({
+import { RSSBookApp } from "./RSSBookApp";
+
+const app = RSSBookApp({
 	cache: Cache.LRU_Cache,
 	config: {},
 	enableFetchOnlineServer: true,
@@ -14,4 +14,6 @@ export default RSSBookApp({
 		description: "A simple RSS feed aggregator and reader.",
 		title: "RSSBook",
 	},
-}).use(assetsPlugin());
+});
+// @ts-expect-error Deno serve
+Deno.serve(app.fetch);

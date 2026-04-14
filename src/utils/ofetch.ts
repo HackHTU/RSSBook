@@ -1,6 +1,8 @@
 import { ofetch } from "ofetch";
-import { version } from "@/../package.json";
+import pkg from "../../package.json" with { type: "json" };
 import { logger } from "./logger";
+
+const { version } = pkg;
 
 const fetch = ofetch.create({
 	headers: {

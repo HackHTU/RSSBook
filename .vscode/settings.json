@@ -3,18 +3,15 @@
   "unocss.include": [
     "./src/*.{html,js,ts,jsx,tsx,css,scss}"
   ],
-  
   "biome.enabled": true,
   "editor.codeActionsOnSave": {
     "source.fixAll.biome": "explicit",
-    "source.action.useSortedKeys.biome": "explicit",
+    "source.action.useSortedKeys.biome": "explicit"
   },
-
   "datastar.enabledLanguages": [
     "html",
     "tsx"
   ],
-
   "typescript.tsdk": "node_modules/typescript/lib",
-  "typescript.enablePromptUseWorkspaceTsdk": true
+  "typescript.enablePromptUseWorkspaceTsdk": true,
 }

@@ -1,5 +1,7 @@
 import { Elysia } from "elysia";
-import { version } from "@/../package.json";
+import pkg from "../../package.json" with { type: "json" };
+
+const { version } = pkg;
 
 import { defaultErrorPage } from "@/books/theme/error";
 import type { ErrorPageProps } from "@/types";

@@ -1,9 +1,10 @@
 import { openapi } from "@elysiajs/openapi";
 import { Elysia } from "elysia";
-import { version } from "@/../package.json";
 import { dataItemSchema, dataSchema, feedType } from "@/types";
 import { logger, ofetch } from "@/utils";
+import pkg from "../../package.json" with { type: "json" };
 
+const { version } = pkg;
 export const openAPIPlugin = (enableFetchOnlineServer: boolean = true) => {
 	// fetch public instance hosts list
 	let onlineList: {

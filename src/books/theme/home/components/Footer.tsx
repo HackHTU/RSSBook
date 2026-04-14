@@ -33,7 +33,10 @@ export function Footer({ title, description, rss, atom, json }: FooterProps) {
 									/>
 								</svg>
 							</div>
-							<h2 class="bg-gradient-to-r from-rose-600 to-orange-600 bg-clip-text font-bold text-transparent text-xl dark:from-rose-400 dark:to-orange-400" safe>
+							<h2
+								class="bg-gradient-to-r from-rose-600 to-orange-600 bg-clip-text font-bold text-transparent text-xl dark:from-rose-400 dark:to-orange-400"
+								safe
+							>
 								{title}
 							</h2>
 						</div>
@@ -86,7 +89,9 @@ export function Footer({ title, description, rss, atom, json }: FooterProps) {
 				<div class="my-8 h-px bg-gradient-to-r from-transparent via-stone-300 to-transparent dark:via-stone-700"></div>
 
 				<div class="flex flex-col items-center justify-between gap-4 text-sm text-stone-500 md:flex-row dark:text-stone-400">
-					<p>&copy; {currentYear} <span safe>{title || "RSSBook"}</span>. 保留所有权利.</p>
+					<p>
+						&copy; {currentYear} <span safe>{title || "RSSBook"}</span>. 保留所有权利.
+					</p>
 					<div class="flex items-center gap-6">
 						<a
 							class="transition-colors duration-200 hover:text-rose-600 dark:hover:text-rose-400"

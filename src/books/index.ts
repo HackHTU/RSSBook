@@ -1,4 +1,3 @@
-import html from "@elysiajs/html";
 import Elysia, { t } from "elysia";
 import { initPlugin } from "@/plugins";
 import { type Data, type DataItem, EMPTY_DATA, feedType, type ThemeProps } from "@/types";
@@ -93,7 +92,6 @@ export const bookPlugin = new Elysia({
 	tags: ["_"],
 })
 	.use(initPlugin())
-	.use(html())
 	.get(
 		"/",
 		async ({
@@ -102,7 +100,6 @@ export const bookPlugin = new Elysia({
 				books: { feeds, meta, theme },
 				cache,
 			},
-			set,
 		}) => {
 			// Get cached sorted data and categories
 			const { sortedData, categories: allCategories } = await getCachedBooksData(feeds, cache);
@@ -157,8 +154,13 @@ export const bookPlugin = new Elysia({
 				},
 			};
 
-			set.headers["content-type"] = "text/html; charset=utf-8";
-			return theme.render(props);
+			const content: string = await theme.render(props);
+
+			// ISSUE: return type Response is not recognized correctly
+			return new Response(content, {
+				headers: { "Content-Type": "text/html; charset=utf-8" },
+				status: 200,
+			});
 		},
 		{
 			query: t.Object({

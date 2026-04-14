@@ -1,6 +1,6 @@
 # 📕RSSBook
 
-<table align="center">
+<table align="center" width="70%">
     <tr>
         <td align="center" valign="middle" colspan="3">
             <img src="src/public/favicon.svg" alt="RSSBook Favicon" width="150" height="150" />
@@ -8,7 +8,7 @@
     </tr>
     <tr>
         <td align="center" valign="middle" colspan="3">
-            Your Feed Generator, Toolkits and Blogger.
+            Your Feed Generator, Toolkits and Blogger.<br />你的 Feed 生成器，工具集和博客，都在这里。
         </td>
     </tr>
     <tr>
@@ -27,7 +27,7 @@
             HELPER
         </td>
         <td align="center" valign="middle">
-           <a href="" target="_blank">OpenAPI</a>
+           <a href="https://rssbook.htu.me" target="_blank">OpenAPI</a>
         </td>
         <td align="center" valign="middle">
            <a href="#" target="_blank">Utils Feed Helper(WIP)</a>
@@ -46,21 +46,18 @@
     </tr>
 </table>
 
-> [!CAUTION]
->
-> 在版本号在 1.0 前，本项目还不稳定，比如在线生成器、Puppeteer 的集成、AI 的支持、环境变量、自动与上游同步和更好的 IDC 和库支持等，我们还有很长的路要走，欢迎你帮助我们改进项目。
-
-## 简介
-
 - RSSBook 是一个 Feed 生成器，你可以当作 RSSHub 的轻量替代。
 - RSSBook 是一个 Feed 工具集，快速合并/筛选/转换 Feed，甚至无需代码，快速从网页生成 Feed。
 - RSSBook 是一个 Feed 博客，你可以通过订阅你在各个平台的 Feed（比如 GitHub、微博、Bilibili）来创建一个属于你的空间。
 
+
+> [!CAUTION]
+>
+> 在版本号在 1.0 前，本项目还不稳定，我们还没有实现诸如在线生成器、Puppeteer 的集成、AI 的支持、环境变量、自动与上游同步和更好的库支持等，我们还有很长的路要走，欢迎你帮助我们改进项目。
+
 ## 开始
 
-本指南将帮助你快速使用并配置 RSSBook 程序。
-
-关于编写新路由的教程，请看 [CONTRIBUTING.md](CONTRIBUTING.md)。
+本指南将帮助你快速使用并配置 RSSBook 程序。关于编写新路由的教程，请看 [CONTRIBUTING.md](CONTRIBUTING.md)。
 
 ### 安装环境
 
@@ -71,10 +68,6 @@
 然后，你需要安装 Git 来克隆代码库，安装 Git 的教程请看 [Git Installation](https://git-scm.com/install/)。
 
 最后，你需要安装一个支持 TypeScript 的代码编辑器，比如 [Visual Studio Code](https://code.visualstudio.com/)，IDEA 系列，或者是最新推出的 [Zed](https://zed.dev/)。
-
-> [!NOTE]
-> 
-> 对于 VSCode 和 IDEA ，我们在 `.vscode`/`.idea` 目录下提供了推荐的配置文件，当打开项目目录，会自动设置并推荐你安装相关插件。
 
 然后您需要在一个位置打开终端，运行以下命令来克隆代码库并安装依赖。
 
@@ -93,13 +86,13 @@ bun install
 
 我们是在 Bun 环境下进行开发与测试的，Bun 是一个性能优异且资源占用低的运行时/包管理器/测试器/打包器等的一体化工具，如果你在生产环境中使用 RSSBook，我们推荐你使用 Bun 进行部署。
 
-当然，我们对于其他运行时环境/服务商也进行支持，我们在 `src` 目录下提供了多种环境的入口文件，你可以根据你的需要进行选择。
+当然，我们对于其他运行时环境/服务商也进行支持，这些服务商有的有一些预定义环境（例如 KV 和数据库等），所以我们在 `src` 目录下提供了多种环境的入口文件，你可以根据你的需要进行选择。
 
 > [!TIP]
 >
 > 我们有一个公开实例列表在 [HOSTS](./HOSTS)，在访问 OpenAPI 文档时**可能**会显示可用的实例列表，如果你乐意将你的实例分享给大家，欢迎提交 Pull Request 请求，并留下你的地址/版本信息/其他说明，我们会感谢你的贡献！
 >
-> 所有入口文件都是基于 `src/app.ts` 进行修改的，我们欢迎社区贡献更多的运行时环境/服务商的支持。
+> 所有入口文件都是基于 `src/RSSBookApp.ts` 进行修改的，我们欢迎社区贡献更多的运行时环境/服务商的支持。
 
 #### Bun
 
@@ -148,17 +141,13 @@ Node.js 的入口文件为 `src/node.ts`。
 npx tsx src/node.ts
 ```
 
-<!-- 
-Wow, so many deploy buttons! 这些还没适配，有时我真的感慨这些计算平台真的是太多了！
-
-
 #### Deno
 
 Deno 是一个继 Node.js 之后的另一个运行时环境。
 
 Deno 的入口文件为 `src/deno.ts`。
 
-[![Deploy on Deno](https://deno.com/button)](https://console.deno.com/new?clone=REPOSITORY_URL)
+[![Deploy on Deno](https://deno.com/button)](https://console.deno.com/new?clone=https://github.com/HackHTU/RSSBook)
 
 
 #### CloudFlare Workers
@@ -170,7 +159,7 @@ CloudFlare Workers 的入口文件为 `src/cloudflare.ts`。
 在开发时，你可以使用以下命令来使用 Wrangler CLI 进行启动服务器。
 
 ```bash
-
+bun run dev:cf
 ```
 
 在生产时，你可以直接点击下面的按钮来部署到 CloudFlare Workers，但是这种方式不支持**自定义配置**。
@@ -182,8 +171,11 @@ CloudFlare Workers 的入口文件为 `src/cloudflare.ts`。
 或是在本地修改配置后，使用 Wrangler CLI 构建并上传文件。
 
 ```bash
-
+wrangler deploy
 ```
+
+<!-- 
+Wow, so many deploy buttons! 这些还没适配，有时我真的感慨这些计算平台真的是太多了！
 
 #### Vercel
 
@@ -301,6 +293,8 @@ RSSBook 不仅可以用作你的 Feed 阅读器，还可以用来做很多事情
 
 ## 规范
 
+为了可以持久发展，我们有一些代码规范和文档规范，以下是一些常见的规范。
+
 ### 路由规范
 
 关于如何编写新路由，路由的规范以及测试的编写，请看 [CONTRIBUTING.md](CONTRIBUTING.md)。
@@ -309,13 +303,9 @@ RSSBook 不仅可以用作你的 Feed 阅读器，还可以用来做很多事情
 
 类型安全：我们建议你**尽可能少**使用 TypeScript 的 `as` `any` `@ts-ignore` 等关键词，因为降低代码的可维护性。
 
-代码检查与格式化：我们使用 Biome 作为格式化工具，我们建议你在提交代码前运行以下命令来检查格式化代码。
+代码美观：我们使用 Biome 作为格式化工具，我们建议你在提交代码前运行 `bun check` 命令来检查格式化代码。同时，我们建议你使用 JSDOC 语法来编写注释，这样可以提高代码的可读性和可维护性。
 
-```bash
-bun check
-```
-
-文档排版：关于文档的排版，我们建议你使用 Github Markdown 的标准语法进行编写，语气不用特别正式，但在中英文的混排中，全角或半角标点的使用需格外注意，中英文之间添加空格的要求需要格外注意。
+文字排版：关于文档的排版，我们建议你使用 Github Markdown 的标准语法进行编写，语气不用特别正式，但在中英文的混排中，全角或半角标点的使用需格外注意，中英文之间添加空格的要求需要格外注意。
 
 ## 社群
 
@@ -328,6 +318,7 @@ bun check
 关于功能的讨论，请在 [DISCUSSION](https://github.com/HackHTU/RSSBook/discussions) 中进行。
 
 ## 杂谈
+
 
 
 ## 致谢

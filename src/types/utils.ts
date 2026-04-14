@@ -56,3 +56,7 @@ type _IsValid<S extends string> = S extends "" ? false : _IsValidInternal<S>;
 export type Slug<S extends string> = _IsValid<S> extends true ? S : never;
 
 export type NonEmptyArray<T> = [T, ...T[]];
+
+export type Prettify<T> = {
+	[K in keyof T]: T[K];
+} & {};

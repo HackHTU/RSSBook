@@ -1,4 +1,3 @@
-/// <reference types="bun-types" />
 /** biome-ignore-all lint/suspicious/noConsole: true */
 
 import { existsSync, statSync, writeFileSync } from "node:fs";
@@ -6,7 +5,7 @@ import { dirname, join, relative } from "node:path";
 import * as readline from "node:readline/promises";
 import { $ } from "bun";
 
-const FEEDS_DIR = join(import.meta.dir, "../src/routers/feeds");
+const FEEDS_DIR = join(import.meta.dir, "../pkgs/rssbook/src/routers/feeds");
 const PROJECT_ROOT = join(import.meta.dir, "..");
 
 // ANSI color codes
@@ -131,8 +130,8 @@ async function getModifiedFeeds(): Promise<ModifiedFeed[]> {
 	const feedMap = new Map<string, ModifiedFeed>();
 
 	for (const file of modifiedFiles) {
-		// Only process files in src/routers/feeds/
-		if (!file.startsWith("src/routers/feeds/")) {
+		// Only process files in pkgs/rssbook/src/routers/feeds/
+		if (!file.startsWith("pkgs/rssbook/src/routers/feeds/")) {
 			continue;
 		}
 
@@ -242,7 +241,7 @@ async function main() {
 			warning("No modified feeds found");
 			console.log();
 			log("  Make sure you have uncommitted changes in feed directories:", colors.dim);
-			log("  src/routers/feeds/{category}/{name}/", colors.dim);
+			log("  pkgs/rssbook/src/routers/feeds/{category}/{name}/", colors.dim);
 			console.log();
 			process.exit(0);
 		}

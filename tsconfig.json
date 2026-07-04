@@ -1,23 +1,17 @@
 {
 	"compilerOptions": {
-		"alwaysStrict": true,
-		"baseUrl": ".",
-		"esModuleInterop": true,
-		"forceConsistentCasingInFileNames": true,
-		"jsx": "react-jsx",
-		"jsxImportSource": "@kitajs/html",
-		"module": "ESNext",
-		"moduleResolution": "bundler",
-		"noErrorTruncation": true,
-		"noImplicitAny": true,
-		"paths": { "@/*": ["src/*"] },
-		"plugins": [{ "name": "@kitajs/ts-html-plugin" }],
-		"rootDir": "./",
-		"skipLibCheck": true,
-		"strict": true,
-		"strictNullChecks": true,
-		"target": "ESNext",
-		"types": ["bun-types"]
+		"paths": {
+			"@/*": ["./pkgs/rssbook/src/*"]
+		},
+		"rootDir": ".",
+		"types": ["@types/bun"]
 	},
-	"include": ["src/**/*.ts", "src/**/*.tsx", "src/**/*.d.ts", "netlify/edge-functions/**/*.ts"]
+	"extends": "./tsconfig.base.json",
+	"include": [
+		"pkgs/rssbook/src/**/*.ts",
+		"pkgs/rssbook/src/**/*.tsx",
+		"pkgs/rssbook/src/**/*.d.ts",
+		"platform/**/*.ts",
+		"scripts/**/*.ts"
+	]
 }

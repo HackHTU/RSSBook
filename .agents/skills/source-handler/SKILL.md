@@ -1,25 +1,25 @@
 ---
 name: source-handler
-description: Source 类和 Handler 上下文详细参考。当用户询问 Source 配置、Handler 参数、路由定义或 Feed 元数据时使用此技能。
+description: Detailed reference for Source class and Handler context. Use this skill when users ask about Source configuration, Handler parameters, route definitions, or Feed metadata.
 ---
 
-# Source 和 Handler 参考
+# Source and Handler Reference
 
-本技能详细说明 Source 类的配置和 Handler 上下文对象。
+This skill provides detailed documentation for the Source class configuration and Handler context object.
 
-## Source 类
+## Source Class
 
-Source 定义一个数据源，包含基本信息和多个 Feed。
+Source defines a data source, containing basic information and multiple Feeds.
 
-### 构造函数参数
+### Constructor Parameters
 
 ```typescript
 new Source({
-  slug: string,           // 唯一标识符（小写字母和短横线）
-  title: string,          // 显示标题
-  description: string,    // 描述（支持 Markdown）
-  domain: string,         // 源网站域名
-  config?: {              // 可选配置参数
+  slug: string,           // Unique identifier (lowercase letters and hyphens)
+  title: string,          // Display title
+  description: string,    // Description (supports Markdown)
+  domain: string,         // Source website domain
+  config?: {              // Optional configuration parameters
     [key: string]: {
       description: string,
       required?: boolean,
@@ -29,19 +29,19 @@ new Source({
 })
 ```
 
-### slug 命名规则
+### slug Naming Rules
 
-- 只能包含小写字母、数字和短横线
-- 必须以字母开头
-- 示例：`github`, `hacker-news`, `v2ex`
+- Can only contain lowercase letters, numbers, and hyphens
+- Must start with a letter
+- Examples: `github`, `hacker-news`, `v2ex`
 
 ---
 
-## feed() 方法
+## feed() Method
 
-为 Source 添加一个 Feed 路由。
+Adds a Feed route to a Source.
 
-### 参数
+### Parameters
 
 ```typescript
 source.feed(
@@ -50,62 +50,62 @@ source.feed(
 )
 ```
 
-### RouteConfig 配置
+### RouteConfig Configuration
 
-| 字段 | 类型 | 说明 |
+| Field | Type | Description |
 | ---- | ---- | ---- |
-| `title` | `string` | Feed 标题 |
-| `description` | `string` | 详细描述（Markdown） |
-| `fulltext` | `boolean` | 是否抓取全文 |
-| `language` | `string[]` | 支持的语言 |
-| `maintainer` | `object` | 维护者信息 |
-| `withImage` | `string` | 图片策略 |
+| `title` | `string` | Feed title |
+| `description` | `string` | Detailed description (Markdown) |
+| `fulltext` | `boolean` | Whether to fetch full text |
+| `language` | `string[]` | Supported languages |
+| `maintainer` | `object` | Maintainer information |
+| `withImage` | `string` | Image strategy |
 
 ---
 
-## Handler 上下文
+## Handler Context
 
-Handler 函数接收的完整上下文对象。
+The complete context object received by Handler functions.
 
-### 属性 (Props)
+### Props
 
 ```typescript
 async ({
-  // 元数据
+  // Metadata
   meta: {
     slug,        // Source slug
-    title,       // Source 标题
-    description, // Source 描述
-    domain,      // 域名
-    config,      // 配置值（已解析默认值）
+    title,       // Source title
+    description, // Source description
+    domain,      // Domain name
+    config,      // Configuration values (with defaults resolved)
   },
 
-  // 请求参数
-  params,        // 路由参数 (:param)
-  query,         // 查询参数 (?key=value)
-  lang,          // 请求语言
-  headers,       // 请求头
+  // Request parameters
+  params,        // Route parameters (:param)
+  query,         // Query parameters (?key=value)
+  lang,          // Request language
+  headers,       // Request headers
 }) => { ... }
 ```
 
-### 注入函数
+### Injected Functions
 
-| 函数 | 说明 |
+| Function | Description |
 | ---- | ---- |
-| `cache` | 缓存管理器 |
-| `date` | 日期解析 |
-| `ofetch` | HTTP 请求 |
-| `load` | HTML 解析 |
-| `formatHTML` | HTML 清理 |
-| `toAbsoluteURL` | URL 转换 |
-| `parse` | Feed 解析 |
-| `logger` | 日志工具 |
+| `cache` | Cache manager |
+| `date` | Date parsing |
+| `ofetch` | HTTP requests |
+| `load` | HTML parsing |
+| `formatHTML` | HTML sanitization |
+| `toAbsoluteURL` | URL conversion |
+| `parse` | Feed parsing |
+| `logger` | Logging utility |
 
 ---
 
-## 路由 Schema 定义
+## Route Schema Definition
 
-使用 `t` 对象定义路由参数类型。
+Use the `t` object to define route parameter types.
 
 ```typescript
 import { t } from "@/utils";
@@ -116,30 +116,30 @@ app.get(
   {
     params: t.Object({
       username: t.String({
-        description: "用户名",
+        description: "Username",
         examples: ["octocat"],
       }),
       repo: t.String({
-        description: "仓库名",
+        description: "Repository name",
       }),
     }),
   }
 )
 ```
 
-### 常用类型
+### Common Types
 
-| 类型 | 说明 |
+| Type | Description |
 | ---- | ---- |
-| `t.String()` | 字符串 |
-| `t.Number()` | 数字 |
-| `t.Boolean()` | 布尔值 |
-| `t.Optional()` | 可选参数 |
-| `t.UnionEnum([])` | 枚举值 |
+| `t.String()` | String |
+| `t.Number()` | Number |
+| `t.Boolean()` | Boolean |
+| `t.Optional()` | Optional parameter |
+| `t.UnionEnum([])` | Enum value |
 
 ---
 
-## 完整示例
+## Complete Example
 
 ```typescript
 import type { Data, DataItem } from "@/types";
@@ -148,21 +148,21 @@ import { Source, t } from "@/utils";
 export default new Source({
   slug: "example",
   title: "Example",
-  description: "示例数据源",
+  description: "Example data source",
   domain: "example.com",
   config: {
     API_KEY: {
-      description: "API 密钥",
+      description: "API key",
       required: false,
       default: "demo-key",
     },
   },
 }).feed(
   {
-    title: "最新内容",
-    description: "获取最新内容列表",
+    title: "Latest Content",
+    description: "Fetch latest content list",
     fulltext: true,
-    language: ["zh-CN"],
+    language: ["en"],
     maintainer: { name: "Your Name" },
   },
   (app) => app.get(
@@ -199,7 +199,7 @@ export default new Source({
     {
       params: t.Object({
         category: t.UnionEnum(["news", "blog"], {
-          description: "内容分类",
+          description: "Content category",
         }),
       }),
     },

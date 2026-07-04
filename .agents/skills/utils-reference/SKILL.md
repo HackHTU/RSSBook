@@ -1,39 +1,39 @@
 ---
 name: utils-reference
-description: RSSBook 工具函数参考。当用户询问如何使用 cache、date、ofetch、filter、sort、union、parse 等工具函数时使用此技能。
+description: RSSBook utility functions reference. Use this skill when users ask how to use cache, date, ofetch, filter, sort, union, parse, and other utility functions.
 ---
 
-# RSSBook 工具函数参考
+# RSSBook Utility Functions Reference
 
-本技能提供 RSSBook 中所有工具函数的详细使用说明。
+This skill provides detailed usage documentation for all utility functions in RSSBook.
 
-## 目录
+## Table of Contents
 
-1. [缓存 (Cache)](#缓存-cache)
-2. [日期解析 (date)](#日期解析-date)
-3. [HTTP 请求 (ofetch)](#http-请求-ofetch)
-4. [HTML 解析 (load)](#html-解析-load)
-5. [HTML 格式化 (formatHTML)](#html-格式化-formathtml)
-6. [URL 处理 (toAbsoluteURL)](#url-处理-toabsoluteurl)
-7. [Feed 解析 (parse)](#feed-解析-parse)
-8. [Feed 过滤 (filter)](#feed-过滤-filter)
-9. [Feed 排序 (sort)](#feed-排序-sort)
-10. [Feed 合并 (union)](#feed-合并-union)
-11. [Feed 交集 (intersection)](#feed-交集-intersection)
+1. [Cache](#cache)
+2. [Date Parsing](#date-parsing)
+3. [HTTP Requests (ofetch)](#http-requests-ofetch)
+4. [HTML Parsing (load)](#html-parsing-load)
+5. [HTML Formatting (formatHTML)](#html-formatting-formathtml)
+6. [URL Processing (toAbsoluteURL)](#url-processing-toabsoluteurl)
+7. [Feed Parsing (parse)](#feed-parsing-parse)
+8. [Feed Filtering (filter)](#feed-filtering-filter)
+9. [Feed Sorting (sort)](#feed-sorting-sort)
+10. [Feed Merging (union)](#feed-merging-union)
+11. [Feed Intersection (intersection)](#feed-intersection-intersection)
 
 ---
 
-## 缓存 (Cache)
+## Cache
 
-缓存工具用于存储和复用数据，避免重复请求。
+Cache utility for storing and reusing data to avoid redundant requests.
 
-### 基本用法
+### Basic Usage
 
 ```typescript
-// 在 handler 中使用
+// Use in handler
 async ({ cache }) => {
   const data = await cache.tryGet("cache-key", async () => {
-    // 获取数据的异步函数
+    // Async function to fetch data
     return fetchedData;
   });
 }
@@ -41,74 +41,74 @@ async ({ cache }) => {
 
 ### API
 
-| 方法 | 说明 |
-|------|------|
-| `tryGet(key, fetcher, maxAgeMs?)` | 获取缓存，不存在则执行 fetcher |
-| `get(key)` | 获取缓存值 |
-| `set(key, value, maxAgeMs?)` | 设置缓存 |
-| `del(key)` | 删除缓存 |
+| Method | Description |
+| ------ | ----------- |
+| `tryGet(key, fetcher, maxAgeMs?)` | Get cache, execute fetcher if not exists |
+| `get(key)` | Get cache value |
+| `set(key, value, maxAgeMs?)` | Set cache value |
+| `del(key)` | Delete cache |
 
-### 示例
+### Example
 
 ```typescript
-// 带自定义过期时间（毫秒）
+// With custom expiration time (milliseconds)
 const data = await cache.tryGet(
   `user:${userId}`,
   async () => await fetchUser(userId),
-  5 * 60 * 1000  // 5 分钟
+  5 * 60 * 1000  // 5 minutes
 );
 ```
 
 ---
 
-## 日期解析 (date)
+## Date Parsing
 
-通用日期解析器，支持多种格式和相对时间。
+Universal date parser supporting multiple formats and relative time.
 
-### 支持的格式
+### Supported Formats
 
 - ISO 8601: `2024-01-15T10:30:00Z`
-- 常见格式: `2024-01-15`, `2024/01/15`
-- Unix 时间戳: `1705312200`
-- 相对时间: `3天前`, `yesterday`, `2 hours ago`
-- 中文: `今天`, `昨天`, `前天`, `周一`
+- Common formats: `2024-01-15`, `2024/01/15`
+- Unix timestamp: `1705312200`
+- Relative time: `3 days ago`, `yesterday`, `2 hours ago`
+- Chinese: `今天` (today), `昨天` (yesterday), `前天` (day before yesterday), `周一` (Monday)
 
-### 用法
+### Usage
 
 ```typescript
 async ({ date }) => {
-  // 解析各种格式
-  date("2024-01-15");           // Date 对象
-  date("3天前");                 // 3 天前的 Date
-  date("yesterday 10:30");      // 昨天 10:30
-  date(1705312200);             // Unix 时间戳
+  // Parse various formats
+  date("2024-01-15");           // Date object
+  date("3 days ago");           // Date from 3 days ago
+  date("yesterday 10:30");      // Yesterday at 10:30
+  date(1705312200);             // Unix timestamp
 
-  // 指定时区（小时偏移）
+  // Specify timezone (hour offset)
   date("2024-01-15 10:00", +8); // UTC+8
 }
 ```
 
 ---
 
-## HTTP 请求 (ofetch)
+## HTTP Requests (ofetch)
 
-增强的 fetch 函数，支持自动重试和类型推断。
+Enhanced fetch function with automatic retry and type inference.
 
-### 用法
+### Usage
 
 ```typescript
 async ({ ofetch }) => {
-  // JSON 响应
+  // JSON response
   const json = await ofetch("https://api.example.com/data", {
     responseType: "json"
   });
 
-  // HTML 文本
+  // HTML text
   const html = await ofetch("https://example.com", {
     responseType: "text"
   });
 
-  // 带请求头
+  // With headers
   const data = await ofetch(url, {
     headers: { Authorization: "Bearer token" },
     responseType: "json"
@@ -116,33 +116,33 @@ async ({ ofetch }) => {
 }
 ```
 
-### 配置选项
+### Configuration Options
 
-| 选项 | 说明 | 默认值 |
-|------|------|--------|
-| `responseType` | 响应类型 (`json`/`text`/`blob`) | - |
-| `headers` | 请求头 | 预设 UA |
-| `timeout` | 超时时间（毫秒） | 8000 |
-| `retry` | 重试次数 | 2 |
+| Option | Description | Default |
+| ------ | ----------- | ------- |
+| `responseType` | Response type (`json`/`text`/`blob`) | - |
+| `headers` | Request headers | Preset UA |
+| `timeout` | Timeout (milliseconds) | 8000 |
+| `retry` | Retry count | 2 |
 
 ---
 
-## HTML 解析 (load)
+## HTML Parsing (load)
 
-基于 Cheerio 的 HTML 解析器，提供类似 jQuery 的 API。
+Cheerio-based HTML parser providing jQuery-like API.
 
-### 用法
+### Usage
 
 ```typescript
 async ({ load, ofetch }) => {
   const html = await ofetch(url, { responseType: "text" });
   const $ = load(html);
 
-  // 选择元素
+  // Select elements
   const title = $("h1.title").text();
   const href = $("a.link").attr("href");
 
-  // 遍历列表
+  // Iterate list
   const items = $("article").toArray().map((el) => {
     const $el = $(el);
     return {
@@ -153,51 +153,51 @@ async ({ load, ofetch }) => {
 }
 ```
 
-### 常用方法
+### Common Methods
 
-| 方法 | 说明 |
-|------|------|
-| `$(selector)` | 选择元素 |
-| `.text()` | 获取文本内容 |
-| `.html()` | 获取 HTML 内容 |
-| `.attr(name)` | 获取属性值 |
-| `.find(selector)` | 查找子元素 |
-| `.toArray()` | 转换为数组 |
-| `.first()` / `.last()` | 获取首/末元素 |
-| `.parent()` / `.children()` | 父/子元素 |
+| Method | Description |
+| ------ | ----------- |
+| `$(selector)` | Select elements |
+| `.text()` | Get text content |
+| `.html()` | Get HTML content |
+| `.attr(name)` | Get attribute value |
+| `.find(selector)` | Find child elements |
+| `.toArray()` | Convert to array |
+| `.first()` / `.last()` | Get first/last element |
+| `.parent()` / `.children()` | Parent/child elements |
 
 ---
 
-## HTML 格式化 (formatHTML)
+## HTML Formatting (formatHTML)
 
-清理和格式化 HTML 内容，移除危险标签和脚本。
+Sanitizes and formats HTML content, removing dangerous tags and scripts.
 
-### 用法
+### Usage
 
 ```typescript
 async ({ formatHTML }) => {
-  // 基本清理
+  // Basic sanitization
   const clean = formatHTML(rawHtml);
 
-  // 指定基础 URL（转换相对链接为绝对链接）
+  // With base URL (converts relative links to absolute)
   const cleanWithUrls = formatHTML(rawHtml, "https://example.com");
 }
 ```
 
-### 功能
+### Features
 
-- 移除 `<script>`、`<style>` 等危险标签
-- 保留安全的 HTML 标签（段落、链接、图片等）
-- 自动转换相对 URL 为绝对 URL
-- 清理不安全的属性
+- Removes dangerous tags like `<script>`, `<style>`
+- Preserves safe HTML tags (paragraphs, links, images, etc.)
+- Automatically converts relative URLs to absolute URLs
+- Cleans unsafe attributes
 
 ---
 
-## URL 处理 (toAbsoluteURL)
+## URL Processing (toAbsoluteURL)
 
-将相对 URL 转换为绝对 URL。
+Converts relative URLs to absolute URLs.
 
-### 用法
+### Usage
 
 ```typescript
 async ({ toAbsoluteURL }) => {
@@ -208,99 +208,99 @@ async ({ toAbsoluteURL }) => {
   // => "https://example.com/image.png"
 
   toAbsoluteURL("https://other.com/page", "https://example.com");
-  // => "https://other.com/page" (已是绝对 URL，不变)
+  // => "https://other.com/page" (already absolute, unchanged)
 }
 ```
 
 ---
 
-## Feed 解析 (parse)
+## Feed Parsing (parse)
 
-解析 RSS/Atom/JSON Feed 内容为标准 Data 格式。
+Parses RSS/Atom/JSON Feed content into standard Data format.
 
-### 用法
+### Usage
 
 ```typescript
 async ({ parse, ofetch }) => {
-  // 解析 RSS/Atom Feed
+  // Parse RSS/Atom Feed
   const xml = await ofetch(feedUrl, { responseType: "text" });
-  const data = parse(xml);  // 自动检测格式
+  const data = parse(xml);  // Auto-detect format
 
-  // 解析原始 JSON 数据
+  // Parse raw JSON data
   const jsonData = parse(jsonObject, "raw");
 }
 ```
 
-### 参数
+### Parameters
 
-| 参数 | 类型 | 说明 |
-| ---- | ---- | ---- |
-| `content` | `string` | Feed XML 内容 |
-| `type` | `"rss"` / `"atom"` / `"raw"` | 格式类型（可选） |
+| Parameter | Type | Description |
+| --------- | ---- | ----------- |
+| `content` | `string` | Feed XML content |
+| `type` | `"rss"` / `"atom"` / `"raw"` | Format type (optional) |
 
 ---
 
-## Feed 过滤 (filter)
+## Feed Filtering (filter)
 
-按条件过滤 Feed 条目。
+Filters Feed items by conditions.
 
-### 使用预设选项
+### Using Preset Options
 
 ```typescript
 import { filter } from "@/utils/feeds";
 
 const filtered = filter(data, {
   keywords: {
-    include: ["技术", "AI"],    // 包含任一关键词
-    exclude: ["广告"],          // 排除关键词
+    include: ["tech", "AI"],    // Include any keyword
+    exclude: ["ads"],           // Exclude keywords
     caseSensitive: false,
   },
   date: {
-    after: "2024-01-01",       // 此日期之后
-    before: "2024-12-31",      // 此日期之前
+    after: "2024-01-01",        // After this date
+    before: "2024-12-31",       // Before this date
   },
   author: {
-    include: ["张三"],
-    exclude: ["机器人"],
+    include: ["John"],
+    exclude: ["bot"],
   },
   categories: {
-    include: ["技术"],
-    exclude: ["娱乐"],
+    include: ["tech"],
+    exclude: ["entertainment"],
   },
   limit: {
-    count: 10,                 // 限制数量
-    fromStart: true,           // 从开头取
+    count: 10,                  // Limit count
+    fromStart: true,            // Take from start
   },
 });
 ```
 
-### 使用自定义函数
+### Using Custom Function
 
 ```typescript
 const filtered = filter(data, (item, index) => {
-  return item.title?.includes("重要") && index < 20;
+  return item.title?.includes("important") && index < 20;
 });
 ```
 
 ---
 
-## Feed 排序 (sort)
+## Feed Sorting (sort)
 
-对 Feed 条目进行排序。
+Sorts Feed items.
 
-### 按日期排序
+### Sort by Date
 
 ```typescript
 import { sort } from "@/utils/feeds";
 
-// 按日期降序（最新在前，默认）
+// Sort by date descending (newest first, default)
 const sorted = sort(data, "date", true);
 
-// 按日期升序（最旧在前）
+// Sort by date ascending (oldest first)
 const sortedAsc = sort(data, "date", false);
 ```
 
-### 自定义排序
+### Custom Sorting
 
 ```typescript
 const sorted = sort(data, (a, b) => {
@@ -310,47 +310,47 @@ const sorted = sort(data, (a, b) => {
 
 ---
 
-## Feed 合并 (union)
+## Feed Merging (union)
 
-合并多个 Feed，自动去重。
+Merges multiple Feeds with automatic deduplication.
 
-### 用法
+### Usage
 
 ```typescript
 import { union } from "@/utils/feeds";
 
-// 合并两个 Feed
+// Merge two Feeds
 const merged = union(feed1, feed2);
 
-// 合并多个 Feed，自定义元数据
+// Merge multiple Feeds with custom metadata
 const merged = union(
   baseFeed,
   [feed1, feed2, feed3],
-  { title: "合并订阅源" },
+  { title: "Combined Feed" },
   {
-    hashFn: (item) => item.id || item.link,  // 自定义去重逻辑
+    hashFn: (item) => item.id || item.link,  // Custom dedup logic
   }
 );
 ```
 
 ---
 
-## Feed 交集 (intersection)
+## Feed Intersection (intersection)
 
-获取多个 Feed 的共同条目。
+Gets common items from multiple Feeds.
 
-### 用法
+### Usage
 
 ```typescript
 import { intersection } from "@/utils/feeds";
 
-// 获取两个 Feed 的交集
+// Get intersection of two Feeds
 const common = intersection(feed1, feed2);
 
-// 多个 Feed 的交集
+// Intersection of multiple Feeds
 const common = intersection(
   baseFeed,
   [feed1, feed2],
-  { title: "共同文章" }
+  { title: "Common Articles" }
 );
 ```

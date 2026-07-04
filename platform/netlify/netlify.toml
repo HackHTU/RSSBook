@@ -1,0 +1,7 @@
+[build]
+  publish = "."
+  edge_functions = "."
+
+[[edge_functions]]
+  function = "index"
+  path = "/*"

@@ -1,0 +1,18 @@
+{
+	"compilerOptions": {
+		"paths": {
+			"@/*": [
+				"../../pkgs/rssbook/src/*"
+			]
+		},
+		"rootDir": ".",
+		"types": [
+			"../../platform/cloudflare/worker-configuration.d.ts"
+		]
+	},
+	"extends": "../../tsconfig.base.json",
+	"include": [
+		"index.ts",
+		"worker-configuration.d.ts"
+	]
+}

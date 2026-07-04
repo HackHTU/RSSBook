@@ -2,7 +2,7 @@
 	"$schema": "./node_modules/@biomejs/biome/configuration_schema.json",
 	"assist": {
 		"actions": {
-			"recommended": true,
+			"preset": "recommended",
 			"source": {
 				"useSortedAttributes": "on",
 				"useSortedKeys": "on"
@@ -13,12 +13,21 @@
 	"files": {
 		"ignoreUnknown": false,
 		"includes": [
-			"./src/**",
+			"./pkgs/*/package.json",
+			"./pkgs/*/tsconfig.json",
+			"./pkgs/*/src/**",
+			"./platform/*/index.ts",
+			"./platform/*/package.json",
+			"./platform/*/tsconfig.json",
+			"./platform/cloudflare/wrangler.jsonc",
+			"./platform/deno/deno.json",
+			"./platform/netlify/netlify.toml",
+			"./platform/vercel/vercel.json",
 			"./scripts/**",
-			"./netlify/**",
 			"./biome.jsonc",
 			"./package.json",
-			"./tsconfig.json"
+			"./tsconfig.json",
+			"./tsconfig.base.json"
 		]
 	},
 	"formatter": {
@@ -35,7 +44,7 @@
 					"level": "on"
 				}
 			},
-			"recommended": true,
+			"preset": "recommended",
 			"suspicious": {
 				"noConsole": {
 					"level": "warn"
@@ -45,7 +54,7 @@
 	},
 	"vcs": {
 		"clientKind": "git",
-		"enabled": false,
-		"useIgnoreFile": false
+		"enabled": true,
+		"useIgnoreFile": true
 	}
 }

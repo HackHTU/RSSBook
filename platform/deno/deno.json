@@ -1,0 +1,7 @@
+{
+	"imports": {
+		"@/": "../../pkgs/rssbook/src/",
+		"rssbook": "../../pkgs/rssbook/src/RSSBookApp.ts",
+		"rssbook/utils": "../../pkgs/rssbook/src/utils/index.ts"
+	}
+}

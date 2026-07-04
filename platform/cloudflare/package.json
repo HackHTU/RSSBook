@@ -1,0 +1,16 @@
+{
+	"dependencies": {
+		"rssbook": "workspace:*"
+	},
+	"devDependencies": {
+		"wrangler": "latest"
+	},
+	"name": "@rssbook/platform-cloudflare",
+	"private": true,
+	"scripts": {
+		"build": "wrangler deploy --config wrangler.jsonc --dry-run --outdir ../../dist/cloudflare",
+		"deploy": "wrangler deploy --config wrangler.jsonc",
+		"dev": "wrangler dev --config wrangler.jsonc"
+	},
+	"type": "module"
+}

@@ -27,9 +27,11 @@ yarn-error.log*
 
 # vercel
 .vercel
+**/.vercel
 
-# wrnagler
+# wrangler
 .wrangler
+**/.wrangler
 
 **/*.trace
 **/*.zip
@@ -41,3 +43,7 @@ package-lock.json
 
 # Local Netlify folder
 .netlify
+**/.netlify
+
+# Platform build artifacts
+/platform/netlify/platform

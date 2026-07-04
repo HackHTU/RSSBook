@@ -1,11 +1,11 @@
-/// <reference types="bun-types" />
 /** biome-ignore-all lint/suspicious/noConsole: true */
 
 import { cpSync, existsSync, mkdirSync, readdirSync, statSync } from "node:fs";
 import { join } from "node:path";
 import * as readline from "node:readline/promises";
 
-const FEEDS_DIR = join(import.meta.dir, "../src/routers/feeds");
+const RSSBOOK_SRC_DIR = join(import.meta.dir, "../pkgs/rssbook/src");
+const FEEDS_DIR = join(RSSBOOK_SRC_DIR, "routers/feeds");
 const EXAMPLE_DIR = join(FEEDS_DIR, "_example");
 
 // ANSI color codes
@@ -115,7 +115,7 @@ async function main() {
 		// Step 1: Select category
 		const categories = getCategories();
 		if (categories.length === 0) {
-			error("No categories found in src/routers/feeds/");
+			error("No categories found in pkgs/rssbook/src/routers/feeds/");
 			process.exit(1);
 		}
 
@@ -173,7 +173,7 @@ async function main() {
 		// Step 3: Select feed type
 		const feedTypes = getFeedTypes();
 		if (feedTypes.length === 0) {
-			error("No feed types found in src/routers/feeds/_example/");
+			error("No feed types found in pkgs/rssbook/src/routers/feeds/_example/");
 			process.exit(1);
 		}
 
@@ -205,7 +205,9 @@ async function main() {
 		log(`  Category:  ${colors.green}${category}${colors.reset}`);
 		log(`  Source Name: ${colors.green}${feedName}${colors.reset}`);
 		log(`  Source Type: ${colors.green}${feedType}${colors.reset}`);
-		log(`  Path:      ${colors.dim}src/routers/feeds/${category}/${feedName}/${colors.reset}`);
+		log(
+			`  Path:      ${colors.dim}pkgs/rssbook/src/routers/feeds/${category}/${feedName}/${colors.reset}`,
+		);
 		console.log();
 
 		const confirm = await prompt("Create this feed? (y/n):", rl);
@@ -232,18 +234,20 @@ async function main() {
 			console.log();
 			success(`Source created successfully!`);
 			console.log();
-			log(`  📁 Location: ${colors.blue}src/routers/feeds/${category}/${feedName}/${colors.reset}`);
+			log(
+				`  📁 Location: ${colors.blue}pkgs/rssbook/src/routers/feeds/${category}/${feedName}/${colors.reset}`,
+			);
 			console.log();
 			info("Next steps:");
 			log(
-				`  1. Edit the files in ${colors.dim}src/routers/feeds/${category}/${feedName}/${colors.reset}`,
+				`  1. Edit the files in ${colors.dim}pkgs/rssbook/src/routers/feeds/${category}/${feedName}/${colors.reset}`,
 			);
 			log(`  2. Read Docs, implement your feed logic, write description.`);
 			log(
-				`  3. Add your source to the category ${colors.dim}src/routers/feeds/${category}/index.ts${colors.reset}`,
+				`  3. Add your source to the category ${colors.dim}pkgs/rssbook/src/routers/feeds/${category}/index.ts${colors.reset}`,
 			);
 			log(
-				`  4. Write tests for your feed in ${colors.dim}src/tests/feeds/${category}/${feedName}.test.ts${colors.reset}`,
+				`  4. Write tests for your feed in ${colors.dim}pkgs/rssbook/src/tests/feeds/${category}/${feedName}.test.ts${colors.reset}`,
 			);
 			log(`  5. Test it, commit your changes, and submit a pull request!`);
 

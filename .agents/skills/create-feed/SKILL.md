@@ -1,150 +1,150 @@
 ---
 name: create-feed
-description: 创建新的 RSS Feed 源。当用户想要添加新的数据源、创建 Feed 路由、或询问如何抓取网站数据时使用此技能。
+description: Create new RSS Feed sources. Use this skill when users want to add new data sources, create Feed routes, or ask how to scrape website data.
 ---
 
-# 创建新 Feed 指南
+# Creating a New Feed Guide
 
-本技能帮助你在 RSSBook 项目中创建新的 RSS Feed 源。
+This skill helps you create new RSS Feed sources in the RSSBook project.
 
-## 核心概念
+## Core Concepts
 
-### 1. Source（数据源）
+### 1. Source (Data Source)
 
-Source 是一个数据源的定义，代表一个网站或服务（如 GitHub、Twitter）。每个 Source 可以包含多个 Feed。
+A Source is a data source definition, representing a website or service (e.g., GitHub, Twitter). Each Source can contain multiple Feeds.
 
-**文件位置**: `src/routers/feeds/{category}/{slug}/index.ts`
+**File Location**: `src/routers/feeds/{category}/{slug}/index.ts`
 
-### 2. Feed（订阅源）
+### 2. Feed
 
-Feed 是 Source 下的具体路由，定义了如何抓取和返回数据。
+A Feed is a specific route under a Source, defining how to fetch and return data.
 
-### 3. Category（分类）
+### 3. Category
 
-Category 将多个 Source 组织在一起，如 `programming`、`news`、`blog` 等。
+A Category organizes multiple Sources, such as `programming`, `news`, `blog`, etc.
 
-## 创建步骤
+## Creation Steps
 
-### 步骤 1：确定分类和 slug
+### Step 1: Determine Category and Slug
 
-- **分类**: 选择现有分类或创建新分类
-- **slug**: 小写字母和短横线，如 `my-source`
+- **Category**: Choose an existing category or create a new one
+- **Slug**: Lowercase letters and hyphens, e.g., `my-source`
 
-### 步骤 2：创建 Source 文件
+### Step 2: Create Source File
 
-在 `src/routers/feeds/{category}/{slug}/index.ts` 创建文件：
+Create a file at `src/routers/feeds/{category}/{slug}/index.ts`:
 
 ```typescript
 import type { Data, DataItem } from "@/types";
 import { Source, t } from "@/utils";
 
 export default new Source({
-  slug: "example-source",  // 必须与文件夹名一致
+  slug: "example-source",  // Must match the folder name
   title: "Example Source",
-  description: "简短描述这个数据源",
-  domain: "example.com",   // 源网站的域名
+  description: "Brief description of this data source",
+  domain: "example.com",   // Domain of the source website
   config: {
-    // 可选：需要的配置参数
+    // Optional: required configuration parameters
     API_KEY: {
-      description: "API 密钥",
+      description: "API Key",
       required: true,
       default: "your-default-key",
     },
   },
 }).feed(
   {
-    title: "Feed 标题",
-    description: "Feed 的详细描述（支持 Markdown）",
+    title: "Feed Title",
+    description: "Detailed description of the Feed (supports Markdown)",
     fulltext: true,
     language: ["zh-CN", "en"],
     maintainer: { name: "Your Name" },
     withImage: "If-Present",
   },
   (app) => app.get("/path/:param", async (context) => {
-    // 抓取逻辑
+    // Fetching logic
     return data satisfies Data;
   }),
 );
 ```
 
-### 步骤 3：注册到 Category
+### Step 3: Register to Category
 
-在 `src/routers/feeds/{category}/index.ts` 中注册：
+Register in `src/routers/feeds/{category}/index.ts`:
 
 ```typescript
 import { Category } from "@/utils";
 import mySource from "./my-source";
 
-export default new Category("category-name", "分类描述").use({
+export default new Category("category-name", "Category description").use({
   mySource,
 });
 ```
 
-## Handler 上下文
+## Handler Context
 
-Handler 函数接收的上下文对象包含：
+The context object received by the handler function contains:
 
-### Props（属性）
+### Props
 
-| 属性 | 说明 |
-|------|------|
-| `meta` | 源和 Feed 的元数据（domain、config、title 等） |
-| `params` | 路由参数（如 `:username`） |
-| `query` | 查询参数 |
-| `lang` | 请求语言（从 Accept-Language 解析） |
+| Property | Description |
+|----------|-------------|
+| `meta` | Metadata for the source and Feed (domain, config, title, etc.) |
+| `params` | Route parameters (e.g., `:username`) |
+| `query` | Query parameters |
+| `lang` | Request language (parsed from Accept-Language) |
 
-### Functions（函数）
+### Functions
 
-| 函数 | 说明 |
-|------|------|
-| `cache` | 缓存对象，使用 `cache.tryGet(key, fn)` |
-| `date` | 日期解析函数 |
-| `ofetch` | 增强的 fetch 函数 |
-| `load` | HTML 解析器（类似 jQuery） |
-| `formatHTML` | HTML 清理和格式化 |
-| `toAbsoluteURL` | 相对 URL 转绝对 URL |
-| `parse` | 解析 RSS/Atom Feed |
-| `logger` | 日志工具 |
+| Function | Description |
+|----------|-------------|
+| `cache` | Cache object, use `cache.tryGet(key, fn)` |
+| `date` | Date parsing function |
+| `ofetch` | Enhanced fetch function |
+| `load` | HTML parser (jQuery-like) |
+| `formatHTML` | HTML cleanup and formatting |
+| `toAbsoluteURL` | Relative URL to absolute URL |
+| `parse` | Parse RSS/Atom Feed |
+| `logger` | Logging tool |
 
-## Data 类型结构
+## Data Type Structure
 
-返回的数据必须符合 `Data` 类型：
+The returned data must conform to the `Data` type:
 
 ```typescript
 interface Data {
-  title: string;           // Feed 标题
-  link: string;            // Feed 链接
-  description?: string;    // Feed 描述
-  language?: string;       // 语言代码
-  item?: DataItem[];       // Feed 条目
-  updated?: Date;          // 更新时间
+  title: string;           // Feed title
+  link: string;            // Feed link
+  description?: string;    // Feed description
+  language?: string;       // Language code
+  item?: DataItem[];       // Feed items
+  updated?: Date;          // Update time
 }
 
 interface DataItem {
-  title: string;           // 条目标题
-  link: string;            // 条目链接
-  description?: string;    // 摘要
-  content?: string;        // 全文内容
-  date?: Date;             // 发布日期
-  author?: Author[];       // 作者
-  category?: Category[];   // 分类
-  image?: string;          // 图片
-  id?: string;             // 唯一标识
+  title: string;           // Item title
+  link: string;            // Item link
+  description?: string;    // Summary
+  content?: string;        // Full text content
+  date?: Date;             // Publication date
+  author?: Author[];       // Authors
+  category?: Category[];   // Categories
+  image?: string;          // Image
+  id?: string;             // Unique identifier
 }
 ```
 
-## 示例：API 数据源
+## Example: API Data Source
 
 ```typescript
 export default new Source({
   slug: "github",
   title: "GitHub",
-  description: "GitHub 代码托管平台",
+  description: "GitHub code hosting platform",
   domain: "github.com",
 }).feed(
   {
-    title: "用户事件",
-    description: "获取 GitHub 用户的活动事件",
+    title: "User Events",
+    description: "Fetch GitHub user activity events",
     language: ["en"],
     maintainer: { name: "RSSBook" },
   },
@@ -171,25 +171,25 @@ export default new Source({
     },
     {
       params: t.Object({
-        username: t.String({ description: "GitHub 用户名" }),
+        username: t.String({ description: "GitHub username" }),
       }),
     },
   ),
 );
 ```
 
-## 示例：HTML 网页抓取
+## Example: HTML Web Scraping
 
 ```typescript
 export default new Source({
   slug: "blog",
   title: "Blog",
-  description: "博客网站",
+  description: "Blog website",
   domain: "blog.example.com",
 }).feed(
   {
-    title: "最新文章",
-    description: "获取博客最新文章",
+    title: "Latest Articles",
+    description: "Fetch latest blog articles",
     fulltext: true,
     language: ["zh-CN"],
     maintainer: { name: "RSSBook" },
@@ -215,7 +215,7 @@ export default new Source({
       });
 
       return {
-        title: "Blog 最新文章",
+        title: "Blog Latest Articles",
         link: rootURL,
         item: items,
       } satisfies Data;
@@ -224,11 +224,11 @@ export default new Source({
 );
 ```
 
-## 最佳实践
+## Best Practices
 
-1. **使用缓存**: 始终使用 `cache.tryGet()` 避免重复请求
-2. **类型安全**: 使用 `satisfies Data` 和 `satisfies DataItem` 确保类型正确
-3. **错误处理**: 在抓取全文时使用 try-catch
-4. **并发请求**: 使用 `Promise.all()` 并发获取多个页面
-5. **URL 处理**: 使用 `toAbsoluteURL()` 处理相对链接
-6. **HTML 清理**: 使用 `formatHTML()` 清理 HTML 内容
+1. **Use Cache**: Always use `cache.tryGet()` to avoid repeated requests
+2. **Type Safety**: Use `satisfies Data` and `satisfies DataItem` to ensure type correctness
+3. **Error Handling**: Use try-catch when fetching full text content
+4. **Concurrent Requests**: Use `Promise.all()` to fetch multiple pages concurrently
+5. **URL Handling**: Use `toAbsoluteURL()` for relative links
+6. **HTML Cleanup**: Use `formatHTML()` to clean HTML content

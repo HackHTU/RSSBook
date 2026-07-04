@@ -1,0 +1,16 @@
+{
+	"dependencies": {
+		"rssbook": "workspace:*"
+	},
+	"devDependencies": {
+		"vercel": "latest"
+	},
+	"name": "@rssbook/platform-vercel",
+	"private": true,
+	"scripts": {
+		"build": "bun build --define process.env.NODE_ENV='\"production\"' --minify-whitespace --minify-syntax --outfile ../../dist/vercel/index.js --target bun index.ts",
+		"deploy": "vercel --prod",
+		"dev": "vercel dev"
+	},
+	"type": "module"
+}

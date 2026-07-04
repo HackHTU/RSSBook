@@ -3,7 +3,7 @@
 <table align="center" width="70%">
     <tr>
         <td align="center" valign="middle" colspan="3">
-            <img src="src/public/favicon.svg" alt="RSSBook Favicon" width="150" height="150" />
+            <img src="pkgs/rssbook/src/public/favicon.svg" alt="RSSBook Favicon" width="150" height="150" />
         </td>
     </tr>
     <tr>
@@ -19,7 +19,7 @@
             <a href="/README.md" target="_blank">CN</a>
         </td>
         <td align="center" valign="middle">
-            <a href="/README.EN.md" target="_blank">EN(WIP)</a>
+            <a href="/README.EN.md" target="_blank">EN</a>
         </td>
     </tr>
     <tr>
@@ -50,10 +50,30 @@
 - RSSBook 是一个 Feed 工具集，快速合并/筛选/转换 Feed，甚至无需代码，快速从网页生成 Feed。
 - RSSBook 是一个 Feed 博客，你可以通过订阅你在各个平台的 Feed（比如 GitHub、微博、Bilibili）来创建一个属于你的空间。
 
-
 > [!CAUTION]
 >
 > 在版本号在 1.0 前，本项目还不稳定，我们还没有实现诸如在线生成器、Puppeteer 的集成、AI 的支持、环境变量、自动与上游同步和更好的库支持等，我们还有很长的路要走，欢迎你帮助我们改进项目。
+
+## 项目结构
+
+本项目采用 Monorepo 结构，使用 Bun Workspaces 管理：
+
+```
+RSSBook/
+├── pkgs/
+│   ├── rssbook/              ← 核心包（Feed 解析、路由、插件、主题等）
+│   └── utils-feed-helper/    ← 工具包（Feed 辅助工具）
+├── platform/
+│   ├── cloudflare/           ← Cloudflare Workers 入口
+│   ├── deno/                 ← Deno 入口
+│   ├── netlify/              ← Netlify Edge Functions 入口
+│   ├── node/                 ← Node.js 入口
+│   └── vercel/               ← Vercel 入口
+├── scripts/                  ← 脚本工具
+└── docs/                     ← 文档
+```
+
+所有平台入口都基于 `pkgs/rssbook/src/RSSBookApp.ts` 进行修改，社区欢迎贡献更多运行时环境/服务商的支持。
 
 ## 开始
 
@@ -86,81 +106,90 @@ bun install
 
 我们是在 Bun 环境下进行开发与测试的，Bun 是一个性能优异且资源占用低的运行时/包管理器/测试器/打包器等的一体化工具，如果你在生产环境中使用 RSSBook，我们推荐你使用 Bun 进行部署。
 
-当然，我们对于其他运行时环境/服务商也进行支持，这些服务商有的有一些预定义环境（例如 KV 和数据库等），所以我们在 `src` 目录下提供了多种环境的入口文件，你可以根据你的需要进行选择。
+当然，我们对于其他运行时环境/服务商也进行支持，这些服务商有的有一些预定义环境（例如 KV 和数据库等），所以我们在 `platform` 目录下提供了多种环境的入口包，你可以根据你的需要进行选择。
 
 > [!TIP]
 >
 > 我们有一个公开实例列表在 [HOSTS](./HOSTS)，在访问 OpenAPI 文档时**可能**会显示可用的实例列表，如果你乐意将你的实例分享给大家，欢迎提交 Pull Request 请求，并留下你的地址/版本信息/其他说明，我们会感谢你的贡献！
->
-> 所有入口文件都是基于 `src/RSSBookApp.ts` 进行修改的，我们欢迎社区贡献更多的运行时环境/服务商的支持。
 
-#### Bun
+#### 开发
 
-Bun 是一个...不想说了，反正很快就是了。
-
-Bun 的入口文件为 `src/index.ts`。
-
-在开发时，你可以运行以下命令来启动开发服务器：
+在根目录下，你可以使用 `bun run --filter` 来运行特定平台的开发命令：
 
 ```bash
+# 核心包（Bun）开发
 bun dev
+
+# 其他平台开发
+bun run --filter @rssbook/platform-cloudflare dev   # Cloudflare Workers
+bun run --filter @rssbook/platform-node dev        # Node.js
+bun run --filter @rssbook/platform-deno dev        # Deno
+bun run --filter @rssbook/platform-vercel dev      # Vercel
+bun run --filter @rssbook/platform-netlify dev     # Netlify
 ```
 
-在生产时，你可以使用多种方式进行构建。
-
-如果你在部署到服务器中，您可以运行下面命令打包为一个二进制文件以获得最佳性能。
+或者进入对应平台目录直接运行：
 
 ```bash
-# All support target: https://bun.com/docs/bundler/executables#supported-targets
-bun build --define NODE_ENV='"production"' --compile --minify-whitespace --minify-syntax --target bun-linux-x64 --outfile server src/index.ts
+cd platform/cloudflare && bun run dev
 ```
 
-如果你只想打包为 JavaScript 文件，你可以运行下面命令。
+#### 构建与部署
+
+各平台的构建命令同样可以通过 `bun run --filter` 执行：
 
 ```bash
-# For Bun
-bun build --define NODE_ENV='"production"' --minify-whitespace --minify-syntax --outfile ./dist/index.js --target bun src/index.ts
+bun run --filter @rssbook/platform-cloudflare build   # Cloudflare Workers
+bun run --filter @rssbook/platform-node build        # Node.js
+bun run --filter @rssbook/platform-deno build        # Deno
+bun run --filter @rssbook/platform-vercel build      # Vercel
+bun run --filter @rssbook/platform-netlify build     # Netlify
+```
 
-# For Node.js
-bun build --define NODE_ENV='"production"' --minify-whitespace --minify-syntax --outfile ./dist/index.js --target node src/node.ts
+部署到各平台：
+
+```bash
+bun run --filter @rssbook/platform-cloudflare deploy  # Cloudflare Workers
+bun run --filter @rssbook/platform-vercel deploy      # Vercel
+bun run --filter @rssbook/platform-netlify deploy     # Netlify
 ```
 
 > [!NOTE]
-> 
-> 更多关于 `bun build` 的信息，请看 [Bun Bundler](https://bun.com/docs/bundler)。
+>
+> 更多关于 `bun run --filter` 的信息，请看 [Bun Workspaces](https://bun.sh/docs/install/workspaces)。
 
-#### Node.js Compatible
+#### 平台特定说明
 
-Node.js 是最主流的 JavaScript 运行时环境。
+##### Bun
 
-Node.js 的入口文件为 `src/node.ts`。
+Bun 的入口文件在 `rssbook` 核心包中：`pkgs/rssbook/src/index.ts`。
 
-在开发时，由于截至截稿时 Node.js 对原生 TypeScript 的支持还不完善，所以我们建议你使用 [tsx](https://github.com/privatenumber/tsx) 来启动服务器。
+Bun 是一个...不想说了，反正很快就是了。在生产时，你可以打包为二进制文件以获得最佳性能：
 
 ```bash
-npx tsx src/node.ts
+# All support target: https://bun.com/docs/bundler/executables#supported-targets
+bun build --define NODE_ENV='"production"' --compile --minify-whitespace --minify-syntax --target bun-linux-x64 --outfile server pkgs/rssbook/src/index.ts
 ```
 
-#### Deno
+##### Node.js
+
+Node.js 的入口文件在 `platform-node` 包中：`platform/node/index.ts`。
+
+Node.js 是最主流的 JavaScript 运行时环境。在开发时，由于 Node.js 对原生 TypeScript 的支持还不完善，所以我们建议你使用 [tsx](https://github.com/privatenumber/tsx) 来启动服务器（已配置在 `package.json` 的 `dev` 脚本中）。
+
+##### Deno
+
+Deno 的入口文件在 `platform-deno` 包中：`platform/deno/index.ts`。
 
 Deno 是一个继 Node.js 之后的另一个运行时环境。
 
-Deno 的入口文件为 `src/deno.ts`。
-
 [![Deploy on Deno](https://deno.com/button)](https://console.deno.com/new?clone=https://github.com/HackHTU/RSSBook)
 
-
-#### CloudFlare Workers
+##### CloudFlare Workers
 
 我个人非常喜欢 [CloudFlare Workers](https://workers.cloudflare.com/)，它是一个基于 V8 引擎的 Serverless 计算平台，慷慨地提供了免费的使用额度，非常适合部署 RSSBook 程序。
 
-CloudFlare Workers 的入口文件为 `src/cloudflare.ts`。
-
-在开发时，你可以使用以下命令来使用 Wrangler CLI 进行启动服务器。
-
-```bash
-bun run dev:cf
-```
+CloudFlare Workers 的入口文件在 `platform-cloudflare` 包中：`platform/cloudflare/index.ts`。
 
 在生产时，你可以直接点击下面的按钮来部署到 CloudFlare Workers，但是这种方式不支持**自定义配置**。
 
@@ -168,42 +197,25 @@ bun run dev:cf
 
 更好的方法是自己 Fork 本仓库，在 [Github CodeSpace](https://github.com/codespaces/new/) 或本地修改配置后，然后使用在 Cloudflare Workers 的设置中绑定你自己的 GitHub 仓库进行部署（或者你可以使用 GitHub Workflow）。
 
-或是在本地修改配置后，使用 Wrangler CLI 构建并上传文件。
+##### Vercel
 
-```bash
-wrangler deploy
-```
+Vercel 是一个非常流行的 Serverless 计算平台，也提供了慷慨的免费使用额度。
 
-<!-- 
-Wow, so many deploy buttons! 这些还没适配，有时我真的感慨这些计算平台真的是太多了！
+Vercel 的入口文件在 `platform-vercel` 包中：`platform/vercel/index.ts`。
 
-#### Vercel
+[![Deploy with Vercel](https://vercel.com/button)](https://vercel.com/new/clone?repository-url=https%3A%2F%2Fgithub.com%2FHackHTU%2FRSSBook)
 
-Vercel 也是一一个很非常流行的 Serverless 计算平台，也提供了慷慨的免费使用额度。
+##### Netlify
 
-[![Deploy with Vercel](https://vercel.com/button)](https://vercel.com/new/clone?repository-url=https%3A%2F%2Fgithub.com%2Fvercel%2Fnext.js%2Ftree%2Fcanary%2Fexamples%2Fhello-world)
+Netlify 是一个非常流行的 Serverless 计算平台，也提供了慷慨的免费使用额度。
 
+Netlify 的入口文件在 `platform-netlify` 包中：`platform/netlify/index.ts`。
 
-#### Netlify
-
-Netlify 也也是一一一个非常流行的 Serverless 计算平台，基于 Deno 运行时，也也提供了慷慨的免费使用额度。
-
-[![Deploy to Netlify](https://www.netlify.com/img/deploy/button.svg)](https://app.netlify.com/integration/start/deploy?repository=https://github.com/netlify/netlify-fictional-build-event-handler-template)
-
-[![Deploy](https://www.herokucdn.com/deploy/button.svg)](https://www.heroku.com/deploy?template=https://github.com/heroku/nodejs-getting-started)
-
-[![Deploy to Azure](https://aka.ms/deploytoazurebutton)](https://portal.azure.com/#create/Microsoft.Template/uri/https%3A%2F%2Fraw.githubusercontent.com%2FAzure%2Fazure-quickstart-templates%2Fmaster%2Fquickstarts%2Fmicrosoft.storage%2Fstorage-account-create%2Fazuredeploy.json)
-
-[![Deploy to DO](https://www.deploytodo.com/do-btn-blue.svg)](https://cloud.digitalocean.com/apps/new?repo=https://github.com/{REPO-OWNER}/{REPO-NAME}/tree/{BRANCH-NAME})
-
-[![Deploy to Render](https://render.com/images/deploy-to-render-button.svg)](https://render.com/deploy)
-
-[![Deploy to IBM Cloud button](https://cloud.ibm.com/media/docs/images/icons/Deploy_to_cloud.svg)](https://cloud.ibm.com/devops/setup/deploy?repository=<git_repository_URL>&branch=<git_branch>)
--->
+[![Deploy to Netlify](https://www.netlify.com/img/deploy/button.svg)](https://app.netlify.com/start/deploy?repository=https://github.com/HackHTU/RSSBook)
 
 ### 初始配置
 
-在找到对应的入口文件后，你就可以开始配置 RSSBook 程序了。
+在找到对应的入口文件后（各平台入口文件分布在不同的包中），你就可以开始配置 RSSBook 程序了。
 
 在对应的入口文件中，你应该看到了一个 `RSSBookApp` 函数，这个函数用于创建 RSSBook 应用实例，你可以根据你的需要进行修改。
 
@@ -217,11 +229,11 @@ RSSBookApp({
 
 > [!TIP]
 >
-> 对于某些入口文件，我们有一些默认的配置，比如在 `src/cloudflare.ts` 中，我们使用 CloudFlare Workers KV 作为默认的缓存方案，你可以根据你的需要进行修改。
+> 对于某些入口文件，我们有一些默认的配置，比如在 `platform/cloudflare/index.ts` 中，我们使用 CloudFlare Workers KV 作为默认的缓存方案，你可以根据你的需要进行修改。
 
 #### 配置说明
 
-在入口文件中 `RSSBookApp` 函数接受一个配置对象，本指南让你熟悉在各个功能模块中的常用配置项。
+各平台入口文件中的 `RSSBookApp` 函数接受一个配置对象，本指南让你熟悉在各个功能模块中的常用配置项。
 
 #### 使用个人主页
 
@@ -261,7 +273,7 @@ RSSBookApp({
 
 #### 魔改默认主题
 
-在 `src/books/theme` 下，你可以找到默认主题的代码，你只需要会一点 JSX 语法，知道 CSS/Tailwind 语法，你可以根据你的需要进行修改。
+在 `pkgs/rssbook/src/books/theme` 下，你可以找到默认主题的代码，你只需要会一点 JSX 语法，知道 CSS/Tailwind 语法，你可以根据你的需要进行修改。
 
 你也可以将默认主题集成 DataStar/Htmx/Alpinejs 等常用的小型框架，具体请看 [Kita/html 集成](https://kitajs.org/html/integrations)，自己尝试编写 JavaScript 代码自定义主题功能。
 
@@ -271,13 +283,13 @@ RSSBookApp({
 >
 > 得益于 TSX 的类型安全，使得 AI 编写主题变得容易，同时，你可以使用你喜欢的 AI 通过 [Context7](https://context7.com/) MCP 使其更好地理解上述框架，我们同时欢迎你们开源自己的主题。
 
-在浏览器预览 RSS/Atom XML 时，我们使用 [XSLT](https://developer.mozilla.org/zh-CN/docs/Web/XML/XSLT) 来做简单的样式处理，这是一个老旧的版本，而且可能在未来移除，所以仅用来做简单的预览功能，以上主题你可以在 `src/public/xsl` 下找到对应的文件，你可以根据你的需要进行修改。
+在浏览器预览 RSS/Atom XML 时，我们使用 [XSLT](https://developer.mozilla.org/zh-CN/docs/Web/XML/XSLT) 来做简单的样式处理，这是一个老旧的版本，而且可能在未来移除，所以仅用来做简单的预览功能，以上主题你可以在 `pkgs/rssbook/src/public/xsl` 下找到对应的文件，你可以根据你的需要进行修改。
 
 #### 编写新的主题
 
 当编写新主题时，你可以查看主题类型定义来编写主题，或是参考默认主题的实现。
 
-在 `src/types/theme.ts` 中，你可以找到主题的类型定义，你可以根据你的需要编写新的主题。
+在 `pkgs/rssbook/src/types/theme.ts` 中，你可以找到主题的类型定义，你可以根据你的需要编写新的主题。
 
 > [!TIP]
 >
@@ -316,10 +328,6 @@ RSSBook 不仅可以用作你的 Feed 阅读器，还可以用来做很多事情
 关于问题和新功能的反馈，请看 [ISSUE](https://github.com/HackHTU/RSSBook/issues).
 
 关于功能的讨论，请在 [DISCUSSION](https://github.com/HackHTU/RSSBook/discussions) 中进行。
-
-## 杂谈
-
-
 
 ## 致谢
 

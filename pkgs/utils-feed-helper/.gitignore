@@ -1,0 +1,52 @@
+# Dependencies
+node_modules
+/.pnp
+.pnp.js
+
+# Testing
+/coverage
+
+# Production
+/build
+/dist
+
+# Environment files
+.env
+.env.*
+!.env.example
+
+# OS files
+.DS_Store
+*.pem
+
+# Logs
+*.log
+npm-debug.log*
+yarn-debug.log*
+yarn-error.log*
+
+# Vercel
+.vercel
+**/.vercel
+
+# Wrangler
+.wrangler
+**/.wrangler
+
+# Netlify
+.netlify
+**/.netlify
+
+# Build artifacts
+**/*.trace
+**/*.zip
+**/*.tar.gz
+**/*.tgz
+package-lock.json
+**/*.bun
+
+# IDE
+.idea
+.vscode
+*.swp
+*.swo

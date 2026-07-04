@@ -1,0 +1,17 @@
+{
+	"dependencies": {
+		"@elysiajs/node": "^1.4.5",
+		"rssbook": "workspace:*"
+	},
+	"devDependencies": {
+		"tsx": "latest"
+	},
+	"name": "@rssbook/platform-node",
+	"private": true,
+	"scripts": {
+		"build": "bun build --define process.env.NODE_ENV='\"production\"' --minify-whitespace --minify-syntax --outfile ../../dist/node/index.js --target node index.ts",
+		"dev": "tsx index.ts",
+		"start": "node ../../dist/node/index.js"
+	},
+	"type": "module"
+}

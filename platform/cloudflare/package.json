@@ -1,9 +1,10 @@
 {
 	"dependencies": {
+		"elysia": "catalog:",
 		"rssbook": "workspace:*"
 	},
 	"devDependencies": {
-		"wrangler": "latest"
+		"wrangler": "catalog:"
 	},
 	"name": "@rssbook/platform-cloudflare",
 	"private": true,

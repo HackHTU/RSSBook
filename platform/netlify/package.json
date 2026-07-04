@@ -3,7 +3,7 @@
 		"rssbook": "workspace:*"
 	},
 	"devDependencies": {
-		"netlify-cli": "latest"
+		"netlify-cli": "catalog:"
 	},
 	"name": "@rssbook/platform-netlify",
 	"private": true,

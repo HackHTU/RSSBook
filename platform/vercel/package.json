@@ -3,7 +3,7 @@
 		"rssbook": "workspace:*"
 	},
 	"devDependencies": {
-		"vercel": "latest"
+		"vercel": "catalog:"
 	},
 	"name": "@rssbook/platform-vercel",
 	"private": true,

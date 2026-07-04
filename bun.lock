@@ -52,7 +52,7 @@
         "rssbook": "workspace:*",
       },
       "devDependencies": {
-        "wrangler": "^4.107.0",
+        "wrangler": "latest",
       },
     },
     "platform/deno": {
@@ -67,7 +67,7 @@
         "rssbook": "workspace:*",
       },
       "devDependencies": {
-        "netlify-cli": "^26.1.0",
+        "netlify-cli": "latest",
       },
     },
     "platform/node": {
@@ -77,7 +77,7 @@
         "rssbook": "workspace:*",
       },
       "devDependencies": {
-        "tsx": "^4.23.0",
+        "tsx": "latest",
       },
     },
     "platform/vercel": {
@@ -86,7 +86,7 @@
         "rssbook": "workspace:*",
       },
       "devDependencies": {
-        "vercel": "^54.20.1",
+        "vercel": "latest",
       },
     },
   },

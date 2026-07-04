@@ -29,7 +29,7 @@ export default new Source({
 	},
 
 	description: // Source description, one sentence is enough
-	// 源的描述信息，一句话即可
+		// 源的描述信息，一句话即可
 		`Github is a code hosting platform for version control and collaboration.`,
 
 	domain: "github.com", // Source root domain / 源的根域名
@@ -44,15 +44,15 @@ export default new Source({
 	.feed(
 		{
 			description: // Feed description in Markdown
-			// 使用 Markdown 的 Feed 描述信息
-			`The Github User Events.`,
+				// 使用 Markdown 的 Feed 描述信息
+				`The Github User Events.`,
 
 			fulltext: true, // Whether to fetch full text content / 是否抓取全文内容
 
 			language: ["en-US"], // Languages supported by this Feed / 该 Feed 支持的语言
 
 			maintainer: // Maintainer information, displayed in Feed metadata
-			// 维护者信息，会显示在 Feed 的元数据中
+				// 维护者信息，会显示在 Feed 的元数据中
 				{
 					name: "RSSBook",
 				},

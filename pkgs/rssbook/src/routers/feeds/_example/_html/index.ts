@@ -42,15 +42,15 @@ export default new Source({
 	.feed(
 		{
 			description: // Feed description in Markdown, detailing the Feed's purpose and all route parameters, can include tables etc.
-			// 使用 Markdown 的 Feed 描述信息，详细介绍 Feed 的作用和所有路由参数，可以包含表格等复杂内容。
-			`The Deepin Community News.`,
+				// 使用 Markdown 的 Feed 描述信息，详细介绍 Feed 的作用和所有路由参数，可以包含表格等复杂内容。
+				`The Deepin Community News.`,
 
 			fulltext: true, // Whether to fetch full text content / 是否抓取全文内容
 
 			language: ["zh-CN", "en-US"], // Languages supported by this Feed / 该 Feed 支持的语言
 
 			maintainer: // Maintainer information, displayed in Feed metadata
-			// 维护者信息，会显示在 Feed 的元数据中
+				// 维护者信息，会显示在 Feed 的元数据中
 				{
 					name: "RSSBook",
 				},
@@ -148,7 +148,7 @@ export default new Source({
 							// Then, use jQuery-like syntax to extract the data we need.
 							// 然后，我们使用类似 jQuery 的语法来提取我们需要的数据。
 							const articles: DataItem[] = $("main#main article.post") // Select all article nodes via CSS selector
-							// 通过 CSS 选择器选中所有的文章节点
+								// 通过 CSS 选择器选中所有的文章节点
 								.toArray() // Convert to array, then use .map() to iterate each node
 								// 转换为数组，然后使用 .map() 方法来遍历每个节点
 								.map((item) => {
@@ -199,7 +199,7 @@ export default new Source({
 						// 2. After parsing the list, fetch each article's content.
 						// 2. 解析列表后，获取每篇文章的内容。
 						const promises: Promise<DataItem>[] = // Don't use await yet, build a Promise array to execute concurrently later
-						// 现在不要使用 await，构建一个 Promise 数组，稍后再并发执行它们。
+							// 现在不要使用 await，构建一个 Promise 数组，稍后再并发执行它们。
 							list.map(async (item: DataItem) => {
 								const link = item.link;
 

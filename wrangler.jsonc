@@ -1,0 +1,23 @@
+{
+	"$schema": "https://unpkg.com/wrangler/config-schema.json",
+	// Static Assets
+	"assets": {
+		"directory": "pkgs/rssbook/src/public"
+	},
+	"compatibility_date": "2025-07-30",
+	"compatibility_flags": [
+		"nodejs_compat",
+		"nodejs_compat_populate_process_env"
+	],
+	// KV Namespace
+	"kv_namespaces": [
+		{
+			"binding": "RSSBookKV",
+		}
+	],
+	"main": "platform/cloudflare/index.ts",
+	"name": "rssbook",
+	"observability": {
+		"enabled": true
+	}
+}

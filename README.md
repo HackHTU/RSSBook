@@ -193,7 +193,7 @@ CloudFlare Workers 的入口文件在 `platform-cloudflare` 包中：`platform/c
 
 在生产时，你可以直接点击下面的按钮来部署到 CloudFlare Workers，但是这种方式不支持**自定义配置**。
 
-[![Deploy to Cloudflare](https://deploy.workers.cloudflare.com/button)](https://deploy.workers.cloudflare.com/?url=https://github.com/HackHTU/RSSBook/tree/main/platform/cloudflare)
+[![Deploy to Cloudflare](https://deploy.workers.cloudflare.com/button)](https://deploy.workers.cloudflare.com/?url=https://github.com/HackHTU/RSSBook)
 
 更好的方法是自己 Fork 本仓库，在 [Github CodeSpace](https://github.com/codespaces/new/) 或本地修改配置后，然后使用在 Cloudflare Workers 的设置中绑定你自己的 GitHub 仓库进行部署（或者你可以使用 GitHub Workflow）。
 

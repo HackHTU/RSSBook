@@ -1,9 +1,12 @@
+import type { Translations } from "../../i18n";
+
 interface NavProps {
 	title: string;
 	description?: string;
+	t: Translations;
 }
 
-export function Nav({ title, description }: NavProps) {
+export function Nav({ title, description, t }: NavProps) {
 	const NavButtons = () => (
 		<>
 			<button
@@ -11,13 +14,13 @@ export function Nav({ title, description }: NavProps) {
 				data-on-click="$filiterBar = !$filiterBar"
 				type="button"
 			>
-				搜索
+				{t.search}
 			</button>
 			<a
 				class="rounded-xl px-4 py-2 text-center font-medium text-sm text-stone-700 transition-all duration-200 hover:bg-rose-50 hover:text-rose-600 dark:text-stone-300 dark:hover:bg-rose-950/30 dark:hover:text-rose-400"
 				href="/"
 			>
-				首页
+				{t.home}
 			</a>
 		</>
 	);
@@ -30,21 +33,19 @@ export function Nav({ title, description }: NavProps) {
 			<div class="container mx-auto px-4">
 				<div class="flex h-16 items-center justify-between md:h-20">
 					<div class="flex items-center gap-3">
-						<a aria-label="返回首页" class="group flex items-center gap-3" href="/">
+						<a aria-label={t.backToHome} class="group flex items-center gap-3" href="/">
 							<div class="relative">
-								<div class="flex h-10 w-10 items-center justify-center rounded-xl bg-gradient-to-br from-rose-500 to-rose-600 shadow-lg shadow-rose-300/50 transition-all duration-300 group-hover:rotate-6 group-hover:scale-110 md:h-12 md:w-12 dark:from-rose-600 dark:to-rose-700 dark:shadow-rose-900/50">
+								<div class="flex h-10 w-10 items-center justify-center rounded-xl bg-gradient-to-br from-rose-500 to-pink-500 shadow-lg shadow-rose-300/50 transition-all duration-300 group-hover:rotate-6 group-hover:scale-110 md:h-12 md:w-12 dark:from-rose-600 dark:to-pink-600 dark:shadow-rose-900/50">
 									<svg
 										aria-hidden="true"
-										class="h-6 w-6 text-white md:h-7 md:w-7"
+										class="h-7 w-7 md:h-8 md:w-8"
 										fill="none"
-										stroke="currentColor"
-										viewBox="0 0 24 24"
+										viewBox="0 0 512 512"
+										xmlns="http://www.w3.org/2000/svg"
 									>
 										<path
-											d="M12 6.253v13m0-13C10.832 5.477 9.246 5 7.5 5S4.168 5.477 3 6.253v13C4.168 18.477 5.754 18 7.5 18s3.332.477 4.5 1.253m0-13C13.168 5.477 14.754 5 16.5 5c1.747 0 3.332.477 4.5 1.253v13C19.832 18.477 18.247 18 16.5 18c-1.746 0-3.332.477-4.5 1.253"
-											stroke-linecap="round"
-											stroke-linejoin="round"
-											stroke-width="2"
+											d="M446 157c7 9 8 20 5 31l-65 214c-3 10-9 18-18 25s-19 10-29 10H121c-12 0-24-4-35-12-11-9-19-19-23-31-4-11-4-21-1-30C147 75 148 75 204 75h178c12 0 21 4 27 13s8 19 4 31l-64 213c-6 19-12 31-17 37-6 5-16 8-31 8H97c-5 0-8 1-9 3-2 3-2 6-1 10 4 11 15 17 34 17h218c5 0 9-1 13-4 4-2 7-5 8-9l71-233c2-6 8-11 13-7l2 3Zm-251 1 1 5c1 2 2 2 5 2h143c2 0 4 0 6-2l4-5 5-15-1-6-4-2H210l-6 2-4 6-5 15Zm-19 60v6l5 2h143l6-2c2-2 4-4 4-6l5-15v-5c-1-2-3-2-5-2H191c-2 0-4 0-6 2-2 1-4 3-4 5l-5 15Z"
+											fill="white"
 										/>
 									</svg>
 								</div>
@@ -70,7 +71,7 @@ export function Nav({ title, description }: NavProps) {
 						</div>
 
 						<button
-							aria-label="切换暗色模式"
+							aria-label={t.toggleDarkMode}
 							class="rounded-xl bg-white/80 p-2 text-stone-700 ring-1 ring-stone-200/50 transition-all duration-200 hover:scale-110 hover:bg-rose-50 hover:text-rose-600 active:scale-95 md:p-2.5 dark:bg-stone-800/80 dark:text-stone-300 dark:ring-stone-700/50 dark:hover:bg-rose-950/30 dark:hover:text-rose-400"
 							data-effect="document.documentElement.classList.toggle('dark', $darkMode)"
 							data-on-click="$darkMode = !$darkMode"
@@ -108,7 +109,7 @@ export function Nav({ title, description }: NavProps) {
 						</button>
 
 						<button
-							aria-label="菜单"
+							aria-label={t.menu}
 							class="rounded-xl bg-white/80 p-2 text-stone-700 ring-1 ring-stone-200/50 transition-all duration-200 hover:scale-110 hover:bg-rose-50 active:scale-95 sm:hidden dark:bg-stone-800/80 dark:text-stone-300 dark:ring-stone-700/50 dark:hover:bg-rose-950/30"
 							data-on-click="$mobileMenuOpen = !$mobileMenuOpen"
 							type="button"

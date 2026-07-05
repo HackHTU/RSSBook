@@ -1,12 +1,15 @@
+import type { Translations } from "../../i18n";
+
 interface FooterProps {
 	title: string;
 	description?: string;
 	rss?: string;
 	atom?: string;
 	json?: string;
+	t: Translations;
 }
 
-export function Footer({ title, description, rss, atom, json }: FooterProps) {
+export function Footer({ title, description, rss, atom, json, t }: FooterProps) {
 	const currentYear = new Date().getFullYear();
 
 	return (
@@ -17,19 +20,17 @@ export function Footer({ title, description, rss, atom, json }: FooterProps) {
 				<div class="grid grid-cols-1 gap-8 md:grid-cols-3 md:gap-12">
 					<div class="text-center md:text-left">
 						<div class="mb-4 flex items-center justify-center gap-3 md:justify-start">
-							<div class="flex h-10 w-10 items-center justify-center rounded-xl bg-gradient-to-br from-rose-500 to-rose-600 shadow-lg shadow-rose-300/50 dark:from-rose-600 dark:to-rose-700 dark:shadow-rose-900/50">
+							<div class="flex h-10 w-10 items-center justify-center rounded-xl bg-gradient-to-br from-rose-500 to-pink-500 shadow-lg shadow-rose-300/50 dark:from-rose-600 dark:to-pink-600 dark:shadow-rose-900/50">
 								<svg
 									aria-hidden="true"
-									class="h-6 w-6 text-white"
+									class="h-6 w-6"
 									fill="none"
-									stroke="currentColor"
-									viewBox="0 0 24 24"
+									viewBox="0 0 512 512"
+									xmlns="http://www.w3.org/2000/svg"
 								>
 									<path
-										d="M12 6.253v13m0-13C10.832 5.477 9.246 5 7.5 5S4.168 5.477 3 6.253v13C4.168 18.477 5.754 18 7.5 18s3.332.477 4.5 1.253m0-13C13.168 5.477 14.754 5 16.5 5c1.747 0 3.332.477 4.5 1.253v13C19.832 18.477 18.247 18 16.5 18c-1.746 0-3.332.477-4.5 1.253"
-										stroke-linecap="round"
-										stroke-linejoin="round"
-										stroke-width="2"
+										d="M446 157c7 9 8 20 5 31l-65 214c-3 10-9 18-18 25s-19 10-29 10H121c-12 0-24-4-35-12-11-9-19-19-23-31-4-11-4-21-1-30C147 75 148 75 204 75h178c12 0 21 4 27 13s8 19 4 31l-64 213c-6 19-12 31-17 37-6 5-16 8-31 8H97c-5 0-8 1-9 3-2 3-2 6-1 10 4 11 15 17 34 17h218c5 0 9-1 13-4 4-2 7-5 8-9l71-233c2-6 8-11 13-7l2 3Zm-251 1 1 5c1 2 2 2 5 2h143c2 0 4 0 6-2l4-5 5-15-1-6-4-2H210l-6 2-4 6-5 15Zm-19 60v6l5 2h143l6-2c2-2 4-4 4-6l5-15v-5c-1-2-3-2-5-2H191c-2 0-4 0-6 2-2 1-4 3-4 5l-5 15Z"
+										fill="white"
 									/>
 								</svg>
 							</div>
@@ -47,7 +48,7 @@ export function Footer({ title, description, rss, atom, json }: FooterProps) {
 
 					<div class="text-center md:text-left">
 						<h3 class="mb-4 font-bold text-sm text-stone-900 uppercase tracking-wider dark:text-stone-100">
-							快速导航
+							{t.quickNavigation}
 						</h3>
 						<ul class="space-y-2">
 							<li>
@@ -55,7 +56,7 @@ export function Footer({ title, description, rss, atom, json }: FooterProps) {
 									class="text-sm text-stone-600 transition-colors duration-200 hover:text-rose-600 dark:text-stone-400 dark:hover:text-rose-400"
 									href="/"
 								>
-									首页
+									{t.home}
 								</a>
 							</li>
 							<li>
@@ -90,7 +91,7 @@ export function Footer({ title, description, rss, atom, json }: FooterProps) {
 
 				<div class="flex flex-col items-center justify-between gap-4 text-sm text-stone-500 md:flex-row dark:text-stone-400">
 					<p>
-						&copy; {currentYear} <span safe>{title || "RSSBook"}</span>. 保留所有权利.
+						&copy; {currentYear} <span safe>{title || "RSSBook"}</span>. {t.allRightsReserved}
 					</p>
 					<div class="flex items-center gap-6">
 						<a
@@ -99,7 +100,7 @@ export function Footer({ title, description, rss, atom, json }: FooterProps) {
 							rel="noopener noreferrer"
 							target="_blank"
 						>
-							自豪地采用 RSSBook 制作。
+							{t.proudlyMadeWith}
 						</a>
 					</div>
 				</div>

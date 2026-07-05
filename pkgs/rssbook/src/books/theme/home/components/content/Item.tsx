@@ -1,11 +1,13 @@
 import type { DataItem } from "@/types";
+import type { Translations } from "../../i18n";
 
 interface Item {
 	item: DataItem;
 	index: number;
+	t: Translations;
 }
 
-export function Item({ item }: Item) {
+export function Item({ item, t }: Item) {
 	const formatDate = (date: Date) => {
 		const year = date.getFullYear();
 		const month = String(date.getMonth() + 1).padStart(2, "0");
@@ -53,7 +55,7 @@ export function Item({ item }: Item) {
 										stroke-width="2"
 									/>
 								</svg>
-								<span>{item.date ? formatDate(item.date) : "未知日期"}</span>
+								<span>{item.date ? formatDate(item.date) : t.unknownDate}</span>
 								<span class="text-rose-400 dark:text-rose-500">·</span>
 								<span>{item.date ? formatTime(item.date) : ""}</span>
 							</time>
@@ -162,11 +164,11 @@ export function Item({ item }: Item) {
 								)}
 								<div class="min-w-0 flex-1">
 									<p class="truncate font-medium text-sm text-stone-700 dark:text-stone-300" safe>
-										{item.enclosure.title || "媒体附件"}
+										{item.enclosure.title || t.mediaAttachment}
 									</p>
 									{item.enclosure.duration && (
 										<p class="text-stone-500 text-xs dark:text-stone-400">
-											时长：
+											{t.duration}
 											<span>{Math.floor(item.enclosure.duration / 60)}</span>:
 											<span safe>{String(item.enclosure.duration % 60).padStart(2, "0")}</span>
 										</p>
@@ -178,7 +180,7 @@ export function Item({ item }: Item) {
 									rel="noopener noreferrer"
 									target="_blank"
 								>
-									播放
+									{t.play}
 								</a>
 							</div>
 						</div>

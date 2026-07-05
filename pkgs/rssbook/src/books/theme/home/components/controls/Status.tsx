@@ -1,12 +1,14 @@
 import type { FilterInfo, PaginationInfo } from "@/types";
+import type { Translations } from "../../i18n";
 
 interface StatusProps {
 	pagination: PaginationInfo;
 	itemCount: number;
 	filter: FilterInfo;
+	t: Translations;
 }
 
-export function Status({ pagination, itemCount, filter }: StatusProps) {
+export function Status({ pagination, itemCount, filter, t }: StatusProps) {
 	const { page, totalPages, total, limit, hasPrev, hasNext } = pagination;
 	const { search, category } = filter;
 
@@ -27,29 +29,29 @@ export function Status({ pagination, itemCount, filter }: StatusProps) {
 					<div class="flex items-center gap-3">
 						<div class="flex items-center gap-2">
 							<div class="h-2 w-2 animate-pulse rounded-full bg-green-500"></div>
-							<span class="font-medium text-sm text-stone-600 dark:text-stone-400">已加载</span>
+							<span class="font-medium text-sm text-stone-600 dark:text-stone-400">{t.loaded}</span>
 						</div>
 						<span class="font-bold text-sm text-stone-900 dark:text-stone-100">
-							{itemCount} 篇文章 / 共 {total} 篇
+							{itemCount} {t.articlesOfTotal.replace("{total}", String(total))}
 						</span>
 					</div>
 
 					<div class="flex items-center gap-3 text-sm text-stone-600 dark:text-stone-400">
-						<span>第</span>
+						<span>{t.page}</span>
 						<span class="rounded-lg bg-rose-100 px-3 py-1 font-bold text-rose-700 dark:bg-rose-900/30 dark:text-rose-300">
 							{page}
 						</span>
-						<span>页</span>
+						{t.total && <span>{t.total}</span>}
 						<span class="text-stone-400 dark:text-stone-500">/</span>
-						<span>共</span>
+						<span>{t.of}</span>
 						<span class="font-bold text-stone-900 dark:text-stone-100">{totalPages}</span>
-						<span>页</span>
+						{t.pages && <span>{t.pages}</span>}
 					</div>
 
 					<div class="flex items-center gap-2">
 						<a
 							aria-disabled={!hasPrev}
-							aria-label="上一页"
+							aria-label={t.previousPage}
 							class={`rounded-xl px-4 py-2 font-medium text-sm ring-1 transition-all duration-200 ${
 								hasPrev
 									? "bg-white/80 text-stone-600 ring-stone-200/50 hover:bg-rose-50 hover:text-rose-600 dark:bg-stone-800/80 dark:text-stone-400 dark:ring-stone-700/50 dark:hover:bg-rose-950/30 dark:hover:text-rose-400"
@@ -58,7 +60,7 @@ export function Status({ pagination, itemCount, filter }: StatusProps) {
 							href={prevUrl}
 						>
 							<svg class="h-5 w-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-								<title>上一页</title>
+								<title>{t.previousPage}</title>
 								<path
 									d="M15 19l-7-7 7-7"
 									stroke-linecap="round"
@@ -69,7 +71,7 @@ export function Status({ pagination, itemCount, filter }: StatusProps) {
 						</a>
 						<a
 							aria-disabled={!hasNext}
-							aria-label="下一页"
+							aria-label={t.nextPage}
 							class={`rounded-xl px-4 py-2 font-medium text-sm ring-1 transition-all duration-200 ${
 								hasNext
 									? "bg-white/80 text-stone-600 ring-stone-200/50 hover:bg-rose-50 hover:text-rose-600 dark:bg-stone-800/80 dark:text-stone-400 dark:ring-stone-700/50 dark:hover:bg-rose-950/30 dark:hover:text-rose-400"
@@ -78,7 +80,7 @@ export function Status({ pagination, itemCount, filter }: StatusProps) {
 							href={nextUrl}
 						>
 							<svg class="h-5 w-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-								<title>下一页</title>
+								<title>{t.nextPage}</title>
 								<path
 									d="M9 5l7 7-7 7"
 									stroke-linecap="round"

@@ -1,16 +1,17 @@
 import type { FilterInfo, PaginationInfo } from "@/types";
+import type { Translations } from "../../i18n";
 
 interface FilterBarProps {
 	categories: { name: string }[];
 	filter: FilterInfo;
 	pagination: PaginationInfo;
+	t: Translations;
 }
 
-export function FilterBar({ categories, filter, pagination }: FilterBarProps) {
+export function FilterBar({ categories, filter, pagination, t }: FilterBarProps) {
 	const { search, category } = filter;
 	const { limit } = pagination;
 
-	// 预先计算所有分类的 URL（服务端渲染）
 	const allCategoryUrl = search
 		? `/?search=${encodeURIComponent(search)}&limit=${limit}&page=1`
 		: `/?limit=${limit}&page=1`;
@@ -29,14 +30,14 @@ export function FilterBar({ categories, filter, pagination }: FilterBarProps) {
 								class="mb-2 block font-medium text-sm text-stone-700 dark:text-stone-300"
 								for="search"
 							>
-								搜索文章
+								{t.searchArticles}
 							</label>
 							<div class="relative">
 								<input
 									class="w-full rounded-2xl border border-stone-300/50 bg-white/80 px-4 py-3 pr-24 pl-11 text-stone-900 placeholder-stone-400 transition-all duration-200 focus:border-transparent focus:outline-none focus:ring-2 focus:ring-rose-500/50 dark:border-stone-700/50 dark:bg-stone-800/80 dark:text-stone-100 dark:placeholder-stone-500 dark:focus:ring-rose-400/50"
 									id="search"
 									name="search"
-									placeholder="输入关键词..."
+									placeholder={t.enterKeywords}
 									type="text"
 									value={search}
 								/>
@@ -62,14 +63,14 @@ export function FilterBar({ categories, filter, pagination }: FilterBarProps) {
 									class="absolute top-1.5 right-1.5 rounded-xl bg-rose-600 px-4 py-2 font-medium text-sm text-white transition-all duration-200 hover:bg-rose-700 active:scale-95 dark:bg-rose-500 dark:hover:bg-rose-600"
 									type="submit"
 								>
-									搜索
+									{t.search}
 								</button>
 							</div>
 						</form>
 
 						<div>
 							<span class="mb-3 block font-medium text-sm text-stone-700 dark:text-stone-300">
-								按分类筛选
+								{t.filterByCategory}
 							</span>
 							<div class="flex flex-wrap gap-2">
 								<a
@@ -80,7 +81,7 @@ export function FilterBar({ categories, filter, pagination }: FilterBarProps) {
 									}`}
 									href={allCategoryUrl}
 								>
-									全部
+									{t.all}
 								</a>
 
 								{categories.map((cat) => {
@@ -107,7 +108,7 @@ export function FilterBar({ categories, filter, pagination }: FilterBarProps) {
 						{(category !== "all" || !!search) && (
 							<div class="mt-4 flex items-center justify-between text-sm text-stone-500 dark:text-stone-400">
 								<span>
-									当前筛选:{" "}
+									{t.currentFilter}{" "}
 									<span class="font-medium text-stone-900 dark:text-stone-100">
 										{category !== "all" ? category : ""} {search ? `「${search}」` : ""}
 									</span>
@@ -117,14 +118,14 @@ export function FilterBar({ categories, filter, pagination }: FilterBarProps) {
 									class="rounded-lg bg-stone-200/60 px-3 py-1 text-stone-600 transition-all duration-200 hover:bg-stone-300/60 dark:bg-stone-700/60 dark:text-stone-400 dark:hover:bg-stone-600/60"
 									href={clearFilterUrl}
 								>
-									清除筛选
+									{t.clearFilter}
 								</a>
 							</div>
 						)}
 					</div>
 
 					<button
-						aria-label="关闭筛选栏"
+						aria-label={t.closeFilterBar}
 						class="absolute top-5 right-5 rounded-xl bg-white/80 p-2 text-stone-700 ring-1 ring-stone-200/50 transition-all duration-200 hover:scale-110 hover:bg-rose-50 active:scale-95 dark:bg-stone-800/80 dark:text-stone-300 dark:ring-stone-700/50 dark:hover:bg-rose-950/30"
 						data-on-click="$filiterBar = false"
 						type="button"

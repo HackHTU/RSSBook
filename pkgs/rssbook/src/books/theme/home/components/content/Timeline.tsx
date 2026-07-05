@@ -1,11 +1,18 @@
-import type { DataItem } from "@/types";
+import type { DataItem, FilterInfo } from "@/types";
+import type { Translations } from "../../i18n";
 import { Item } from "./Item";
 
 interface TimelineProps {
 	items: DataItem[];
+	filter: FilterInfo;
+	t: Translations;
 }
 
-export function Timeline({ items }: TimelineProps) {
+export function Timeline({ items, filter, t }: TimelineProps) {
+	const { search, category } = filter;
+	const hasFilter = !!search || category !== "all";
+	const clearUrl = `/?limit=20&page=1`;
+
 	return (
 		<div class="mx-auto max-w-5xl animate-fade-in">
 			<div class="relative">
@@ -18,6 +25,45 @@ export function Timeline({ items }: TimelineProps) {
 				</div>
 
 				<div class="space-y-8 md:space-y-12 md:pl-12">
+					{hasFilter && (
+						<div class="rounded-2xl bg-white/70 p-5 shadow-sm ring-1 ring-stone-200/50 backdrop-blur-xl dark:bg-stone-900/70 dark:ring-stone-800/50">
+							<div class="flex flex-wrap items-center justify-between gap-3">
+								<div class="flex flex-wrap items-center gap-2 text-sm">
+									{search && (
+										<span class="inline-flex items-center gap-1.5 rounded-lg bg-rose-100/70 px-3 py-1.5 font-medium text-rose-700 dark:bg-rose-900/30 dark:text-rose-300">
+											<svg
+												aria-hidden="true"
+												class="h-3.5 w-3.5"
+												fill="none"
+												stroke="currentColor"
+												viewBox="0 0 24 24"
+											>
+												<path
+													d="M21 21l-6-6m2-5a7 7 0 11-14 0 7 7 0 0114 0z"
+													stroke-linecap="round"
+													stroke-linejoin="round"
+													stroke-width="2"
+												/>
+											</svg>
+											{t.searchResultsFor} <span class="font-bold">「{search}」</span>
+										</span>
+									)}
+									{category !== "all" && (
+										<span class="inline-flex items-center gap-1.5 rounded-lg bg-orange-100/70 px-3 py-1.5 font-medium text-orange-700 dark:bg-orange-900/30 dark:text-orange-300">
+											{t.filteredByCategory} <span class="font-bold">{category}</span>
+										</span>
+									)}
+								</div>
+								<a
+									class="rounded-lg bg-stone-200/60 px-3 py-1.5 text-sm text-stone-600 transition-all duration-200 hover:bg-stone-300/60 dark:bg-stone-700/60 dark:text-stone-400 dark:hover:bg-stone-600/60"
+									href={clearUrl}
+								>
+									{t.clearAll}
+								</a>
+							</div>
+						</div>
+					)}
+
 					{items.map((item, index) => (
 						<Item
 							data-show={`
@@ -26,6 +72,7 @@ export function Timeline({ items }: TimelineProps) {
                             `}
 							index={index}
 							item={item}
+							t={t}
 						/>
 					))}
 				</div>
@@ -39,7 +86,7 @@ export function Timeline({ items }: TimelineProps) {
 
 						<div class="flex-1 text-center md:text-left">
 							<p class="font-medium text-sm text-stone-500 dark:text-stone-400">
-								{items.length === 0 ? "暂无内容" : "当前页内容已展示完毕"}
+								{items.length === 0 ? t.noContent : t.pageContentDisplayed}
 							</p>
 						</div>
 					</div>

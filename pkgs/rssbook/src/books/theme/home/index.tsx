@@ -1,5 +1,11 @@
 import type { ThemeProps } from "@/types";
-import { Background, FilterBar, Footer, Nav, Status, Timeline } from "./components";
+import { Timeline } from "./components/content/Timeline";
+import { FilterBar } from "./components/controls/FilterBar";
+import { Status } from "./components/controls/Status";
+import { Background } from "./components/layout/Background";
+import { Footer } from "./components/layout/Footer";
+import { Nav } from "./components/layout/Nav";
+import { getTranslations } from "./i18n";
 
 export const defaultTheme = {
 	render: ({
@@ -22,6 +28,7 @@ export const defaultTheme = {
 		pagination,
 		filter: filterInfo,
 	}: ThemeProps) => {
+		const t = getTranslations(lang);
 		return (
 			<html lang={lang || "zh-CN"}>
 				<head>
@@ -98,12 +105,17 @@ export const defaultTheme = {
 					<Background />
 
 					<div class="relative z-10 flex min-h-screen flex-col">
-						<Nav title={title || "RSSBook"} />
+						<Nav t={t} title={title || "RSSBook"} />
 
 						<main class="container mx-auto flex-1 px-4 py-8 md:py-12 lg:py-16">
-							<FilterBar categories={categories} filter={filterInfo} pagination={pagination} />
-							<Timeline items={items} />
-							<Status filter={filterInfo} itemCount={items.length} pagination={pagination} />
+							<FilterBar
+								categories={categories}
+								filter={filterInfo}
+								pagination={pagination}
+								t={t}
+							/>
+							<Timeline filter={filterInfo} items={items} t={t} />
+							<Status filter={filterInfo} itemCount={items.length} pagination={pagination} t={t} />
 						</main>
 
 						<Footer
@@ -111,6 +123,7 @@ export const defaultTheme = {
 							description={description}
 							json={jsonFeed}
 							rss={rssFeed}
+							t={t}
 							title={title || "RSSBook"}
 						/>
 					</div>

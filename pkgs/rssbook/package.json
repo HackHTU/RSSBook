@@ -41,7 +41,7 @@
 		"url": "git://github.com/HackHTU/RSSBook.git"
 	},
 	"scripts": {
-		"build": "rm -rf dist && bun build src/index.ts --target=bun --format=esm --packages=external --sourcemap=linked --outdir=dist && bunx tsup && mkdir -p dist/public/xsl && cp src/public/favicon.ico src/public/favicon.svg src/public/robots.txt dist/public/ && cp src/public/xsl/atom.xsl src/public/xsl/rss.xsl dist/public/xsl/",
+		"build": "rm -rf dist && bunx tsup && cp -r src/public dist/public",
 		"check": "tsc --noEmit",
 		"dev": "bun --watch src/index.ts",
 		"version:major": "npm version major",

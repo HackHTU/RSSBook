@@ -2,7 +2,7 @@
  * Deno entrypoint
  */
 
-import { Cache, createRSSBookApp, logger } from "rssbook";
+import { Cache, createRSSBookApp } from "rssbook";
 import { createStorage } from "unstorage";
 import denoKvDriver from "unstorage/drivers/deno-kv";
 

@@ -3,6 +3,7 @@
 import { readFileSync, writeFileSync } from "node:fs";
 import { join } from "node:path";
 
+const ROOT_PKG_PATH = join(import.meta.dir, "../package.json");
 const PKG_PATH = join(import.meta.dir, "../pkgs/rssbook/package.json");
 
 const colors = {
@@ -48,6 +49,20 @@ if (!type || !["major", "minor", "patch"].includes(type)) {
 	error("Usage: bun run release <major|minor|patch>");
 }
 
+const rootPkg = JSON.parse(readFileSync(ROOT_PKG_PATH, "utf-8"));
+const catalog: Record<string, string> = rootPkg.catalog ?? {};
+
+function resolveCatalog(
+	deps: Record<string, string> | undefined,
+): Record<string, string> | undefined {
+	if (!deps) return deps;
+	const resolved: Record<string, string> = {};
+	for (const [name, version] of Object.entries(deps)) {
+		resolved[name] = version === "catalog:" ? (catalog[name] ?? version) : version;
+	}
+	return resolved;
+}
+
 const pkg = JSON.parse(readFileSync(PKG_PATH, "utf-8"));
 const oldVersion = pkg.version;
 const newVersion = bumpVersion(oldVersion, type);
@@ -56,7 +71,9 @@ const tag = `v${newVersion}`;
 log(`Bumping ${pkg.name}: ${oldVersion} → ${newVersion}`, colors.blue);
 
 pkg.version = newVersion;
-writeFileSync(PKG_PATH, JSON.stringify(pkg, null, "\t") + "\n");
+pkg.dependencies = resolveCatalog(pkg.dependencies);
+pkg.devDependencies = resolveCatalog(pkg.devDependencies);
+writeFileSync(PKG_PATH, `${JSON.stringify(pkg, null, "\t")}\n`);
 
 run(`git add ${PKG_PATH}`);
 run(`git commit -m "chore(${pkg.name}): release ${tag}"`);

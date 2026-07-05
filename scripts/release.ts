@@ -39,9 +39,8 @@ function bumpVersion(version: string, type: string): string {
 			return `${major}.${minor + 1}.0`;
 		case "patch":
 			return `${major}.${minor}.${patch + 1}`;
-		default:
-			error(`Invalid bump type: ${type}. Use major, minor, or patch.`);
 	}
+	throw new Error(`Invalid bump type: ${type}`);
 }
 
 const type = process.argv[2];

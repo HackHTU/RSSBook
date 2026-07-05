@@ -7,5 +7,5 @@
 		"types": []
 	},
 	"extends": "../../tsconfig.base.json",
-	"include": ["index.ts"]
+	"include": ["netlify/edge-functions/**/*.ts"]
 }

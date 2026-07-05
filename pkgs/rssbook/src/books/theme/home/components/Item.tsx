@@ -90,9 +90,9 @@ export function Item({ item }: Item) {
 					</h2>
 
 					{!!item.description && (
-						<p class="mb-4 text-base text-stone-600 leading-relaxed dark:text-stone-400" safe>
+						<span class="mb-4 line-clamp-3 text-base text-stone-600 leading-relaxed dark:text-stone-400">
 							{item.description}
-						</p>
+						</span>
 					)}
 
 					{!!item.author && item.author.length > 0 && (

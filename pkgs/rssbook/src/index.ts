@@ -11,7 +11,7 @@ export const app = createRSSBookApp({
 			description: "A simple RSS feed aggregator and reader.",
 			title: "RSSBook",
 		},
-	}
+	},
 });
 
 // For Bun's built-in fetch server

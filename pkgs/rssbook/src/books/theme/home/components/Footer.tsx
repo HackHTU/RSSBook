@@ -95,7 +95,9 @@ export function Footer({ title, description, rss, atom, json }: FooterProps) {
 					<div class="flex items-center gap-6">
 						<a
 							class="transition-colors duration-200 hover:text-rose-600 dark:hover:text-rose-400"
-							href="/privacy"
+							href="https://github.com/HackHTU/RSSBook"
+							rel="noopener noreferrer"
+							target="_blank"
 						>
 							自豪地采用 RSSBook 制作。
 						</a>

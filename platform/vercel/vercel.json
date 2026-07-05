@@ -1,7 +1,7 @@
 {
 	"$schema": "https://openapi.vercel.sh/vercel.json",
 	"framework": null,
-	"installCommand": "npm install",
+	"installCommand": "bun install",
 	"buildCommand": "echo \"No build required\"",
 	"devCommand": "vercel dev",
 	"rewrites": [

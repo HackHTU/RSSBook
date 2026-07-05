@@ -1,6 +1,6 @@
 {
 	"dependencies": {
-		"rssbook": "workspace:*"
+		"rssbook": "latest"
 	},
 	"devDependencies": {},
 	"name": "@rssbook/platform-netlify",

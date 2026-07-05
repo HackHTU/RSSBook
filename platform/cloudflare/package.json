@@ -1,8 +1,8 @@
 {
 	"dependencies": {
-		"elysia": "catalog:",
-		"rssbook": "workspace:*",
-		"unstorage": "catalog:"
+		"elysia": "^1.4.29",
+		"rssbook": "latest",
+		"unstorage": "^1.17.5"
 	},
 	"devDependencies": {},
 	"name": "@rssbook/platform-cloudflare",

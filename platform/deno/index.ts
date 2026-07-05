@@ -49,7 +49,3 @@ export default app;
 const port = Number(Deno.env.get("PORT") ?? 8787);
 
 Deno.serve({ port }, app.fetch);
-
-logger.info(
-	`RSSBook running at 0.0.0.0:${port}, You can visit http://localhost:${port}/openapi to look up all routes.`,
-);

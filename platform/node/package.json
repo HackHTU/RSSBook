@@ -1,10 +1,10 @@
 {
 	"dependencies": {
-		"@elysiajs/node": "^1.4.5",
+		"@elysiajs/node": "catalog:",
 		"rssbook": "workspace:*"
 	},
 	"devDependencies": {
-		"tsx": "latest"
+		"tsx": "catalog:"
 	},
 	"name": "@rssbook/platform-node",
 	"private": true,

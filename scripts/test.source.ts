@@ -67,7 +67,7 @@ interface ModifiedFeed {
 async function getGitModifiedFiles(): Promise<string[]> {
 	try {
 		// Get both staged and unstaged changes
-		const result = await $`git status --porcelain`.text();
+		const result = await $`git status --porcelain --untracked-files=all`.text();
 		const lines = result.trim().split("\n").filter(Boolean);
 
 		const modifiedFiles: string[] = [];
@@ -166,22 +166,20 @@ async function getModifiedFeeds(): Promise<ModifiedFeed[]> {
 	return Array.from(feedMap.values());
 }
 
-// TODO: Generate test template
 function generateTestTemplate(category: string, name: string): string {
 	return `
 import { describe, expect, test } from "bun:test";
+import { getRouteData } from "@/utils/tests/source";
+import source from ".";
 
 describe("${category}/${name}", () => {
-	test("should export a valid route", async () => {
-		const route = await import("./index");
-		expect(route.default).toBeDefined();
-	});
+	test("fetches example route", async () => {
+		const data = await getRouteData(source, "/TODO");
 
-	test("should handle requests correctly", async () => {
-		const route = await import("./index");
-		// TODO: Add your test cases here
-		expect(route.default).toBeDefined();
-	});
+		expect(data.title.length).toBeGreaterThan(0);
+		expect(data.link.length).toBeGreaterThan(0);
+		expect(data.item?.length).toBeGreaterThan(0);
+	}, 20_000);
 });
 `;
 }
@@ -210,17 +208,33 @@ async function runFeedTests(feed: ModifiedFeed): Promise<boolean> {
 		const relativePath = relative(PROJECT_ROOT, testPath);
 
 		// Run bun test on the specific test file
-		const result = await $`bun test ${relativePath}`.quiet();
+		const result = await $`bun test ${relativePath}`.nothrow().quiet();
 
 		if (result.exitCode === 0) {
 			success(`Tests passed for ${feed.category}/${feed.name}`);
 			return true;
 		}
-		error(`Tests failed for ${feed.category}/${feed.name}`);
+		error(`Tests failed for ${feed.category}/${feed.name} with exit code ${result.exitCode}`);
+		printCommandOutput(result.stdout.toString(), result.stderr.toString());
 		return false;
 	} catch (err) {
 		error(`Failed to run tests for ${feed.category}/${feed.name}: ${err}`);
 		return false;
+	}
+}
+
+function printCommandOutput(stdout: string, stderr: string) {
+	const trimmedStdout = stdout.trim();
+	const trimmedStderr = stderr.trim();
+
+	if (trimmedStdout) {
+		log("stdout:", colors.dim);
+		console.log(trimmedStdout);
+	}
+
+	if (trimmedStderr) {
+		log("stderr:", colors.dim);
+		console.error(trimmedStderr);
 	}
 }
 

@@ -1,16 +1,16 @@
 {
 	"dependencies": {
-		"rssbook": "workspace:*"
+		"elysia": "catalog:",
+		"rssbook": "workspace:*",
+		"unstorage": "catalog:"
 	},
-	"devDependencies": {
-		"wrangler": "latest"
-	},
+	"devDependencies": {},
 	"name": "@rssbook/platform-cloudflare",
 	"private": true,
 	"scripts": {
-		"build": "wrangler deploy --config wrangler.jsonc --dry-run --outdir ../../dist/cloudflare",
-		"deploy": "wrangler deploy --config wrangler.jsonc",
-		"dev": "wrangler dev --config wrangler.jsonc"
+		"build": "bunx wrangler deploy --config wrangler.jsonc --dry-run --outdir ../../dist/cloudflare",
+		"deploy": "bunx wrangler deploy --config wrangler.jsonc",
+		"dev": "bunx wrangler dev --config wrangler.jsonc"
 	},
 	"type": "module"
 }

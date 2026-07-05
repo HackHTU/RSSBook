@@ -77,7 +77,6 @@ Returns only items that appear in **all** provided feeds, based on item ID, titl
 					{
 						description: "Array of feed URLs to intersect (minimum 2), divided by comma.",
 						examples: ["https://www.ruanyifeng.com/blog/atom.xml,https://techcrunch.com/feed/"],
-						minItems: 2,
 					},
 				),
 				override: t.Optional(

@@ -3,25 +3,29 @@
  */
 
 import { node } from "@elysiajs/node";
-import { RSSBookApp } from "rssbook";
-import { Cache, logger } from "rssbook/utils";
+import { createRSSBookApp, logger } from "rssbook";
 
-export const app = RSSBookApp({
+export const app = createRSSBookApp({
 	adapter: node(),
-	cache: Cache.LRU_Cache,
-	config: {},
-	enableFetchOnlineServer: true,
-	feeds: ["https://github.blog/feed/"],
-	meta: {
-		description: "A simple RSS feed aggregator and reader.",
-		title: "RSSBook",
+	book: {
+		config: {},
+		feeds: ["https://github.blog/feed/"],
+		meta: {
+			description: "A simple RSS feed aggregator and reader.",
+			title: "RSSBook",
+		},
+	},
+	openapi: {
+		enableFetchOnlineServer: true,
 	},
 });
 
 export default app;
 
 app.listen(Number(process.env.PORT ?? 8787), (server) => {
+	const hostname = server.hostname ?? "localhost";
+
 	logger.info(
-		`📕 RSSBook running at ${server?.hostname}:${server?.port}, You can visit ${server?.hostname}:${server?.port}/openapi to look up all routes. ✨`,
+		`RSSBook running at ${hostname}:${server.port}, You can visit ${hostname}:${server.port}/openapi to look up all routes.`,
 	);
 });

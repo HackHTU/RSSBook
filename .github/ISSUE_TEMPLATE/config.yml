@@ -1,0 +1,11 @@
+blank_issues_enabled: false
+contact_links:
+  - name: Documentation
+    url: https://github.com/RSSBook/RSSBook/tree/main/docs
+    about: Check the project documentation before opening an issue.
+  - name: Contributing Guide
+    url: https://github.com/RSSBook/RSSBook/blob/main/CONTRIBUTING.md
+    about: Read the contributing guide to learn how to create sources, submit instances, and open PRs.
+  - name: Discussions
+    url: https://github.com/RSSBook/RSSBook/discussions
+    about: Use GitHub Discussions for open-ended questions and community chat.

@@ -19,6 +19,10 @@ Returns all unique items from the provided feeds, removing duplicates based on i
 	.get(
 		"/",
 		async ({ query: { feeds, override }, logger }) => {
+			if (feeds.length < 2) {
+				throw new Error("At least 2 feeds are required for union");
+			}
+
 			const promises = feeds.map(async (feedUrl) => {
 				try {
 					const response = await ofetch(feedUrl, { responseType: "text" });
@@ -63,7 +67,6 @@ Returns all unique items from the provided feeds, removing duplicates based on i
 					}),
 					{
 						examples: ["https://www.ruanyifeng.com/blog/atom.xml,https://www.zhihu.com/rss"],
-						minItems: 2,
 						title: "Feed URLs Array",
 					},
 				),

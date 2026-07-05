@@ -1,0 +1,34 @@
+name: Question / Help
+description: Ask a question or request help using RSSBook.
+title: "[Question]: "
+labels: ["question"]
+body:
+  - type: markdown
+    attributes:
+      value: |
+        Use this template for usage questions. For bugs, please use the Bug Report template. For longer discussion, consider using GitHub Discussions.
+
+  - type: textarea
+    id: question
+    attributes:
+      label: Your question
+      description: What would you like to know?
+    validations:
+      required: true
+
+  - type: textarea
+    id: context
+    attributes:
+      label: What have you tried?
+      description: Describe what you have already attempted, including links to docs or issues you have read.
+    validations:
+      required: false
+
+  - type: input
+    id: runtime
+    attributes:
+      label: Runtime
+      description: Which runtime are you using?
+      placeholder: Bun 1.3.2
+    validations:
+      required: false

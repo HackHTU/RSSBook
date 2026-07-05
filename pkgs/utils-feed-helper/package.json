@@ -3,19 +3,23 @@
 		"url": "https://github.com/HackHTU/RSSBook/issues"
 	},
 	"dependencies": {
-		"@elysiajs/html": "^1.4.0",
-		"@kitajs/html": "^4.2.13",
-		"@kitajs/ts-html-plugin": "^4.1.4",
-		"elysia": "^1.4.28"
+		"@elysiajs/html": "catalog:",
+		"@kitajs/html": "catalog:",
+		"@kitajs/ts-html-plugin": "catalog:",
+		"elysia": "catalog:"
 	},
 	"devDependencies": {
-		"bun-types": "latest"
+		"bun-types": "catalog:"
 	},
 	"homepage": "https://github.com/HackHTU/RSSBook",
 	"license": "MIT",
 	"module": "src/index.js",
 	"name": "utils-feed-helper",
 	"packageManager": "bun@1.3.2",
+	"repository": {
+		"type": "git",
+		"url": "git://github.com/HackHTU/RSSBook.git"
+	},
 	"scripts": {
 		"dev": "bun run --watch src/index.tsx",
 		"test": "echo \"Error: no test specified\" && exit 1"

@@ -2,15 +2,13 @@
 	"dependencies": {
 		"rssbook": "workspace:*"
 	},
-	"devDependencies": {
-		"netlify-cli": "latest"
-	},
+	"devDependencies": {},
 	"name": "@rssbook/platform-netlify",
 	"private": true,
 	"scripts": {
-		"build": "netlify build --offline",
-		"deploy": "netlify deploy --prod",
-		"dev": "netlify dev"
+		"build": "bunx netlify build --offline",
+		"deploy": "bunx netlify deploy --prod",
+		"dev": "bunx netlify dev"
 	},
 	"type": "module"
 }

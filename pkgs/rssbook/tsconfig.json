@@ -1,5 +1,6 @@
 {
 	"compilerOptions": {
+		"ignoreDeprecations": "6.0",
 		"paths": {
 			"@/*": ["./src/*"]
 		},
@@ -7,5 +8,5 @@
 		"types": ["@types/bun"]
 	},
 	"extends": "../../tsconfig.base.json",
-	"include": ["src/**/*.ts", "src/**/*.tsx", "src/**/*.d.ts"]
+	"include": ["src/**/*.ts", "src/**/*.tsx"]
 }

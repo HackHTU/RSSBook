@@ -1,3 +1,3 @@
-import { load } from "cheerio";
+import { load as cheerioLoad } from "cheerio";
 
-export { load };
+export const load: typeof cheerioLoad = cheerioLoad;

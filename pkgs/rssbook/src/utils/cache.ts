@@ -1,5 +1,4 @@
 import { createStorage, type Storage } from "unstorage";
-import cloudflareKVBindingDriver from "unstorage/drivers/cloudflare-kv-binding";
 import lruCacheDriver from "unstorage/drivers/lru-cache";
 
 /**
@@ -21,8 +20,6 @@ type CacheOptions = {
 	/** Default TTL in milliseconds for cached items */
 	defaultMaxAgeMs: number;
 };
-
-type CloudflareKVBinding = Parameters<typeof cloudflareKVBindingDriver>[0]["binding"];
 
 /**
  * Cache metadata with TTL information
@@ -94,26 +91,6 @@ function deserialize<T>(value: T): T {
 export class Cache {
 	private storage: Storage;
 	private option: CacheOptions;
-
-	///
-	/// Preset cache instances for common environments
-	///
-	static CLOUDFLARE_KV_Cache = (KV: CloudflareKVBinding) =>
-		new this(
-			createStorage({
-				driver: cloudflareKVBindingDriver({
-					binding: KV,
-				}),
-			}),
-		);
-
-	static LRU_Cache = new this(
-		createStorage({
-			driver: lruCacheDriver({
-				ttl: 10 * 60 * 1000,
-			}),
-		}),
-	);
 
 	constructor(
 		storage: Storage = createStorage({

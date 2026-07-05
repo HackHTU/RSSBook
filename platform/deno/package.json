@@ -1,6 +1,7 @@
 {
 	"dependencies": {
-		"rssbook": "workspace:*"
+		"rssbook": "workspace:*",
+		"unstorage": "catalog:"
 	},
 	"name": "@rssbook/platform-deno",
 	"private": true,

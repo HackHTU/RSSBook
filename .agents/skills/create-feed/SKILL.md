@@ -1,234 +1,157 @@
 ---
 name: create-feed
-description: Create new RSS Feed sources. Use this skill when users want to add new data sources, create Feed routes, or ask how to scrape website data.
+description: Create or update RSSBook Feed sources and routes, including Source metadata, route handlers, scraping logic, route tests, and RSSBook utility usage such as cache, date, ofetch, load, formatHTML, parse, filter, sort, union, and intersection.
 ---
 
-# Creating a New Feed Guide
+# Create RSSBook Feeds
 
-This skill helps you create new RSS Feed sources in the RSSBook project.
+Use this skill when adding or updating a Feed route in RSSBook, migrating route logic from another RSS project, scraping a website, or testing a Source route.
 
-## Core Concepts
+## Core Workflow
 
-### 1. Source (Data Source)
+1. Read nearby routes in the target category and follow local patterns.
+2. Create the Source at `pkgs/rssbook/src/routers/feeds/{category}/{slug}/index.ts`; use `bun source:new` when scaffolding from an existing template is useful.
+3. Register it in `pkgs/rssbook/src/routers/feeds/{category}/index.ts`.
+4. Use RSSBook utilities from the handler context instead of importing alternate fetch/parser stacks.
+5. Add one explicit route test per Feed route.
+6. Run formatting and TypeScript. Run source route tests with `bun source:test` or `bun source:test:all` only when route network checks are intended.
 
-A Source is a data source definition, representing a website or service (e.g., GitHub, Twitter). Each Source can contain multiple Feeds.
+## Feed Development Checklist
 
-**File Location**: `src/routers/feeds/{category}/{slug}/index.ts`
+- Use the core pattern `new Source(...).feed(meta, (app) => app.get(...))`.
+- Place a source at `pkgs/rssbook/src/routers/feeds/{category}/{slug}/index.ts`.
+- Register it in `pkgs/rssbook/src/routers/feeds/{category}/index.ts`.
+- Use lowercase kebab-case source slugs.
+- Use GET routes for feed handlers.
+- Return `Data` and validate with `satisfies Data`.
+- Use `cache.tryGet()` around network-heavy or scrape-heavy work.
+- Use injected `ofetch`, `parse`, `date`, `load`, `formatHTML`, `toAbsoluteURL`, and other handler-context utilities when available.
+- Keep source-specific tests beside the source when adding meaningful behavior.
 
-### 2. Feed
+## Required References
 
-A Feed is a specific route under a Source, defining how to fetch and return data.
+Read only the references needed for the task:
 
-### 3. Category
+- New Source structure, route migration patterns, metadata naming, and route testing: [references/feed-routes.md](references/feed-routes.md)
+- RSSBook utility APIs (`cache`, `date`, `ofetch`, `load`, `formatHTML`, feed transforms): [references/utils.md](references/utils.md)
 
-A Category organizes multiple Sources, such as `programming`, `news`, `blog`, etc.
-
-## Creation Steps
-
-### Step 1: Determine Category and Slug
-
-- **Category**: Choose an existing category or create a new one
-- **Slug**: Lowercase letters and hyphens, e.g., `my-source`
-
-### Step 2: Create Source File
-
-Create a file at `src/routers/feeds/{category}/{slug}/index.ts`:
+## Source Shape
 
 ```typescript
 import type { Data, DataItem } from "@/types";
 import { Source, t } from "@/utils";
 
 export default new Source({
-  slug: "example-source",  // Must match the folder name
-  title: "Example Source",
-  description: "Brief description of this data source",
-  domain: "example.com",   // Domain of the source website
-  config: {
-    // Optional: required configuration parameters
-    API_KEY: {
-      description: "API Key",
-      required: true,
-      default: "your-default-key",
-    },
-  },
+	description: "Official news and notices from Example University (示例大学).",
+	domain: "example.edu",
+	slug: "example-university",
+	title: "Example University",
 }).feed(
-  {
-    title: "Feed Title",
-    description: "Detailed description of the Feed (supports Markdown)",
-    fulltext: true,
-    language: ["zh-CN", "en"],
-    maintainer: { name: "Your Name" },
-    withImage: "If-Present",
-  },
-  (app) => app.get("/path/:param", async (context) => {
-    // Fetching logic
-    return data satisfies Data;
-  }),
+	{
+		description: "Fetch latest notices from a specified website category.",
+		fulltext: true,
+		language: "zh-CN",
+		maintainer: { name: "RSSBook" },
+		title: "Latest Notices",
+		withImage: "If-Present",
+	},
+	(app) =>
+		app.get(
+			"/notices/:category",
+			async ({ cache, date, formatHTML, load, ofetch, params, toAbsoluteURL }) => {
+				return data satisfies Data;
+			},
+			{
+				params: t.Object({
+					category: t.String({
+						description: "Website category ID, for example 1234.",
+					}),
+				}),
+			},
+		),
 );
 ```
 
-### Step 3: Register to Category
-
-Register in `src/routers/feeds/{category}/index.ts`:
+For a minimal route without params:
 
 ```typescript
-import { Category } from "@/utils";
-import mySource from "./my-source";
+import type { Data } from "@/types";
+import { Source } from "@/utils";
 
-export default new Category("category-name", "Category description").use({
-  mySource,
+export default new Source({
+	description: "Example feed source.",
+	domain: "example.com",
+	slug: "example",
+	title: "Example",
+}).feed(
+	{
+		description: "Latest items from Example.",
+		title: "Example Feed",
+	},
+	(app) =>
+		app.get("/latest", async ({ cache, meta: { domain } }) =>
+			cache.tryGet("example:latest", async () => {
+				return { title: "Example Feed", link: `https://${domain}`, item: [] } satisfies Data;
+			}),
+		),
+);
+```
+
+## Data And Utilities
+
+Use `pkgs/rssbook/src/types/data.ts` as the source of truth. Feed handlers return `Data`; items should include stable `title`, `link`, and, when possible, `id` and `date`. Prefer absolute links.
+
+Common utilities are exported from `@/utils` and often injected into handler context:
+
+- `parse()` for RSS, Atom, JSON Feed, and raw data parsing.
+- `render()` for output generation.
+- `filter()`, `sort()`, `union()`, and `intersection()` for feed operations.
+- `load()` for HTML parsing.
+- `formatHTML()` for sanitizing and normalizing HTML fragments.
+- `toAbsoluteURL()` for link normalization.
+- `Cache` / `cache.tryGet()` for storage-backed caching.
+
+### Feed Context Properties
+
+The handler function receives these properties:
+
+- **Metadata**: `meta` (source metadata including `slug`, `title`, `description`, `domain`, `config`), `lang` (request language)
+- **Request**: `params` (route parameters), `query` (query parameters), `headers` (request headers)
+- **Utilities**: `cache`, `date`, `ofetch`, `load`, `formatHTML`, `toAbsoluteURL`, `parse`, `logger`, `uuid`, `config`
+
+## Metadata Rules
+
+- Use English for `Source.title`, route `title`, route `description`, parameter descriptions, and config descriptions.
+- If the website is primarily in another language, mention the native name in `description`, for example `Example University (示例大学)`.
+- Keep `slug` lowercase hyphen-case and matching the folder name.
+- Keep returned Feed item content in the source language. Only route metadata needs to be English/i18n-friendly.
+
+## Testing Rules
+
+- Put tests beside the Source, for example `pkgs/rssbook/src/routers/feeds/school/example-university/index.test.ts`.
+- Use `getRouteData` from `@/utils/tests/source`.
+- Write one explicit `test(...)` per route. Do not generate route tests with a loop.
+- Route tests should verify the route returns valid `Data` from a real page; do not test Source metadata directly.
+- Default `bun test` intentionally ignores `pkgs/rssbook/src/routers/feeds/**`; use the source scripts for route tests.
+
+```typescript
+import { describe, expect, test } from "bun:test";
+import { getRouteData } from "@/utils/tests/source";
+import source from ".";
+
+describe("Example University", () => {
+	test("fetches latest notices", async () => {
+		const data = await getRouteData(source, "/notices/1234");
+
+		expect(data.title).toContain("Example University");
+		expect(data.item?.length).toBeGreaterThan(0);
+	}, 20_000);
 });
 ```
 
-## Handler Context
+## Project Scripts
 
-The context object received by the handler function contains:
-
-### Props
-
-| Property | Description |
-|----------|-------------|
-| `meta` | Metadata for the source and Feed (domain, config, title, etc.) |
-| `params` | Route parameters (e.g., `:username`) |
-| `query` | Query parameters |
-| `lang` | Request language (parsed from Accept-Language) |
-
-### Functions
-
-| Function | Description |
-|----------|-------------|
-| `cache` | Cache object, use `cache.tryGet(key, fn)` |
-| `date` | Date parsing function |
-| `ofetch` | Enhanced fetch function |
-| `load` | HTML parser (jQuery-like) |
-| `formatHTML` | HTML cleanup and formatting |
-| `toAbsoluteURL` | Relative URL to absolute URL |
-| `parse` | Parse RSS/Atom Feed |
-| `logger` | Logging tool |
-
-## Data Type Structure
-
-The returned data must conform to the `Data` type:
-
-```typescript
-interface Data {
-  title: string;           // Feed title
-  link: string;            // Feed link
-  description?: string;    // Feed description
-  language?: string;       // Language code
-  item?: DataItem[];       // Feed items
-  updated?: Date;          // Update time
-}
-
-interface DataItem {
-  title: string;           // Item title
-  link: string;            // Item link
-  description?: string;    // Summary
-  content?: string;        // Full text content
-  date?: Date;             // Publication date
-  author?: Author[];       // Authors
-  category?: Category[];   // Categories
-  image?: string;          // Image
-  id?: string;             // Unique identifier
-}
-```
-
-## Example: API Data Source
-
-```typescript
-export default new Source({
-  slug: "github",
-  title: "GitHub",
-  description: "GitHub code hosting platform",
-  domain: "github.com",
-}).feed(
-  {
-    title: "User Events",
-    description: "Fetch GitHub user activity events",
-    language: ["en"],
-    maintainer: { name: "RSSBook" },
-  },
-  (app) => app.get(
-    "/events/:username",
-    async ({ params: { username }, cache, date, ofetch, meta: { domain } }) => {
-      const link = `https://api.${domain}/users/${username}/events`;
-
-      const items = await cache.tryGet(link, async (url) => {
-        const events = await ofetch(url, { responseType: "json" });
-        return events.map((event) => ({
-          title: event.title,
-          link: event.url,
-          date: date(event.created_at),
-          description: event.description,
-        } satisfies DataItem));
-      });
-
-      return {
-        title: `GitHub Events - ${username}`,
-        link,
-        item: items,
-      } satisfies Data;
-    },
-    {
-      params: t.Object({
-        username: t.String({ description: "GitHub username" }),
-      }),
-    },
-  ),
-);
-```
-
-## Example: HTML Web Scraping
-
-```typescript
-export default new Source({
-  slug: "blog",
-  title: "Blog",
-  description: "Blog website",
-  domain: "blog.example.com",
-}).feed(
-  {
-    title: "Latest Articles",
-    description: "Fetch latest blog articles",
-    fulltext: true,
-    language: ["zh-CN"],
-    maintainer: { name: "RSSBook" },
-  },
-  (app) => app.get(
-    "/",
-    async ({ cache, date, ofetch, load, formatHTML, toAbsoluteURL, meta: { domain } }) => {
-      const rootURL = `https://${domain}`;
-
-      const items = await cache.tryGet(rootURL, async (url) => {
-        const html = await ofetch(url, { responseType: "text" });
-        const $ = load(html);
-
-        return $("article.post").toArray().map((el) => {
-          const $el = $(el);
-          return {
-            title: $el.find("h2").text().trim(),
-            link: toAbsoluteURL($el.find("a").attr("href") || "", rootURL),
-            date: date($el.find(".date").text()),
-            description: $el.find(".excerpt").text().trim(),
-          } satisfies DataItem;
-        });
-      });
-
-      return {
-        title: "Blog Latest Articles",
-        link: rootURL,
-        item: items,
-      } satisfies Data;
-    },
-  ),
-);
-```
-
-## Best Practices
-
-1. **Use Cache**: Always use `cache.tryGet()` to avoid repeated requests
-2. **Type Safety**: Use `satisfies Data` and `satisfies DataItem` to ensure type correctness
-3. **Error Handling**: Use try-catch when fetching full text content
-4. **Concurrent Requests**: Use `Promise.all()` to fetch multiple pages concurrently
-5. **URL Handling**: Use `toAbsoluteURL()` for relative links
-6. **HTML Cleanup**: Use `formatHTML()` to clean HTML content
+- `bun source:new`: interactive Source scaffold. It copies a template from `pkgs/rssbook/src/routers/feeds/_example` into `pkgs/rssbook/src/routers/feeds/{category}/{slug}`. After scaffolding, update metadata, register the Source in the category `index.ts`, and write colocated route tests in `index.test.ts`.
+- `bun source:test`: finds modified Sources under `pkgs/rssbook/src/routers/feeds/**` using git status, including untracked files, and runs each modified Source's colocated `index.test.ts`. If a Source has no test file, it offers to create a `getRouteData`-based template.
+- `bun source:test:all`: runs all Source tests under `pkgs/rssbook/src/routers/feeds`.
+- `bun test`: runs non-Source tests and ignores `pkgs/rssbook/src/routers/feeds/**`, because Source route tests often depend on real network conditions.

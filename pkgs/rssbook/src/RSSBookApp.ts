@@ -7,50 +7,53 @@ import {
 	initPlugin,
 	loggerPlugin,
 	openAPIPlugin,
-	type RSSBookInitConfig,
+	type RSSBookBookConfig,
 } from "@/plugins";
 import { routePlugin } from "@/routers";
-
-type RSSBookAppConfig = RSSBookInitConfig & {
-	enableFetchOnlineServer?: boolean;
-	staticPlugin?: boolean;
-
-	adapter?: ElysiaAdapter;
-};
+import type { Cache } from "@/utils";
 
 /**
- * RSSBook Main App
+ * Configuration options for creating an RSSBook application.
+ */
+export interface RSSBookAppConfig {
+	adapter?: ElysiaAdapter;
+	book?: RSSBookBookConfig;
+	cache?: Cache;
+	openapi?: {
+		/** Enable the online fetch server for proxying requests */
+		enableFetchOnlineServer?: boolean;
+	};
+	/** Enable the static file serving plugin */
+	static?: boolean;
+}
+
+/**
+ * Create RSSBook main app
  * @param init RSSBook initialization config
  * @return Elysia app instance
  */
-export const RSSBookApp = (init?: RSSBookAppConfig) => {
-	if (init) {
-		return (
-			new Elysia({
-				adapter: init?.adapter,
-				name: "RSSBook/App",
-			})
-				// error boundary plugin
-				.use(errorHandlerPlugin)
-				// server timing plugin
-				.use(serverTiming())
-				// request logging
-				.use(loggerPlugin)
-				// generate openapi doc
-				.use(openAPIPlugin(init?.enableFetchOnlineServer))
-
-				// init RSSBook instance
-				.use(initPlugin(init))
-				// book plugin
-				.use(bookPlugin)
-				// sign routes plugin
-				.use(routePlugin)
-				// static assets plugin
-				.use(assetsPlugin(init?.staticPlugin))
-		);
-	} else {
-		return new Elysia({
+export const createRSSBookApp = (init?: RSSBookAppConfig) => {
+	return (
+		new Elysia({
+			adapter: init?.adapter,
 			name: "RSSBook/App",
-		});
-	}
+		})
+			// error boundary plugin
+			.use(errorHandlerPlugin)
+			// server timing plugin
+			.use(serverTiming())
+			// request logging
+			.use(loggerPlugin)
+			// generate openapi doc
+			.use(openAPIPlugin(init?.openapi?.enableFetchOnlineServer))
+
+			// init RSSBook instance
+			.use(initPlugin({ book: init?.book, cache: init?.cache }))
+			// book plugin
+			.use(bookPlugin)
+			// sign routes plugin
+			.use(routePlugin)
+			// static assets plugin
+			.use(assetsPlugin(init?.static))
+	);
 };

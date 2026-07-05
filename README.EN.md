@@ -183,7 +183,7 @@ The entry file for Deno is in the `platform-deno` package: `platform/deno/index.
 
 Deno is another runtime following Node.js.
 
-[![Deploy on Deno](https://deno.com/button)](https://console.deno.com/new?clone=https://github.com/HackHTU/RSSBook)
+[![Deploy on Deno](https://deno.com/button)](https://console.deno.com/new?clone=https://github.com/HackHTU/RSSBook&path=platform/deno)
 
 ##### CloudFlare Workers
 
@@ -193,7 +193,7 @@ The entry file for CloudFlare Workers is in the `platform-cloudflare` package: `
 
 For production, you can directly click the button below to deploy to CloudFlare Workers, but this method does not support **custom configuration**.
 
-[![Deploy to Cloudflare](https://deploy.workers.cloudflare.com/button)](https://deploy.workers.cloudflare.com/?url=https://github.com/HackHTU/RSSBook/)
+[![Deploy to Cloudflare](https://deploy.workers.cloudflare.com/button)](https://deploy.workers.cloudflare.com/?url=https://github.com/HackHTU/RSSBook/tree/main/platform/cloudflare)
 
 A better approach is to fork this repository, modify the configuration in [Github CodeSpace](https://github.com/codespaces/new/) or locally, then configure your own GitHub repository in Cloudflare Workers settings for deployment (or you can use GitHub Workflow).
 
@@ -203,7 +203,7 @@ Vercel is a popular serverless computing platform that also provides a generous 
 
 The entry file for Vercel is in the `platform-vercel` package: `platform/vercel/index.ts`.
 
-[![Deploy with Vercel](https://vercel.com/button)](https://vercel.com/new/clone?repository-url=https%3A%2F%2Fgithub.com%2FHackHTU%2FRSSBook)
+[![Deploy with Vercel](https://vercel.com/button)](https://vercel.com/new/clone?repository-url=https%3A%2F%2Fgithub.com%2FHackHTU%2FRSSBook&root-directory=platform%2Fvercel)
 
 ##### Netlify
 
@@ -211,7 +211,7 @@ Netlify is a popular serverless computing platform that also provides a generous
 
 The entry file for Netlify is in the `platform-netlify` package: `platform/netlify/index.ts`.
 
-[![Deploy to Netlify](https://www.netlify.com/img/deploy/button.svg)](https://app.netlify.com/start/deploy?repository=https://github.com/HackHTU/RSSBook)
+[![Deploy to Netlify](https://www.netlify.com/img/deploy/button.svg)](https://app.netlify.com/start/deploy?repository=https://github.com/HackHTU/RSSBook&base=platform/netlify)
 
 ### Initial Configuration
 

@@ -3,34 +3,50 @@ import { defaultTheme } from "@/books/theme";
 import type { Meta, Theme } from "@/types";
 import { Cache } from "@/utils";
 
-export interface RSSBookInitConfig {
+/**
+ * Book initialization configuration.
+ * Used to configure feeds, route config values, and theming.
+ */
+export interface RSSBookBookConfig {
+	/** List of RSS feed URLs to aggregate */
 	feeds?: string[];
+	/** TTL in milliseconds for aggregated books feed data */
+	cacheMaxAgeMs?: number;
+	/** HTML meta tags for the rendered pages */
 	meta?: Meta;
-	cache?: Cache;
+	/** Custom configuration key-value pairs */
 	config?: Record<string, string>;
+	/** Theme for rendering feed pages */
 	theme?: Theme;
 }
 
-export class RSSBook {
-	cache: Cache;
-
+export interface RSSBook {
 	books: {
+		cacheMaxAgeMs: number;
 		feeds: string[];
 		meta: Meta;
 		theme: Theme;
 	};
-
+	cache: Cache;
 	config: Record<string, string>;
+}
 
-	constructor(init?: RSSBookInitConfig) {
-		this.books = {
-			feeds: init?.feeds || [],
-			meta: init?.meta || {},
-			theme: init?.theme || defaultTheme,
-		};
-		this.config = init?.config || {};
-		this.cache = init?.cache || new Cache();
-	}
+export interface RSSBookInitConfig {
+	book?: RSSBookBookConfig;
+	cache?: Cache;
+}
+
+export function createRSSBook(init?: RSSBookInitConfig): RSSBook {
+	return {
+		books: {
+			cacheMaxAgeMs: init?.book?.cacheMaxAgeMs || 10 * 60 * 1000,
+			feeds: init?.book?.feeds || [],
+			meta: init?.book?.meta || {},
+			theme: init?.book?.theme || defaultTheme,
+		},
+		cache: init?.cache || new Cache(),
+		config: init?.book?.config || {},
+	};
 }
 
 /**
@@ -42,5 +58,8 @@ export const initPlugin = (config?: RSSBookInitConfig) =>
 	new Elysia({ name: "RSSBook/Init" }).decorate(
 		{ as: "append" }, // Inject ONLY if not exixts
 		"rssbook",
-		new RSSBook(config),
+		createRSSBook({
+			book: config?.book,
+			cache: config?.cache,
+		}),
 	);

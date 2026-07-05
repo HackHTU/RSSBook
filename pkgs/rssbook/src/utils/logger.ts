@@ -7,13 +7,14 @@ enum LogLevel {
 	ERROR = 3,
 }
 
-interface LoggerConfig {
+export interface LoggerConfig {
 	level: LogLevel;
 	timestamp: boolean;
 	colors: boolean;
 }
 class Logger {
-	private config: LoggerConfig;
+	/** @internal */
+	config: LoggerConfig;
 
 	constructor(config: Partial<LoggerConfig> = {}) {
 		this.config = {
@@ -24,12 +25,14 @@ class Logger {
 		};
 	}
 
-	private formatMessage(level: string, message: string): string {
+	/** @internal */
+	formatMessage(level: string, message: string): string {
 		const timestamp = this.config.timestamp ? `[${new Date().toISOString()}]` : "";
 		return `${timestamp} [${level}] ${message}`;
 	}
 
-	private shouldLog(level: LogLevel): boolean {
+	/** @internal */
+	shouldLog(level: LogLevel): boolean {
 		return level >= this.config.level;
 	}
 

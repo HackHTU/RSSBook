@@ -1,0 +1,80 @@
+name: Feed Source Check
+
+on:
+  pull_request:
+    paths:
+      - "pkgs/rssbook/src/routers/feeds/**"
+
+permissions:
+  contents: read
+
+jobs:
+  check-feed-tests:
+    name: Verify feed sources have tests
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          fetch-depth: 0
+
+      - uses: oven-sh/setup-bun@0c5077e51419868618aeaa5fe8019c62421857d6 # v2
+        with:
+          bun-version: latest
+
+      - name: Install dependencies
+        run: bun install --frozen-lockfile
+
+      - name: Check source files have corresponding tests
+        id: check
+        run: |
+          changed_sources=$(git diff --name-only --diff-filter=ACMR ${{ github.event.pull_request.base.sha }} HEAD -- \
+            'pkgs/rssbook/src/routers/feeds/' \
+            | grep -E '^pkgs/rssbook/src/routers/feeds/[^/]+/[^/]+/index\.ts$' \
+            | grep -v '/_example/' \
+            || true)
+
+          if [ -z "$changed_sources" ]; then
+            echo "No feed source files changed."
+            echo "has_changes=false" >> "$GITHUB_OUTPUT"
+            exit 0
+          fi
+
+          echo "has_changes=true" >> "$GITHUB_OUTPUT"
+          echo "Changed feed sources:"
+          echo "$changed_sources"
+
+          missing_tests=""
+          test_files=""
+
+          for src in $changed_sources; do
+            test_file="${src%index.ts}index.test.ts"
+            if [ ! -f "$test_file" ]; then
+              missing_tests="$missing_tests\n  Missing: $test_file (for $src)"
+            else
+              test_files="$test_files $test_file"
+            fi
+          done
+
+          if [ -n "$missing_tests" ]; then
+            echo "::error::The following feed sources are missing test files:"
+            echo -e "$missing_tests"
+            exit 1
+          fi
+
+          echo "test_files=$test_files" >> "$GITHUB_OUTPUT"
+          echo "All feed sources have corresponding test files."
+
+      - name: Run feed tests
+        if: steps.check.outputs.has_changes == 'true'
+        run: |
+          test_files="${{ steps.check.outputs.test_files }}"
+          echo "Running tests for:$test_files"
+          bun test $test_files
+
+      - name: Typecheck
+        if: steps.check.outputs.has_changes == 'true'
+        run: bun run check:type
+
+      - name: Biome check
+        if: steps.check.outputs.has_changes == 'true'
+        run: bun run check:biome

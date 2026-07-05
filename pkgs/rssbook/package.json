@@ -13,6 +13,7 @@
 		"@rowanmanning/feed-parser": "catalog:",
 		"cheerio": "catalog:",
 		"dayjs": "catalog:",
+		"domhandler": "catalog:",
 		"elysia": "catalog:",
 		"feed": "catalog:",
 		"ofetch": "catalog:",
@@ -20,27 +21,34 @@
 		"unstorage": "catalog:",
 		"uuid": "catalog:"
 	},
-	"exports": {
-		".": "./src/RSSBookApp.ts",
-		"./bun": "./src/index.ts",
-		"./utils": "./src/utils/index.ts"
+	"devDependencies": {
+		"tsup": "catalog:"
 	},
+	"exports": {
+		".": {
+			"import": "./dist/index.js",
+			"types": "./dist/index.d.ts"
+		}
+	},
+	"files": [
+		"dist"
+	],
 	"homepage": "https://github.com/HackHTU/RSSBook",
 	"license": "MIT",
-	"main": "src/RSSBookApp.ts",
 	"name": "rssbook",
 	"repository": {
 		"type": "git",
 		"url": "git://github.com/HackHTU/RSSBook.git"
 	},
 	"scripts": {
-		"build": "bun build --define process.env.NODE_ENV='\"production\"' --minify-whitespace --minify-syntax --outfile ../../dist/bun/index.js --target bun src/index.ts",
+		"build": "rm -rf dist && bun build src/index.ts --target=bun --format=esm --packages=external --sourcemap=linked --outdir=dist && bunx tsup && mkdir -p dist/public/xsl && cp src/public/favicon.ico src/public/favicon.svg src/public/robots.txt dist/public/ && cp src/public/xsl/atom.xsl src/public/xsl/rss.xsl dist/public/xsl/",
+		"check": "tsc --noEmit",
 		"dev": "bun --watch src/index.ts",
-		"start": "bun ../../dist/bun/index.js",
 		"version:major": "npm version major",
 		"version:minor": "npm version minor",
 		"version:patch": "npm version patch"
 	},
 	"type": "module",
+	"types": "./dist/index.d.ts",
 	"version": "0.0.1"
 }

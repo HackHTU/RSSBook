@@ -1,7 +1,14 @@
 import Elysia, { t } from "elysia";
 import { initPlugin } from "@/plugins";
-import { type Data, type DataItem, EMPTY_DATA, feedType, type ThemeProps } from "@/types";
-import { type Cache, filter, logger, ofetch, parse, render, sort, union } from "@/utils";
+import {
+	type Data,
+	type DataItem,
+	EMPTY_DATA,
+	feedType,
+	parseData,
+	type ThemeProps,
+} from "@/types";
+import { type Cache, filter, logger, ofetch, parse, render, sort, union, uuid } from "@/utils";
 
 const DEFAULT_META: ThemeProps["meta"] = {
 	atomFeed: "/books/atom",
@@ -13,6 +20,7 @@ const DEFAULT_META: ThemeProps["meta"] = {
 
 const DEFAULT_PAGE_SIZE = 20;
 const MAX_PAGE_SIZE = 100;
+const BOOKS_LAST_SUCCESS_MAX_AGE_MS = 7 * 24 * 60 * 60 * 1000;
 
 interface CachedBooksData {
 	/** Sorted feed data */
@@ -21,7 +29,7 @@ interface CachedBooksData {
 	categories: ThemeProps["categories"];
 }
 
-async function getAllFeedData(feedUrls: string[]): Promise<Data> {
+async function getAllFeedData(feedUrls: string[]): Promise<Data | null> {
 	if (feedUrls.length === 0) {
 		return EMPTY_DATA;
 	}
@@ -51,7 +59,7 @@ async function getAllFeedData(feedUrls: string[]): Promise<Data> {
 		.map((result) => result.value);
 
 	if (validFeeds.length === 0) {
-		return EMPTY_DATA;
+		return null;
 	}
 
 	if (validFeeds.length === 1) {
@@ -62,29 +70,106 @@ async function getAllFeedData(feedUrls: string[]): Promise<Data> {
 	return union(firstFeed, restFeeds);
 }
 
-/** Fetch and process books data with caching */
-async function getCachedBooksData(feeds: string[], cache: Cache): Promise<CachedBooksData> {
-	// TODO:
-	return cache.tryGet("rssbook:books", async () => {
-		// Fetch raw feed data
-		const rawData = await getAllFeedData(feeds);
+function getBooksCacheKeys(feeds: string[]) {
+	const feedKey = uuid(feeds);
+	return {
+		fresh: `rssbook:books:${feedKey}:fresh`,
+		lastSuccess: `rssbook:books:${feedKey}:last-success`,
+	};
+}
 
-		// Sort data by date
-		const sortedData = sort(rawData);
+function processBooksData(rawData: Data): CachedBooksData {
+	const sortedData = sort(rawData);
+	const categories: ThemeProps["categories"] = Array.from(
+		new Set(
+			(sortedData.item || [])
+				.flatMap((item) => item.category?.map((cat) => cat.name) || [])
+				.filter((name): name is string => name !== undefined),
+		),
+	)
+		.sort((a, b) => a.localeCompare(b))
+		.map((name) => ({ name }));
 
-		// Extract all categories from sorted data
-		const categories: ThemeProps["categories"] = Array.from(
-			new Set(
-				(sortedData.item || [])
-					.flatMap((item) => item.category?.map((cat) => cat.name) || [])
-					.filter((name): name is string => name !== undefined),
-			),
-		)
-			.sort((a, b) => a.localeCompare(b))
-			.map((name) => ({ name }));
+	return { categories, sortedData };
+}
 
-		return { categories, sortedData };
-	});
+function reviveBooksDate(key: string, value: unknown) {
+	if ((key === "date" || key === "published" || key === "updated") && typeof value === "string") {
+		const date = new Date(value);
+		if (!Number.isNaN(date.getTime())) {
+			return date;
+		}
+	}
+
+	return value;
+}
+
+function isRecord(value: unknown): value is Record<string, unknown> {
+	return typeof value === "object" && value !== null;
+}
+
+function isCategory(value: unknown): value is { name: string } {
+	return isRecord(value) && typeof value.name === "string";
+}
+
+function encodeCachedBooksData(data: CachedBooksData): string {
+	return JSON.stringify(data);
+}
+
+function decodeCachedBooksData(data: string): CachedBooksData {
+	const parsed: unknown = JSON.parse(data, reviveBooksDate);
+	if (!isRecord(parsed)) {
+		throw new Error("Invalid cached books data");
+	}
+
+	return {
+		categories: Array.isArray(parsed.categories) ? parsed.categories.filter(isCategory) : [],
+		sortedData: parseData(parsed.sortedData),
+	};
+}
+
+async function refreshBooksData(feeds: string[], cache: Cache, lastSuccessKey: string) {
+	const rawData = await getAllFeedData(feeds);
+
+	if (rawData === null) {
+		throw new Error("Unable to fetch or parse any configured books feeds");
+	}
+
+	const processedData = processBooksData(rawData);
+	const encodedData = encodeCachedBooksData(processedData);
+	await cache.set(lastSuccessKey, encodedData, BOOKS_LAST_SUCCESS_MAX_AGE_MS);
+	return encodedData;
+}
+
+/**
+ * Fetch and process books data with a feed-list-specific fresh cache.
+ * The fresh key uses the configured TTL; the last-success key is a longer-lived
+ * fallback so an expired refresh cannot replace usable data with an empty feed.
+ */
+export async function getCachedBooksData(
+	feeds: string[],
+	cache: Cache,
+	maxAgeMs: number,
+): Promise<CachedBooksData> {
+	const { fresh, lastSuccess } = getBooksCacheKeys(feeds);
+
+	try {
+		const data = await cache.tryGet<string>(
+			fresh,
+			() => refreshBooksData(feeds, cache, lastSuccess),
+			maxAgeMs,
+		);
+		return decodeCachedBooksData(data);
+	} catch (error) {
+		const fallback = await cache.get<string>(lastSuccess);
+		if (fallback !== null) {
+			logger.error("Failed to refresh books cache; using last successful data", error);
+			return decodeCachedBooksData(fallback);
+		}
+
+		logger.error("Failed to refresh books cache and no last successful data exists", error);
+		return processBooksData(EMPTY_DATA);
+	}
 }
 
 export const bookPlugin = new Elysia({
@@ -97,12 +182,16 @@ export const bookPlugin = new Elysia({
 		async ({
 			query: { page, limit, search, category },
 			rssbook: {
-				books: { feeds, meta, theme },
+				books: { cacheMaxAgeMs, feeds, meta, theme },
 				cache,
 			},
 		}) => {
 			// Get cached sorted data and categories
-			const { sortedData, categories: allCategories } = await getCachedBooksData(feeds, cache);
+			const { sortedData, categories: allCategories } = await getCachedBooksData(
+				feeds,
+				cache,
+				cacheMaxAgeMs,
+			);
 
 			// Apply search and category filters (not cached due to dynamic params)
 			const filteredData = filter(sortedData, {
@@ -193,12 +282,12 @@ export const bookPlugin = new Elysia({
 		async ({
 			params: { type },
 			rssbook: {
-				books: { feeds },
+				books: { cacheMaxAgeMs, feeds },
 				cache,
 			},
 		}) => {
 			// Reuse cached processed data
-			const { sortedData } = await getCachedBooksData(feeds, cache);
+			const { sortedData } = await getCachedBooksData(feeds, cache, cacheMaxAgeMs);
 			return render(sortedData, type);
 		},
 		{

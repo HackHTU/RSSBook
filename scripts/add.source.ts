@@ -247,9 +247,11 @@ async function main() {
 				`  3. Add your source to the category ${colors.dim}pkgs/rssbook/src/routers/feeds/${category}/index.ts${colors.reset}`,
 			);
 			log(
-				`  4. Write tests for your feed in ${colors.dim}pkgs/rssbook/src/tests/feeds/${category}/${feedName}.test.ts${colors.reset}`,
+				`  4. Write one explicit route test per GET feed in ${colors.dim}pkgs/rssbook/src/routers/feeds/${category}/${feedName}/index.test.ts${colors.reset}`,
 			);
-			log(`  5. Test it, commit your changes, and submit a pull request!`);
+			log(
+				`  5. Use ${colors.dim}bun source:test${colors.reset} to run tests for modified sources when needed.`,
+			);
 
 			console.log();
 		} catch (err) {

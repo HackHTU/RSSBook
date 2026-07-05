@@ -5,15 +5,23 @@ import { logger, ofetch } from "@/utils";
 import pkg from "../../package.json" with { type: "json" };
 
 const { version } = pkg;
-export const openAPIPlugin = (enableFetchOnlineServer: boolean = true) => {
-	// fetch public instance hosts list
-	let onlineList: {
-		url: string;
-		description: string;
-		online: boolean;
-	}[] = [];
 
+export const openAPIPlugin = (enableFetchOnlineServer: boolean = true) => {
+	const servers = [
+		{
+			description: "Local Server (Default - You can switch to available online server lists.)",
+			url: "/",
+		},
+	];
+
+	// fetch public instance hosts list
 	const updateHosts = async () => {
+		let onlineList: {
+			url: string;
+			description: string;
+			online: boolean;
+		}[] = [];
+
 		try {
 			const text = await ofetch(
 				"https://raw.githubusercontent.com/HackHTU/RSSBook/refs/heads/main/HOSTS",
@@ -34,6 +42,11 @@ export const openAPIPlugin = (enableFetchOnlineServer: boolean = true) => {
 					};
 				})
 				.filter((host) => host.url && host.online);
+			servers.splice(
+				1,
+				servers.length,
+				...onlineList.map(({ description, url }) => ({ description, url })),
+			);
 			logger.info(`Loaded ${onlineList.length} online hosts.`);
 		} catch {}
 	};
@@ -90,16 +103,7 @@ $ cd RSSBook && bun dev
 							title: "RSSBook OpenAPI Documentation",
 							version: version,
 						},
-						servers: [
-							{
-								description:
-									"Local Server (Default - You can switch to available online server lists.)",
-								url: "/",
-							},
-
-							// Add online server lists if enabled
-							...onlineList,
-						],
+						servers,
 						tags: [
 							{
 								description:

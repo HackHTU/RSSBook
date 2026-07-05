@@ -1,16 +1,15 @@
 {
 	"dependencies": {
+		"elysia": "catalog:",
 		"rssbook": "workspace:*"
 	},
-	"devDependencies": {
-		"vercel": "catalog:"
-	},
+	"devDependencies": {},
 	"name": "@rssbook/platform-vercel",
 	"private": true,
 	"scripts": {
 		"build": "bun build --define process.env.NODE_ENV='\"production\"' --minify-whitespace --minify-syntax --outfile ../../dist/vercel/index.js --target bun index.ts",
-		"deploy": "vercel --prod",
-		"dev": "vercel dev"
+		"deploy": "bunx vercel --prod",
+		"dev": "bunx vercel dev"
 	},
 	"type": "module"
 }

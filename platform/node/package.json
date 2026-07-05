@@ -1,7 +1,7 @@
 {
 	"dependencies": {
 		"@elysiajs/node": "^1.4.5",
-		"rssbook": "latest"
+		"rssbook": "workspace:*"
 	},
 	"devDependencies": {
 		"tsx": "latest"

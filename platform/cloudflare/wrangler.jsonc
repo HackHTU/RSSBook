@@ -5,12 +5,14 @@
 		"directory": "../../pkgs/rssbook/src/public"
 	},
 	"compatibility_date": "2025-07-30",
-	"compatibility_flags": ["nodejs_compat", "nodejs_compat_populate_process_env"],
+	"compatibility_flags": [
+		"nodejs_compat",
+		"nodejs_compat_populate_process_env"
+	],
 	// KV Namespace
 	"kv_namespaces": [
 		{
-			"binding": "RSSBookKV",
-			"id": "3f8938b2584a4570a80ba6b1df5e3963"
+			"binding": "RSSBookKV"
 		}
 	],
 	"main": "index.ts",

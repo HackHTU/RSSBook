@@ -1,14 +1,13 @@
 {
 	"dependencies": {
 		"elysia": "^1.4.29",
-		"rssbook": "latest",
+		"rssbook": "workspace:*",
 		"unstorage": "^1.17.5"
 	},
 	"devDependencies": {},
 	"name": "@rssbook/platform-cloudflare",
 	"private": true,
 	"scripts": {
-		"build": "bunx wrangler deploy --config wrangler.jsonc --dry-run --outdir ../../dist/cloudflare",
 		"deploy": "bunx wrangler deploy --config wrangler.jsonc",
 		"dev": "bunx wrangler dev --config wrangler.jsonc"
 	},

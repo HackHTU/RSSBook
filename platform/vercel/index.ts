@@ -1,11 +1,9 @@
 /**
  * Vercel entrypoint
  */
-
-import { Elysia } from "elysia";
 import { createRSSBookApp } from "rssbook";
 
-export default new Elysia().use(
+export default 
 	createRSSBookApp({
 		book: {
 			config: {},
@@ -18,5 +16,4 @@ export default new Elysia().use(
 		openapi: {
 			enableFetchOnlineServer: true,
 		},
-	}),
-);
+	}).fetch

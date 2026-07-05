@@ -201,7 +201,9 @@ A better approach is to fork this repository, modify the configuration in [Githu
 
 Vercel is a popular serverless computing platform that also provides a generous free tier.
 
-The entry file for Vercel is in the `platform-vercel` package: `platform/vercel/index.ts`.
+The entry file for Vercel is in the `platform-vercel` package: `platform/vercel/api/index.ts`.
+
+Vercel deployment settings are defined in `platform/vercel/vercel.json`, which sets the Framework Preset to Other.
 
 [![Deploy with Vercel](https://vercel.com/button)](https://vercel.com/new/clone?repository-url=https%3A%2F%2Fgithub.com%2FHackHTU%2FRSSBook&root-directory=platform%2Fvercel)
 

@@ -201,7 +201,9 @@ CloudFlare Workers 的入口文件在 `platform-cloudflare` 包中：`platform/c
 
 Vercel 是一个非常流行的 Serverless 计算平台，也提供了慷慨的免费使用额度。
 
-Vercel 的入口文件在 `platform-vercel` 包中：`platform/vercel/index.ts`。
+Vercel 的入口文件在 `platform-vercel` 包中：`platform/vercel/api/index.ts`。
+
+Vercel 部署配置已写入 `platform/vercel/vercel.json`，会将 Framework Preset 设置为 Other。
 
 [![Deploy with Vercel](https://vercel.com/button)](https://vercel.com/new/clone?repository-url=https%3A%2F%2Fgithub.com%2FHackHTU%2FRSSBook&root-directory=platform%2Fvercel)
 

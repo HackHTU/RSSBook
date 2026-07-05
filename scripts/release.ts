@@ -16,7 +16,7 @@ function log(message: string, color = colors.reset) {
 	console.log(`${color}${message}${colors.reset}`);
 }
 
-function error(message: string) {
+function error(message: string): never {
 	log(`✗ ${message}`, colors.red);
 	process.exit(1);
 }

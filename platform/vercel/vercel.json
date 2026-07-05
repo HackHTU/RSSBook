@@ -3,6 +3,7 @@
 	"framework": null,
 	"installCommand": "bun install",
 	"buildCommand": "echo \"No build required\"",
+	"outputDirectory": "public",
 	"devCommand": "vercel dev",
 	"rewrites": [
 		{

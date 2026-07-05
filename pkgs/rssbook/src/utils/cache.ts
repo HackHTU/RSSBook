@@ -21,8 +21,6 @@ type CacheOptions = {
 	defaultMaxAgeMs: number;
 };
 
-type CloudflareKVBinding = Parameters<typeof cloudflareKVBindingDriver>[0]["binding"];
-
 /**
  * Cache metadata with TTL information
  */

@@ -75,7 +75,7 @@ function buildMessageDescription($: CheerioAPI, item: CheerioItem): string {
 
 function buildMessageTitle(item: CheerioItem, description: string, date: Date): string {
 	const text = item.find(".tgme_widget_message_text").text().split("\n", 1)[0]?.trim() ?? "";
-	return text || description.replace(/<[^>]+>/g, "").slice(0, 80) || date.toUTCString();
+	return text || description.replace(/[<>]/g, "").slice(0, 80) || date.toUTCString();
 }
 
 export default new Source({

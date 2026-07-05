@@ -97,6 +97,6 @@ function toItem(status: MastodonStatus, parseDate: (value: string) => Date): Dat
 		date: parseDate(status.created_at ?? new Date().toISOString()),
 		description,
 		link: status.url ?? `https://mastodon.social/@${status.account?.username}/${status.id}`,
-		title: `${author}: ${description.replaceAll(/<[^>]+>/g, "").slice(0, 80)}`,
+		title: `${author}: ${description.replace(/[<>]/g, "").slice(0, 80)}`,
 	} satisfies DataItem;
 }

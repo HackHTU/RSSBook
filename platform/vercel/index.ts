@@ -16,4 +16,4 @@ export default
 		openapi: {
 			enableFetchOnlineServer: true,
 		},
-	}).fetch
+	})

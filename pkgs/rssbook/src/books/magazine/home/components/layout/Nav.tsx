@@ -1,3 +1,4 @@
+import { formatHTML } from "@/utils";
 import type { Translations } from "../../i18n";
 
 interface NavProps {
@@ -7,6 +8,8 @@ interface NavProps {
 }
 
 export function Nav({ title, description, t }: NavProps) {
+	const safeDescription = description ? formatHTML(description) : "";
+
 	return (
 		<nav class="sticky top-0 z-40 border-neutral-200/60 border-b bg-[#faf8f5]/80 backdrop-blur-xl dark:border-neutral-800/60 dark:bg-[#1a1a1a]/80">
 			<div class="mx-auto flex max-w-7xl items-center justify-between px-6 py-4 lg:px-12">
@@ -14,9 +17,9 @@ export function Nav({ title, description, t }: NavProps) {
 					<h1 class="font-black font-serif text-2xl text-neutral-900 tracking-tight transition-colors group-hover:text-red-600 dark:text-neutral-100 dark:group-hover:text-red-500">
 						<span safe>{title || "RSSBook"}</span>
 					</h1>
-					{!!description && (
+					{!!safeDescription && (
 						<p class="mt-0.5 font-medium text-[10px] text-neutral-400 uppercase tracking-[0.25em] dark:text-neutral-600">
-							<span safe>{description}</span>
+							<span safe>{safeDescription}</span>
 						</p>
 					)}
 				</a>

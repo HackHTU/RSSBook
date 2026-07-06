@@ -20,7 +20,7 @@ export function Item({ item, t }: ItemProps) {
 	const hasImage = !!imageUrl;
 	const hasDescription = !!item.description && item.description.length > 0;
 	const descriptionLength = item.description?.length || 0;
-	const safeDescription = item.description ? formatHTML(item.description ?? "") : "";
+	const safeDescription = item.description ? formatHTML(item.description) : "";
 	const safeDurationMinutes = Math.floor((item.enclosure?.duration ?? 0) / 60);
 	const safeDurationSeconds = String((item.enclosure?.duration ?? 0) % 60).padStart(2, "0");
 

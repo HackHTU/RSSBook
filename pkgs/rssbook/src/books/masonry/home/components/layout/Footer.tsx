@@ -1,3 +1,4 @@
+import { formatHTML } from "@/utils";
 import type { Translations } from "../../i18n";
 
 interface FooterProps {
@@ -11,6 +12,7 @@ interface FooterProps {
 
 export function Footer({ title, description, rss, atom, json, t }: FooterProps) {
 	const currentYear = new Date().getFullYear();
+	const safeDescription = description ? formatHTML(description) : "";
 
 	return (
 		<footer class="border-stone-200/60 border-t bg-white/50 dark:border-stone-800/60 dark:bg-stone-950/50">
@@ -25,9 +27,9 @@ export function Footer({ title, description, rss, atom, json, t }: FooterProps) 
 								{title}
 							</h2>
 						</div>
-						{!!description && (
+						{!!safeDescription && (
 							<p class="mt-3 text-sm text-stone-500 leading-relaxed dark:text-stone-400" safe>
-								{description}
+								{safeDescription}
 							</p>
 						)}
 					</div>

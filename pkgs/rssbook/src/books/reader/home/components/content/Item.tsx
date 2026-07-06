@@ -1,4 +1,5 @@
 import type { DataItem } from "@/types";
+import { formatHTML } from "@/utils";
 import type { Translations } from "../../i18n";
 
 interface ItemProps {
@@ -6,9 +7,20 @@ interface ItemProps {
 	t: Translations;
 }
 
+const TEXT_ONLY_HTML_OPTIONS = {
+	allowedAttributes: {},
+	allowedTags: [],
+	disallowedTagsMode: "discard",
+	nonTextTags: ["script", "style", "textarea", "option"],
+} satisfies NonNullable<Parameters<typeof formatHTML>[2]>;
+
+function htmlToText(html: string): string {
+	return formatHTML(html, undefined, TEXT_ONLY_HTML_OPTIONS);
+}
+
 function estimateReadTime(text?: string): number {
 	if (!text) return 1;
-	const words = text.replace(/<[^>]*>/g, "").split(/\s+/).length;
+	const words = htmlToText(text).split(/\s+/).length;
 	return Math.max(1, Math.ceil(words / 200));
 }
 
@@ -32,7 +44,7 @@ function formatDate(date: Date): string {
 
 function getExcerpt(description?: string, maxLength = 200): string {
 	if (!description) return "";
-	const text = description.replace(/<[^>]*>/g, "").trim();
+	const text = htmlToText(description).trim();
 	if (text.length <= maxLength) return text;
 	return `${text.slice(0, maxLength).trimEnd()}…`;
 }

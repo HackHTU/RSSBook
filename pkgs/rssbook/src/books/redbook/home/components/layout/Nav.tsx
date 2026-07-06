@@ -1,3 +1,4 @@
+import { formatHTML } from "@/utils";
 import type { Translations } from "../../i18n";
 
 interface NavProps {
@@ -7,6 +8,7 @@ interface NavProps {
 }
 
 export function Nav({ title, description, t }: NavProps) {
+	const safeDescription = description ? formatHTML(description) : "";
 	const NavButtons = () => (
 		<>
 			<button
@@ -56,9 +58,9 @@ export function Nav({ title, description, t }: NavProps) {
 								<h1 class="bg-gradient-to-r from-rose-600 to-orange-600 bg-clip-text font-bold text-transparent text-xl md:text-2xl dark:from-rose-400 dark:to-orange-400">
 									<span safe>{title || "RSSBook"}</span>
 								</h1>
-								{!!description && (
+								{!!safeDescription && (
 									<p class="hidden text-stone-500 text-xs md:block dark:text-stone-400">
-										<span safe>{description}</span>
+										<span safe>{safeDescription}</span>
 									</p>
 								)}
 							</div>

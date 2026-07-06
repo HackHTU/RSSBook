@@ -41,9 +41,9 @@ export interface PaginationInfo {
 }
 
 export interface FilterInfo {
-	/** 当前搜索关键词 */
+	/** Current search keyword */
 	search: string;
-	/** 当前选中的分类 */
+	/** Currently selected category */
 	category: string;
 }
 

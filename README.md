@@ -52,7 +52,7 @@
 
 > [!CAUTION]
 >
-> 在版本号在 1.0 前，本项目还不稳定，我们还没有实现诸如在线生成器、Puppeteer 的集成、AI 的支持、环境变量、自动与上游同步和更好的库支持等，我们还有很长的路要走，欢迎你帮助我们改进项目。
+> 在版本号在 1.0 前，本项目还不稳定，我们还没有实现诸如在线生成器、Puppeteer 的集成、AI 的支持、自动与上游同步和更好的库支持等，我们还有很长的路要走，欢迎你帮助我们改进项目。
 
 ## 项目结构
 
@@ -160,6 +160,10 @@ bun run --filter @rssbook/platform-netlify deploy     # Netlify
 
 #### 平台特定说明
 
+> [!TIP]
+>
+> 在开始以下平台特定说明之前，请先阅读 [初始配置](#初始配置) 一节，了解如何通过 `RSSBookApp` 函数与 [环境变量](#环境变量) 进行配置。
+
 ##### Bun
 
 Bun 的入口文件在 `rssbook` 核心包中：`pkgs/rssbook/src/index.ts`。
@@ -191,7 +195,7 @@ Deno 是一个继 Node.js 之后的另一个运行时环境。
 
 CloudFlare Workers 的入口文件在 `platform-cloudflare` 包中：`platform/cloudflare/index.ts`。
 
-在生产时，你可以直接点击下面的按钮来部署到 CloudFlare Workers，但是这种方式不支持**自定义配置**。
+在生产时，你可以直接点击下面的按钮来部署到 CloudFlare Workers。部署完成后，你可以在 Cloudflare Workers 的设置中通过环境变量或 `wrangler` 配置文件来自定义 RSSBook 的配置项（请参考 [初始配置 - 环境变量](#环境变量) 一节）。
 
 [![Deploy to Cloudflare](https://deploy.workers.cloudflare.com/button)](https://deploy.workers.cloudflare.com/?url=https://github.com/HackHTU/RSSBook)
 
@@ -236,6 +240,29 @@ RSSBookApp({
 #### 配置说明
 
 各平台入口文件中的 `RSSBookApp` 函数接受一个配置对象，本指南让你熟悉在各个功能模块中的常用配置项。
+
+#### 环境变量
+
+你也可以通过环境变量来配置 RSSBook，`pkgs/rssbook/src/app.ts` 中定义的所有可用环境变量如下。
+
+| 名称 | 类型 | 说明 | 默认 | 示例 |
+| --- | --- | --- | --- | --- |
+| `RSSBOOK_BOOK_CACHE_MAX_AGE_MS` | 数字 (毫秒) | 聚合 Book Feed 数据的缓存 TTL。 | `600000` (10 分钟) | `RSSBOOK_BOOK_CACHE_MAX_AGE_MS="600000"` |
+| `RSSBOOK_BOOK_CONFIG` | `key=value` 列表 | Feed 源配置项，使用逗号分隔的 `key=value` 对。 | `{}` | `RSSBOOK_BOOK_CONFIG="GITHUB_TOKEN=token,DISCORD_TOKEN=token"` |
+| `RSSBOOK_BOOK_FEEDS` | URL 列表 | Book 页面聚合的 Feed 链接，使用逗号分隔。 | `https://rssbook.htu.me/feeds/programming/github/trending/daily` | `RSSBOOK_BOOK_FEEDS="https://rssbook.htu.me/feeds/programming/github/trending/daily"` |
+| `RSSBOOK_BOOK_THEME` | 主题名 | 内置 Book 主题，可选值：`gallery` `magazine` `masonry` `minimal` `reader` `redbook`。 | `redbook` | `RSSBOOK_BOOK_THEME="redbook"` |
+| `RSSBOOK_META_DESCRIPTION` | 字符串 | HTML `<meta>` 中的页面描述。 | 不渲染 | `RSSBOOK_META_DESCRIPTION="一个简单的 RSS Feed 聚合阅读器。"` |
+| `RSSBOOK_META_KEYWORDS` | 字符串列表 | HTML `<meta>` 中的页面关键词，使用逗号分隔。 | 不渲染 | `RSSBOOK_META_KEYWORDS="rss,reader,feeds"` |
+| `RSSBOOK_META_LANG` | 字符串 | HTML `<html lang="...">` 的语言值。 | 不渲染 | `RSSBOOK_META_LANG="en"` |
+| `RSSBOOK_META_TITLE` | 字符串 | HTML `<title>` 与 `<meta>` 中的页面标题。 | 不渲染 | `RSSBOOK_META_TITLE="RSSBook"` |
+| `RSSBOOK_OPENAPI_ENABLE_FETCH_ONLINE_SERVER` | 布尔值 | 是否在 OpenAPI 中拉取公网在线实例列表。 | `true` | `RSSBOOK_OPENAPI_ENABLE_FETCH_ONLINE_SERVER="true"` |
+| `RSSBOOK_STATIC` | 布尔值 | 是否启用静态资源服务。 | `true` | `RSSBOOK_STATIC="false"` |
+
+> [!NOTE]
+>
+> 数组类型的变量（如 `RSSBOOK_BOOK_FEEDS`、`RSSBOOK_META_KEYWORDS`）使用逗号分隔的字符串表示；源配置项 `RSSBOOK_BOOK_CONFIG` 使用逗号分隔的 `key=value` 对；布尔值接受 `true` `false` `1` `0` `yes` `no` `on` `off`（大小写不敏感），其他值会被忽略。
+>
+> 默认值来源：`RSSBOOK_BOOK_FEEDS` 在 `pkgs/rssbook/src/app.ts` 中通过 `??` 兜底；其他默认值来自下游模块 — `RSSBOOK_BOOK_CACHE_MAX_AGE_MS` / `RSSBOOK_BOOK_CONFIG` 来自 `pkgs/rssbook/src/plugins/init.ts`，`RSSBOOK_BOOK_THEME` 来自 `pkgs/rssbook/src/books/themes.ts` 的 `DEFAULT_THEME`，`RSSBOOK_OPENAPI_ENABLE_FETCH_ONLINE_SERVER` 来自 `pkgs/rssbook/src/plugins/openAPI.ts`，`RSSBOOK_STATIC` 来自 `pkgs/rssbook/src/plugins/static.ts`。
 
 #### 使用个人主页
 

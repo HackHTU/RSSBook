@@ -52,7 +52,7 @@
 
 > [!CAUTION]
 >
-> Before version 1.0, this project is not yet stable. We haven't implemented features like an online generator, Puppeteer integration, AI support, environment variables, automatic upstream sync, and better library support yet. We still have a long way to go, and your help in improving the project is welcome.
+> Before version 1.0, this project is not yet stable. We haven't implemented features like an online generator, Puppeteer integration, AI support, automatic upstream sync, and better library support yet. We still have a long way to go, and your help in improving the project is welcome.
 
 ## Project Structure
 
@@ -160,6 +160,10 @@ bun run --filter @rssbook/platform-netlify deploy     # Netlify
 
 #### Platform-Specific Notes
 
+> [!TIP]
+>
+> Before diving into the platform-specific notes below, please read the [Initial Configuration](#initial-configuration) section first to learn how to configure RSSBook via the `RSSBookApp` function and [Environment Variables](#environment-variables).
+
 ##### Bun
 
 The entry file for Bun is in the `rssbook` core package: `pkgs/rssbook/src/index.ts`.
@@ -191,7 +195,7 @@ I personally love [CloudFlare Workers](https://workers.cloudflare.com/). It's a 
 
 The entry file for CloudFlare Workers is in the `platform-cloudflare` package: `platform/cloudflare/index.ts`.
 
-For production, you can directly click the button below to deploy to CloudFlare Workers, but this method does not support **custom configuration**.
+For production, you can directly click the button below to deploy to CloudFlare Workers. After deployment, you can customize RSSBook configuration through environment variables or a `wrangler` config file in the Cloudflare Workers settings (see the [Initial Configuration - Environment Variables](#environment-variables) section).
 
 [![Deploy to Cloudflare](https://deploy.workers.cloudflare.com/button)](https://deploy.workers.cloudflare.com/?url=https://github.com/HackHTU/RSSBook)
 
@@ -236,6 +240,29 @@ RSSBookApp({
 #### Configuration Reference
 
 The `RSSBookApp` function in each platform's entry file accepts a configuration object. This guide helps you understand common configuration options across feature modules.
+
+#### Environment Variables
+
+You can also configure RSSBook via environment variables. All available variables defined in `pkgs/rssbook/src/app.ts` are listed below.
+
+| Name | Type | Description | Default | Example |
+| --- | --- | --- | --- | --- |
+| `RSSBOOK_BOOK_CACHE_MAX_AGE_MS` | Number (ms) | Cache TTL in milliseconds for aggregated book feed data. | `600000` (10 minutes) | `RSSBOOK_BOOK_CACHE_MAX_AGE_MS="600000"` |
+| `RSSBOOK_BOOK_CONFIG` | `key=value` list | Feed source config values, as comma-separated `key=value` pairs. | `{}` | `RSSBOOK_BOOK_CONFIG="GITHUB_TOKEN=token,DISCORD_TOKEN=token"` |
+| `RSSBOOK_BOOK_FEEDS` | URL list | Feed URLs aggregated by the book page, as a comma-separated string. | `https://rssbook.htu.me/feeds/programming/github/trending/daily` | `RSSBOOK_BOOK_FEEDS="https://rssbook.htu.me/feeds/programming/github/trending/daily"` |
+| `RSSBOOK_BOOK_THEME` | Theme name | Built-in book theme. Allowed values: `gallery` `magazine` `masonry` `minimal` `reader` `redbook`. | `redbook` | `RSSBOOK_BOOK_THEME="redbook"` |
+| `RSSBOOK_META_DESCRIPTION` | String | Page description rendered in HTML metadata. | not rendered | `RSSBOOK_META_DESCRIPTION="A simple RSS feed aggregator and reader."` |
+| `RSSBOOK_META_KEYWORDS` | String list | Page keywords rendered in HTML metadata, as a comma-separated string. | not rendered | `RSSBOOK_META_KEYWORDS="rss,reader,feeds"` |
+| `RSSBOOK_META_LANG` | String | HTML language value. | not rendered | `RSSBOOK_META_LANG="en"` |
+| `RSSBOOK_META_TITLE` | String | Page title rendered in HTML metadata. | not rendered | `RSSBOOK_META_TITLE="RSSBook"` |
+| `RSSBOOK_OPENAPI_ENABLE_FETCH_ONLINE_SERVER` | Boolean | Enable fetching public online server entries for the OpenAPI server list. | `true` | `RSSBOOK_OPENAPI_ENABLE_FETCH_ONLINE_SERVER="true"` |
+| `RSSBOOK_STATIC` | Boolean | Enable static asset serving. | `true` | `RSSBOOK_STATIC="false"` |
+
+> [!NOTE]
+>
+> Array-shaped values (e.g. `RSSBOOK_BOOK_FEEDS`, `RSSBOOK_META_KEYWORDS`) are provided as comma-separated strings. Source config values use comma-separated `key=value` pairs. Booleans accept `true` `false` `1` `0` `yes` `no` `on` `off` (case-insensitive); any other value is ignored.
+>
+> Default sources: `RSSBOOK_BOOK_FEEDS` is hard-coded in `pkgs/rssbook/src/app.ts` via `??`; the others come from downstream modules — `RSSBOOK_BOOK_CACHE_MAX_AGE_MS` / `RSSBOOK_BOOK_CONFIG` from `pkgs/rssbook/src/plugins/init.ts`; `RSSBOOK_BOOK_THEME` from `DEFAULT_THEME` in `pkgs/rssbook/src/books/themes.ts`; `RSSBOOK_OPENAPI_ENABLE_FETCH_ONLINE_SERVER` from `pkgs/rssbook/src/plugins/openAPI.ts`; `RSSBOOK_STATIC` from `pkgs/rssbook/src/plugins/static.ts`.
 
 #### Using the Personal Homepage
 

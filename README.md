@@ -66,7 +66,6 @@ RSSBook/
 ├── platform/
 │   ├── cloudflare/           ← Cloudflare Workers 入口
 │   ├── deno/                 ← Deno 入口
-│   ├── netlify/              ← Netlify Edge Functions 入口
 │   ├── node/                 ← Node.js 入口
 │   └── vercel/               ← Vercel 入口
 ├── scripts/                  ← 脚本工具
@@ -180,14 +179,6 @@ Vercel 的入口文件在 `platform-vercel` 包中：`platform/vercel/api/index.
 Vercel 部署配置已写入 `platform/vercel/vercel.json`，会将 Framework Preset 设置为 Other。
 
 [![Deploy with Vercel](https://vercel.com/button)](https://vercel.com/new/clone?repository-url=https%3A%2F%2Fgithub.com%2FHackHTU%2FRSSBook%2Ftree%2Fmain%2Fplatform%2Fvercel&project-name=rssbook&repository-name=rssbook&env=RSSBOOK_BOOK_FEEDS&env=RSSBOOK_BOOK_THEME&env=RSSBOOK_BOOK_CONFIG&env=RSSBOOK_META_TITLE&env=RSSBOOK_META_DESCRIPTION&envDefaults=%7B%22RSSBOOK_BOOK_FEEDS%22%3A%22https%3A%2F%2Frssbook.htu.me%2Ffeeds%2Fprogramming%2Fgithub%2Ftrending%2Fdaily%22%2C%22RSSBOOK_BOOK_THEME%22%3A%22redbook%22%2C%22RSSBOOK_BOOK_CONFIG%22%3A%22none%22%2C%22RSSBOOK_META_TITLE%22%3A%22RSSBook%22%2C%22RSSBOOK_META_DESCRIPTION%22%3A%22A+simple+RSS+feed+aggregator+and+reader.%22%7D&envDescription=Configure+the+RSSBook+app.+RSSBOOK_BOOK_CONFIG+is+a+comma-separated+list+of+key%3Dvalue+pairs+for+source+tokens+%28e.g.+GITHUB_TOKEN%3Dghp_xxx%2CDISCORD_AUTHORIZATION%3Dxxx%29.+The+default+value+%22none%22+is+a+no-op+placeholder%3B+replace+it+with+your+tokens+or+leave+it+to+skip+source-level+authentication.&envLink=https%3A%2F%2Fgithub.com%2FHackHTU%2FRSSBook%23initial-configuration)
-
-##### Netlify
-
-Netlify 是一个非常流行的 Serverless 计算平台，也提供了慷慨的免费使用额度。
-
-Netlify 的入口文件在 `platform-netlify` 包中：`platform/netlify/index.ts`。
-
-[![Deploy to Netlify](https://www.netlify.com/img/deploy/button.svg)](https://app.netlify.com/start/deploy?repository=https://github.com/HackHTU/RSSBook&base=platform/netlify)
 
 ### 初始配置
 

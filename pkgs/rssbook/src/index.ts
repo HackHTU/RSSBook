@@ -14,7 +14,6 @@ const getApp = () => {
 // For Bun's built-in fetch server. The app is created lazily on the first request.
 export default {
 	fetch: (request: Request) => getApp().fetch(request),
-	port: 3000,
 };
 
 export type { RSSBook, RSSBookBookConfig, RSSBookInitConfig } from "@/plugins/init";

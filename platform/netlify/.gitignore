@@ -1,7 +1,0 @@
-node_modules
-dist
-build
-.netlify
-platform
-.DS_Store
-*.log

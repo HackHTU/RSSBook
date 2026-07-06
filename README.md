@@ -330,7 +330,69 @@ RSSBook 不仅可以用作你的 Feed 阅读器，还可以用来做很多事情
 
 ### 创建自己的个人动态
 
+RSSBook 的 Book 功能可以把任意数量的 Feed 聚合并以主题模板渲染为一个个人主页，非常适合作为你的「数字客厅」。
+
+典型步骤：
+
+1. 在你部署的实例中，通过 `RSSBOOK_BOOK_FEEDS` 环境变量（或在入口文件中调用 `RSSBookApp({ book: { feeds: [...] } })`）配置你想要聚合的 Feed 链接。例如：
+   ```bash
+   RSSBOOK_BOOK_FEEDS="https://你的实例/feeds/programming/github/events/vercel,https://你的实例/feeds/programming/github/trending/daily,https://你的实例/feeds/multimedia/sspai/matrix"
+   ```
+2. （可选）通过 `RSSBOOK_BOOK_THEME` 选择一个内置主题：
+   ```bash
+   RSSBOOK_BOOK_THEME="redbook"
+   ```
+   可选值：`gallery` `magazine` `masonry` `minimal` `reader` `redbook`。
+3. （可选）通过 `RSSBOOK_META_TITLE` / `RSSBOOK_META_DESCRIPTION` / `RSSBOOK_META_LANG` / `RSSBOOK_META_KEYWORDS` 自定义页面元信息：
+   ```bash
+   RSSBOOK_META_TITLE="My Personal Feed"
+   RSSBOOK_META_DESCRIPTION="我的个人动态聚合页"
+   RSSBOOK_META_LANG="zh-CN"
+   RSSBOOK_META_KEYWORDS="rss,reader,personal"
+   ```
+4. 部署后访问你实例的首页即可看到聚合后的页面，也可以通过 `?type=html` 强制走主题渲染、`styled=true` 启用 XSL 样式。
+
+如果某些 Feed 源需要鉴权（如 GitHub Token），可以在 `RSSBOOK_BOOK_CONFIG` 中以 `key=value` 的形式注入：
+
+```bash
+RSSBOOK_BOOK_CONFIG="GITHUB_TOKEN=ghp_xxx"
+```
+
+Feed 源在代码里读取自己声明的 config key（参考 `pkgs/rssbook/src/routers/feeds/programming/github/index.ts` 的 `GITHUB_TOKEN` 用法）。
+
 ### 使用自动化工具同步到 IM 平台
+
+RSSBook 本身只负责「生成 Feed」，但由于输出的就是标准 RSS 2.0，你可以把它接入任何支持 RSS 订阅的自动化工具，最常见的就是 [IFTTT](https://ifttt.com/)。
+
+以「把 GitHub Trending 同步到 Discord 频道」为例：
+
+1. **拿到你的 Feed URL**。RSSBook 默认已经提供 GitHub Trending Daily Feed：
+   ```
+   https://你的实例/feeds/programming/github/trending/daily
+   ```
+   添加 `?type=rss` 显式指定输出 RSS 2.0 格式。
+2. **在 IFTTT 创建 Applet**：[Create](https://ifttt.com/create) → **If This** 选 **RSS Feed** → 选择 **New feed item** 触发器 → 把上面的 URL 填入 *Feed URL*。
+3. **配置 IM 动作**（**Then That**）。下面任选一个：
+   - **Discord**：选 **Discord** → **Post message to channel** → 选择目标服务器与频道 → *Message* 模板使用 IFTTT 提供的占位符，例如：
+     ```
+     📰 {{EntryTitle}}
+     {{EntryURL}}
+     ```
+     也可加上 `{{FeedTitle}}` 来标记来源。
+   - **Telegram**：选 **Telegram** → **Send message** → 连接 bot → *Message text* 同样使用 `{{EntryTitle}}` / `{{EntryURL}}` / `{{EntryContent}}`。
+   - **Slack**：选 **Slack** → **Post to channel** → *Message* 模板：
+     ```
+     *{{EntryTitle}}* — {{EntryURL}}
+     ```
+   - **Webhook / 企业微信 / 飞书机器人**：选 **Webhooks** → **Make a web request**，把 IM 机器人提供的 webhook URL 填入 *URL*，在 *Body* 里手工拼装 JSON（可使用 `{{EntryTitle}}` 等占位符），*Method* 选 `POST`，*Content Type* 选 `application/json`。
+4. **完成并启用**。IFTTT 会按 RSS 源更新节奏（通常 15–30 分钟）拉取一次，发现新条目就触发 IM 推送。
+
+> [!TIP]
+>
+> - 同一个 RSSBook 实例的不同路由可以分别建多个 Applet，做到「GitHub → Discord」「V2EX → Telegram」「少数派 → Slack」互不打扰。
+> - 如果你的 IM 平台没有 IFTTT 官方服务（如飞书、钉钉），优先用 **Webhooks** 动作，IFTTT 会把 `{{EntryTitle}}` / `{{EntryURL}}` / `{{EntryContent}}` / `{{EntryPublished}}` / `{{FeedTitle}}` 注入到你自定义的请求体里。
+> - 想避免重复推送，可以在 IFTTT 的 Applet 设置里开启 *Filter code*（JavaScript）判断 `EntryPublished` 是否在最近 N 小时内。
+
 
 ## 规范
 

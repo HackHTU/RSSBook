@@ -330,7 +330,69 @@ RSSBook can be used not only as your Feed reader but also for many other purpose
 
 ### Creating Your Personal Activity Feed
 
+RSSBook's Book feature aggregates any number of feeds and renders them as a personal homepage through a theme template, making it perfect as your "digital living room."
+
+Typical steps:
+
+1. Configure the feeds you want to aggregate via the `RSSBOOK_BOOK_FEEDS` environment variable (or by calling `RSSBookApp({ book: { feeds: [...] } })` in your entry file). For example:
+   ```bash
+   RSSBOOK_BOOK_FEEDS="https://your-instance/feeds/programming/github/events/vercel,https://your-instance/feeds/programming/github/trending/daily,https://your-instance/feeds/multimedia/sspai/matrix"
+   ```
+2. (Optional) Pick a built-in theme with `RSSBOOK_BOOK_THEME`:
+   ```bash
+   RSSBOOK_BOOK_THEME="redbook"
+   ```
+   Allowed values: `gallery` `magazine` `masonry` `minimal` `reader` `redbook`.
+3. (Optional) Customize page metadata via `RSSBOOK_META_TITLE` / `RSSBOOK_META_DESCRIPTION` / `RSSBOOK_META_LANG` / `RSSBOOK_META_KEYWORDS`:
+   ```bash
+   RSSBOOK_META_TITLE="My Personal Feed"
+   RSSBOOK_META_DESCRIPTION="My personal activity aggregator"
+   RSSBOOK_META_LANG="en"
+   RSSBOOK_META_KEYWORDS="rss,reader,personal"
+   ```
+4. After deployment, visit your instance's homepage to see the aggregated page. You can also force HTML rendering with `?type=html` and enable the XSL stylesheet with `styled=true`.
+
+If some feed sources require authentication (e.g., a GitHub Token), inject them into `RSSBOOK_BOOK_CONFIG` as `key=value` pairs:
+
+```bash
+RSSBOOK_BOOK_CONFIG="GITHUB_TOKEN=ghp_xxx"
+```
+
+Each feed source reads the config keys it declares (see `GITHUB_TOKEN` usage in `pkgs/rssbook/src/routers/feeds/programming/github/index.ts`).
+
 ### Syncing to IM Platforms Using Automation Tools
+
+RSSBook itself only "produces feeds," but since the output is standard RSS 2.0, you can plug it into any automation tool that supports RSS subscriptions — the most common one is [IFTTT](https://ifttt.com/).
+
+As an example, let's sync **GitHub Trending to a Discord channel**:
+
+1. **Get your feed URL.** RSSBook ships with a GitHub Trending Daily Feed by default:
+   ```
+   https://your-instance/feeds/programming/github/trending/daily
+   ```
+   Append `?type=rss` to explicitly request the RSS 2.0 format.
+2. **Create an Applet on IFTTT**: go to [Create](https://ifttt.com/create) → **If This** → choose **RSS Feed** → select the **New feed item** trigger → paste the URL above into *Feed URL*.
+3. **Configure the IM action** (**Then That**). Pick one of the following:
+   - **Discord**: choose **Discord** → **Post message to channel** → pick the target server and channel → in *Message*, use IFTTT placeholders, e.g.:
+     ```
+     📰 {{EntryTitle}}
+     {{EntryURL}}
+     ```
+     You can also prepend `{{FeedTitle}}` to tag the source.
+   - **Telegram**: choose **Telegram** → **Send message** → connect your bot → in *Message text*, use `{{EntryTitle}}` / `{{EntryURL}}` / `{{EntryContent}}`.
+   - **Slack**: choose **Slack** → **Post to channel** → in *Message*:
+     ```
+     *{{EntryTitle}}* — {{EntryURL}}
+     ```
+   - **Webhooks / WeCom / Feishu bot**: choose **Webhooks** → **Make a web request**, paste the IM bot's webhook URL into *URL*, handcraft the JSON body in *Body* (you can use `{{EntryTitle}}` and friends), set *Method* to `POST` and *Content Type* to `application/json`.
+4. **Finish and enable.** IFTTT will poll the RSS source on its update cadence (typically every 15–30 minutes) and push new entries to your IM platform.
+
+> [!TIP]
+>
+> - You can create one Applet per RSSBook route, so "GitHub → Discord", "V2EX → Telegram", "Sspai → Slack" stay independent.
+> - If your IM platform has no official IFTTT service (e.g., Feishu, DingTalk), prefer the **Webhooks** action — IFTTT will substitute `{{EntryTitle}}` / `{{EntryURL}}` / `{{EntryContent}}` / `{{EntryPublished}}` / `{{FeedTitle}}` into your custom request body.
+> - To avoid duplicate pushes, enable *Filter code* (JavaScript) in the Applet settings and gate the trigger on `EntryPublished` being within the last N hours.
+
 
 ## Standards
 

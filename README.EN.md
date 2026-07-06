@@ -112,52 +112,6 @@ Of course, we also support other runtimes/providers. Some of these providers hav
 >
 > We have a public instance list at [HOSTS](./HOSTS). When accessing the OpenAPI documentation, available instances **may** be displayed. If you'd like to share your instance with everyone, feel free to submit a Pull Request with your URL/version info/other notes. We appreciate your contribution!
 
-#### Development
-
-From the root directory, you can use `bun run --filter` to run development commands for specific platforms:
-
-```bash
-# Core package (Bun) development
-bun dev
-
-# Other platform development
-bun run --filter @rssbook/platform-cloudflare dev   # Cloudflare Workers
-bun run --filter @rssbook/platform-node dev        # Node.js
-bun run --filter @rssbook/platform-deno dev        # Deno
-bun run --filter @rssbook/platform-vercel dev      # Vercel
-bun run --filter @rssbook/platform-netlify dev     # Netlify
-```
-
-Or enter the corresponding platform directory and run directly:
-
-```bash
-cd platform/cloudflare && bun run dev
-```
-
-#### Build and Deploy
-
-Build commands for each platform can also be executed via `bun run --filter`:
-
-```bash
-bun run --filter @rssbook/platform-cloudflare build   # Cloudflare Workers
-bun run --filter @rssbook/platform-node build        # Node.js
-bun run --filter @rssbook/platform-deno build        # Deno
-bun run --filter @rssbook/platform-vercel build      # Vercel
-bun run --filter @rssbook/platform-netlify build     # Netlify
-```
-
-Deploy to each platform:
-
-```bash
-bun run --filter @rssbook/platform-cloudflare deploy  # Cloudflare Workers
-bun run --filter @rssbook/platform-vercel deploy      # Vercel
-bun run --filter @rssbook/platform-netlify deploy     # Netlify
-```
-
-> [!NOTE]
->
-> For more information on `bun run --filter`, see [Bun Workspaces](https://bun.sh/docs/install/workspaces).
-
 #### Platform-Specific Notes
 
 > [!TIP]

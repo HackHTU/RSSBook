@@ -112,52 +112,6 @@ bun install
 >
 > 我们有一个公开实例列表在 [HOSTS](./HOSTS)，在访问 OpenAPI 文档时**可能**会显示可用的实例列表，如果你乐意将你的实例分享给大家，欢迎提交 Pull Request 请求，并留下你的地址/版本信息/其他说明，我们会感谢你的贡献！
 
-#### 开发
-
-在根目录下，你可以使用 `bun run --filter` 来运行特定平台的开发命令：
-
-```bash
-# 核心包（Bun）开发
-bun dev
-
-# 其他平台开发
-bun run --filter @rssbook/platform-cloudflare dev   # Cloudflare Workers
-bun run --filter @rssbook/platform-node dev        # Node.js
-bun run --filter @rssbook/platform-deno dev        # Deno
-bun run --filter @rssbook/platform-vercel dev      # Vercel
-bun run --filter @rssbook/platform-netlify dev     # Netlify
-```
-
-或者进入对应平台目录直接运行：
-
-```bash
-cd platform/cloudflare && bun run dev
-```
-
-#### 构建与部署
-
-各平台的构建命令同样可以通过 `bun run --filter` 执行：
-
-```bash
-bun run --filter @rssbook/platform-cloudflare build   # Cloudflare Workers
-bun run --filter @rssbook/platform-node build        # Node.js
-bun run --filter @rssbook/platform-deno build        # Deno
-bun run --filter @rssbook/platform-vercel build      # Vercel
-bun run --filter @rssbook/platform-netlify build     # Netlify
-```
-
-部署到各平台：
-
-```bash
-bun run --filter @rssbook/platform-cloudflare deploy  # Cloudflare Workers
-bun run --filter @rssbook/platform-vercel deploy      # Vercel
-bun run --filter @rssbook/platform-netlify deploy     # Netlify
-```
-
-> [!NOTE]
->
-> 更多关于 `bun run --filter` 的信息，请看 [Bun Workspaces](https://bun.sh/docs/install/workspaces)。
-
 #### 平台特定说明
 
 > [!TIP]

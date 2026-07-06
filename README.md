@@ -166,10 +166,10 @@ CloudFlare Workers 的入口文件在 `platform-cloudflare` 包中：`platform/c
 
 如果你更倾向于在 Cloudflare Dashboard 中手动配置构建设置，可以参考以下参数：
 
-- 构建命令：`bun run build`
-- 部署命令：`bunx wrangler deploy`
-- 版本命令：`bunx wrangler versions upload`
-- 根目录：`platform/cloudflare`
+- 构建命令：（留空）
+- 部署命令：`cd platform/cloudflare && bunx wrangler deploy`
+- 版本命令：`cd platform/cloudflare && bunx wrangler versions upload`
+- 根目录：（留空）
 
 ##### Vercel
 

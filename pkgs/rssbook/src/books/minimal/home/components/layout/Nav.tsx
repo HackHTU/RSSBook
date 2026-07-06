@@ -19,7 +19,7 @@ export function Nav({ title, description, t }: NavProps) {
 					</h1>
 					{!!safeDescription && (
 						<p class="mt-1 text-neutral-500 text-xs uppercase tracking-widest dark:text-neutral-600">
-							<span safe>{safeDescription}</span>
+							<span>{safeDescription}</span>
 						</p>
 					)}
 				</a>

@@ -28,7 +28,7 @@ export function Footer({ title, description, rss, atom, json, t }: FooterProps) 
 							</h2>
 						</div>
 						{!!safeDescription && (
-							<p class="mt-3 text-sm text-stone-500 leading-relaxed dark:text-stone-400" safe>
+							<p class="mt-3 text-sm text-stone-500 leading-relaxed dark:text-stone-400">
 								{safeDescription}
 							</p>
 						)}

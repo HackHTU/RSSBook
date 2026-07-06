@@ -23,7 +23,7 @@ export function Footer({ title, description, rss, atom, json, t }: FooterProps) 
 							<span safe>{title}</span>
 						</h2>
 						{!!safeDescription && (
-							<p class="mt-3 max-w-md text-neutral-400 text-sm leading-relaxed" safe>
+							<p class="mt-3 max-w-md text-neutral-400 text-sm leading-relaxed">
 								{safeDescription}
 							</p>
 						)}

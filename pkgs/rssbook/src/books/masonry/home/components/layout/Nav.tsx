@@ -22,9 +22,7 @@ export function Nav({ title, description, t }: NavProps) {
 							<span safe>{title || "RSSBook"}</span>
 						</h1>
 						{!!safeDescription && (
-							<p class="hidden text-stone-400 text-xs sm:block" safe>
-								{safeDescription}
-							</p>
+							<p class="hidden text-stone-400 text-xs sm:block">{safeDescription}</p>
 						)}
 					</div>
 				</a>

@@ -60,7 +60,7 @@ export function Nav({ title, description, t }: NavProps) {
 								</h1>
 								{!!safeDescription && (
 									<p class="hidden text-stone-500 text-xs md:block dark:text-stone-400">
-										<span safe>{safeDescription}</span>
+										<span>{safeDescription}</span>
 									</p>
 								)}
 							</div>

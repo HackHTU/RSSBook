@@ -166,7 +166,7 @@ A better approach is to fork this repository, modify the configuration in [Githu
 
 If you prefer to configure the build settings manually in the Cloudflare Dashboard, you can refer to the following parameters:
 
-- Build command: (leave empty)
+- Build command: `bun run build`
 - Deploy command: `cd platform/cloudflare && bunx wrangler deploy`
 - Versions command: `cd platform/cloudflare && bunx wrangler versions upload`
 - Root directory: (leave empty)

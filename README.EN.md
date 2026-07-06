@@ -66,7 +66,6 @@ RSSBook/
 ├── platform/
 │   ├── cloudflare/           ← Cloudflare Workers entry
 │   ├── deno/                 ← Deno entry
-│   ├── netlify/              ← Netlify Edge Functions entry
 │   ├── node/                 ← Node.js entry
 │   └── vercel/               ← Vercel entry
 ├── scripts/                  ← Script tools
@@ -180,14 +179,6 @@ The entry file for Vercel is in the `platform-vercel` package: `platform/vercel/
 Vercel deployment settings are defined in `platform/vercel/vercel.json`, which sets the Framework Preset to Other.
 
 [![Deploy with Vercel](https://vercel.com/button)](https://vercel.com/new/clone?repository-url=https%3A%2F%2Fgithub.com%2FHackHTU%2FRSSBook%2Ftree%2Fmain%2Fplatform%2Fvercel&project-name=rssbook&repository-name=rssbook&env=RSSBOOK_BOOK_FEEDS&env=RSSBOOK_BOOK_THEME&env=RSSBOOK_BOOK_CONFIG&env=RSSBOOK_META_TITLE&env=RSSBOOK_META_DESCRIPTION&envDefaults=%7B%22RSSBOOK_BOOK_FEEDS%22%3A%22https%3A%2F%2Frssbook.htu.me%2Ffeeds%2Fprogramming%2Fgithub%2Ftrending%2Fdaily%22%2C%22RSSBOOK_BOOK_THEME%22%3A%22redbook%22%2C%22RSSBOOK_BOOK_CONFIG%22%3A%22none%22%2C%22RSSBOOK_META_TITLE%22%3A%22RSSBook%22%2C%22RSSBOOK_META_DESCRIPTION%22%3A%22A+simple+RSS+feed+aggregator+and+reader.%22%7D&envDescription=Configure+the+RSSBook+app.+RSSBOOK_BOOK_CONFIG+is+a+comma-separated+list+of+key%3Dvalue+pairs+for+source+tokens+%28e.g.+GITHUB_TOKEN%3Dghp_xxx%2CDISCORD_AUTHORIZATION%3Dxxx%29.+The+default+value+%22none%22+is+a+no-op+placeholder%3B+replace+it+with+your+tokens+or+leave+it+to+skip+source-level+authentication.&envLink=https%3A%2F%2Fgithub.com%2FHackHTU%2FRSSBook%23initial-configuration)
-
-##### Netlify
-
-Netlify is a popular serverless computing platform that also provides a generous free tier.
-
-The entry file for Netlify is in the `platform-netlify` package: `platform/netlify/index.ts`.
-
-[![Deploy to Netlify](https://www.netlify.com/img/deploy/button.svg)](https://app.netlify.com/start/deploy?repository=https://github.com/HackHTU/RSSBook&base=platform/netlify)
 
 ### Initial Configuration
 

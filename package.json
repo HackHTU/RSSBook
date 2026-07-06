@@ -40,7 +40,7 @@
 		"check": "bun run check:type && bun run check:biome",
 		"check:biome": "bunx biome check .",
 		"check:type": "bun run check:type:root && bun run check:type:packages",
-		"check:type:packages": "bunx tsc -p pkgs/rssbook/tsconfig.json --noEmit && bunx tsc -p pkgs/utils-feed-helper/tsconfig.json --noEmit && bunx tsc -p platform/cloudflare/tsconfig.json --noEmit && bunx tsc -p platform/deno/tsconfig.json --noEmit && bunx tsc -p platform/netlify/tsconfig.json --noEmit && bunx tsc -p platform/node/tsconfig.json --noEmit && bunx tsc -p platform/vercel/tsconfig.json --noEmit",
+		"check:type:packages": "bunx tsc -p pkgs/rssbook/tsconfig.json --noEmit && bunx tsc -p pkgs/utils-feed-helper/tsconfig.json --noEmit && bunx tsc -p platform/cloudflare/tsconfig.json --noEmit && bunx tsc -p platform/deno/tsconfig.json --noEmit && bunx tsc -p platform/node/tsconfig.json --noEmit && bunx tsc -p platform/vercel/tsconfig.json --noEmit",
 		"check:type:root": "bunx tsc --noEmit",
 		"dev": "bun run --cwd pkgs/rssbook dev",
 		"fix": "bunx biome check --write .",

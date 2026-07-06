@@ -261,8 +261,6 @@ RSSBookApp({
 > [!NOTE]
 >
 > 数组类型的变量（如 `RSSBOOK_BOOK_FEEDS`、`RSSBOOK_META_KEYWORDS`）使用逗号分隔的字符串表示；源配置项 `RSSBOOK_BOOK_CONFIG` 使用逗号分隔的 `key=value` 对；布尔值接受 `true` `false` `1` `0` `yes` `no` `on` `off`（大小写不敏感），其他值会被忽略。
->
-> 默认值来源：`RSSBOOK_BOOK_FEEDS` 在 `pkgs/rssbook/src/app.ts` 中通过 `??` 兜底；其他默认值来自下游模块 — `RSSBOOK_BOOK_CACHE_MAX_AGE_MS` / `RSSBOOK_BOOK_CONFIG` 来自 `pkgs/rssbook/src/plugins/init.ts`，`RSSBOOK_BOOK_THEME` 来自 `pkgs/rssbook/src/books/themes.ts` 的 `DEFAULT_THEME`，`RSSBOOK_OPENAPI_ENABLE_FETCH_ONLINE_SERVER` 来自 `pkgs/rssbook/src/plugins/openAPI.ts`，`RSSBOOK_STATIC` 来自 `pkgs/rssbook/src/plugins/static.ts`。
 
 #### 使用个人主页
 
@@ -293,6 +291,10 @@ RSSBookApp({
 #### 创建路由
 
 关于如何编写新路由，路由的规范以及测试的编写，请看 [如何编写一个 Feed](./docs/how-to-create-a-feed.md)。
+
+> [!TIP]
+>
+> 如果你使用 AI 编码助手（Cursor、Claude Code、Codex、opencode 等）来生成或修改 Feed 路由，请让它先阅读本仓库的 [create-feed skill](./.agents/skills/create-feed/SKILL.md)。该 skill 描述了 Source 的代码结构、注册位置、命名约定、可用工具（`cache` `date` `ofetch` `load` `formatHTML` `parse` `toAbsoluteURL` 等）以及测试规范，能让 AI 一次性产出符合本项目约定的代码，并避免引入新依赖或重复造轮子。
 
 ### 高级教程
 

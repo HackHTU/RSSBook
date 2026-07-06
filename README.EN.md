@@ -261,8 +261,6 @@ You can also configure RSSBook via environment variables. All available variable
 > [!NOTE]
 >
 > Array-shaped values (e.g. `RSSBOOK_BOOK_FEEDS`, `RSSBOOK_META_KEYWORDS`) are provided as comma-separated strings. Source config values use comma-separated `key=value` pairs. Booleans accept `true` `false` `1` `0` `yes` `no` `on` `off` (case-insensitive); any other value is ignored.
->
-> Default sources: `RSSBOOK_BOOK_FEEDS` is hard-coded in `pkgs/rssbook/src/app.ts` via `??`; the others come from downstream modules — `RSSBOOK_BOOK_CACHE_MAX_AGE_MS` / `RSSBOOK_BOOK_CONFIG` from `pkgs/rssbook/src/plugins/init.ts`; `RSSBOOK_BOOK_THEME` from `DEFAULT_THEME` in `pkgs/rssbook/src/books/themes.ts`; `RSSBOOK_OPENAPI_ENABLE_FETCH_ONLINE_SERVER` from `pkgs/rssbook/src/plugins/openAPI.ts`; `RSSBOOK_STATIC` from `pkgs/rssbook/src/plugins/static.ts`.
 
 #### Using the Personal Homepage
 
@@ -293,6 +291,10 @@ In the OpenAPI documentation, you can find and generate them under the `utils` c
 #### Creating Routes
 
 For how to write new routes, route specifications, and writing tests, see [How to Create a Feed](./docs/how-to-create-a-feed.md).
+
+> [!TIP]
+>
+> If you use an AI coding assistant (Cursor, Claude Code, Codex, opencode, etc.) to generate or modify feed routes, ask it to read this repo's [create-feed skill](./.agents/skills/create-feed/SKILL.md) first. The skill describes the Source code structure, registration location, naming conventions, available utilities (`cache` `date` `ofetch` `load` `formatHTML` `parse` `toAbsoluteURL`, etc.), and testing guidelines, so the AI can produce code that follows the project conventions in one pass and avoid introducing new dependencies or reinventing the wheel.
 
 ### Advanced Tutorial
 

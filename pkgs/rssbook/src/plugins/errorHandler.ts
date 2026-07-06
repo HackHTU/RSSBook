@@ -3,7 +3,7 @@ import pkg from "../../package.json" with { type: "json" };
 
 const { version } = pkg;
 
-import { defaultErrorPage } from "@/books/theme/error";
+import { defaultErrorPage } from "@/books/error";
 import type { ErrorPageProps } from "@/types";
 
 /**

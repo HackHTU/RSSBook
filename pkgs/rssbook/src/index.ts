@@ -11,6 +11,7 @@ export const app = createRSSBookApp({
 			description: "A simple RSS feed aggregator and reader.",
 			title: "RSSBook",
 		},
+		theme: "magazine",
 	},
 });
 

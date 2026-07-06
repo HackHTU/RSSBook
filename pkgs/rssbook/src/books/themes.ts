@@ -8,14 +8,14 @@ import { redbookTheme } from "./redbook";
 
 export const DEFAULT_THEME = redbookTheme;
 
-export const THEMES: Record<string, Theme> = {
+export const THEMES = {
 	gallery: galleryTheme,
 	magazine: magazineTheme,
 	masonry: masonryTheme,
 	minimal: minimalTheme,
 	reader: readerTheme,
 	redbook: redbookTheme,
-};
+} as const;
 
 export type ThemeName = keyof typeof THEMES;
 

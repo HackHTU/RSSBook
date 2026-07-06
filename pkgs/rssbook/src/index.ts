@@ -3,18 +3,7 @@
  */
 import { createRSSBookApp } from "./RSSBookApp";
 
-export const app = createRSSBookApp({
-	book: {
-		config: {},
-		feeds: ["https://github.blog/feed/"],
-		meta: {
-			description: "A simple RSS feed aggregator and reader.",
-			title: "RSSBook",
-		},
-		theme: "magazine",
-	},
-});
-
+export const app = createRSSBookApp();
 // For Bun's built-in fetch server
 export default {
 	fetch: app.fetch,

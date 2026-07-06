@@ -31,18 +31,7 @@ const storage = createStorage({
 });
 
 export const app = createRSSBookApp({
-	book: {
-		config: {},
-		feeds: ["https://github.blog/feed/"],
-		meta: {
-			description: "A simple RSS feed aggregator and reader.",
-			title: "RSSBook",
-		},
-	},
 	cache: new Cache(storage),
-	openapi: {
-		enableFetchOnlineServer: true,
-	},
 });
 export default app;
 

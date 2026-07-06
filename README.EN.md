@@ -189,6 +189,15 @@ Deno is another runtime following Node.js.
 
 [![Deploy on Deno](https://deno.com/button)](https://console.deno.com/new?clone=https://github.com/HackHTU/RSSBook&path=platform/deno)
 
+If you prefer to configure the build settings manually in the Deno Dashboard, you can refer to the following parameters:
+
+- App Directory: `platform/deno`
+- Install command: (leave empty)
+- Build command: (leave empty)
+- Pre-deploy command: (leave empty)
+
+After deployment, you also need to enable Deno KV persistent storage in the Deno Deploy console at <https://console.deno.com/{user}/{project}/databases>, which is used as the default cache backend for RSSBook.
+
 ##### CloudFlare Workers
 
 I personally love [CloudFlare Workers](https://workers.cloudflare.com/). It's a serverless computing platform based on the V8 engine that generously provides a free tier, making it perfect for deploying RSSBook.
@@ -201,6 +210,13 @@ For production, you can directly click the button below to deploy to CloudFlare 
 
 A better approach is to fork this repository, modify the configuration in [Github CodeSpace](https://github.com/codespaces/new/) or locally, then configure your own GitHub repository in Cloudflare Workers settings for deployment (or you can use GitHub Workflow).
 
+If you prefer to configure the build settings manually in the Cloudflare Dashboard, you can refer to the following parameters:
+
+- Build command: `bun run build`
+- Deploy command: `bunx wrangler deploy`
+- Versions command: `bunx wrangler versions upload`
+- Root directory: `platform/cloudflare`
+
 ##### Vercel
 
 Vercel is a popular serverless computing platform that also provides a generous free tier.
@@ -209,7 +225,7 @@ The entry file for Vercel is in the `platform-vercel` package: `platform/vercel/
 
 Vercel deployment settings are defined in `platform/vercel/vercel.json`, which sets the Framework Preset to Other.
 
-[![Deploy with Vercel](https://vercel.com/button)](https://vercel.com/new/clone?repository-url=https%3A%2F%2Fgithub.com%2FHackHTU%2FRSSBook&root-directory=platform%2Fvercel)
+[![Deploy with Vercel](https://vercel.com/button)](https://vercel.com/new/clone?repository-url=https%3A%2F%2Fgithub.com%2FHackHTU%2FRSSBook%2Ftree%2Fmain%2Fplatform%2Fvercel&project-name=rssbook&repository-name=rssbook&env=RSSBOOK_BOOK_FEEDS&env=RSSBOOK_BOOK_THEME&env=RSSBOOK_BOOK_CONFIG&env=RSSBOOK_META_TITLE&env=RSSBOOK_META_DESCRIPTION&envDefaults=%7B%22RSSBOOK_BOOK_FEEDS%22%3A%22https%3A%2F%2Frssbook.htu.me%2Ffeeds%2Fprogramming%2Fgithub%2Ftrending%2Fdaily%22%2C%22RSSBOOK_BOOK_THEME%22%3A%22redbook%22%2C%22RSSBOOK_BOOK_CONFIG%22%3A%22none%22%2C%22RSSBOOK_META_TITLE%22%3A%22RSSBook%22%2C%22RSSBOOK_META_DESCRIPTION%22%3A%22A+simple+RSS+feed+aggregator+and+reader.%22%7D&envDescription=Configure+the+RSSBook+app.+RSSBOOK_BOOK_CONFIG+is+a+comma-separated+list+of+key%3Dvalue+pairs+for+source+tokens+%28e.g.+GITHUB_TOKEN%3Dghp_xxx%2CDISCORD_AUTHORIZATION%3Dxxx%29.+The+default+value+%22none%22+is+a+no-op+placeholder%3B+replace+it+with+your+tokens+or+leave+it+to+skip+source-level+authentication.&envLink=https%3A%2F%2Fgithub.com%2FHackHTU%2FRSSBook%23initial-configuration)
 
 ##### Netlify
 
@@ -223,11 +239,11 @@ The entry file for Netlify is in the `platform-netlify` package: `platform/netli
 
 After finding the corresponding entry file (each platform's entry file is in its own package), you can start configuring RSSBook.
 
-In the entry file, you should see a `RSSBookApp` function used to create the RSSBook application instance. You can modify it according to your needs.
+In the entry file, you should see a `createRSSBookApp` function used to create the RSSBook application instance. You can modify it according to your needs.
 
 ```ts
 /* ... */
-RSSBookApp({
+createRSSBookApp({
     // Configuration options here
 })
 /* ... */
@@ -239,7 +255,7 @@ RSSBookApp({
 
 #### Configuration Reference
 
-The `RSSBookApp` function in each platform's entry file accepts a configuration object. This guide helps you understand common configuration options across feature modules.
+The `createRSSBookApp` function in each platform's entry file accepts a configuration object. This guide helps you understand common configuration options across feature modules.
 
 #### Environment Variables
 

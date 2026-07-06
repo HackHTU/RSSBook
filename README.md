@@ -189,6 +189,15 @@ Deno 是一个继 Node.js 之后的另一个运行时环境。
 
 [![Deploy on Deno](https://deno.com/button)](https://console.deno.com/new?clone=https://github.com/HackHTU/RSSBook&path=platform/deno)
 
+如果你更倾向于在 Deno Dashboard 中手动配置构建设置，可以参考以下参数：
+
+- App Directory：`platform/deno`
+- Install command：（留空）
+- Build command：（留空）
+- Pre-deploy command：（留空）
+
+部署完成后，你还需要在 Deno Deploy 控制台中开启 Deno KV 持久化存储：<https://console.deno.com/{user}/{project}/databases>，作为 RSSBook 的默认缓存后端。
+
 ##### CloudFlare Workers
 
 我个人非常喜欢 [CloudFlare Workers](https://workers.cloudflare.com/)，它是一个基于 V8 引擎的 Serverless 计算平台，慷慨地提供了免费的使用额度，非常适合部署 RSSBook 程序。
@@ -201,6 +210,13 @@ CloudFlare Workers 的入口文件在 `platform-cloudflare` 包中：`platform/c
 
 更好的方法是自己 Fork 本仓库，在 [Github CodeSpace](https://github.com/codespaces/new/) 或本地修改配置后，然后使用在 Cloudflare Workers 的设置中绑定你自己的 GitHub 仓库进行部署（或者你可以使用 GitHub Workflow）。
 
+如果你更倾向于在 Cloudflare Dashboard 中手动配置构建设置，可以参考以下参数：
+
+- 构建命令：`bun run build`
+- 部署命令：`bunx wrangler deploy`
+- 版本命令：`bunx wrangler versions upload`
+- 根目录：`platform/cloudflare`
+
 ##### Vercel
 
 Vercel 是一个非常流行的 Serverless 计算平台，也提供了慷慨的免费使用额度。
@@ -209,7 +225,7 @@ Vercel 的入口文件在 `platform-vercel` 包中：`platform/vercel/api/index.
 
 Vercel 部署配置已写入 `platform/vercel/vercel.json`，会将 Framework Preset 设置为 Other。
 
-[![Deploy with Vercel](https://vercel.com/button)](https://vercel.com/new/clone?repository-url=https%3A%2F%2Fgithub.com%2FHackHTU%2FRSSBook&root-directory=platform%2Fvercel)
+[![Deploy with Vercel](https://vercel.com/button)](https://vercel.com/new/clone?repository-url=https%3A%2F%2Fgithub.com%2FHackHTU%2FRSSBook%2Ftree%2Fmain%2Fplatform%2Fvercel&project-name=rssbook&repository-name=rssbook&env=RSSBOOK_BOOK_FEEDS&env=RSSBOOK_BOOK_THEME&env=RSSBOOK_BOOK_CONFIG&env=RSSBOOK_META_TITLE&env=RSSBOOK_META_DESCRIPTION&envDefaults=%7B%22RSSBOOK_BOOK_FEEDS%22%3A%22https%3A%2F%2Frssbook.htu.me%2Ffeeds%2Fprogramming%2Fgithub%2Ftrending%2Fdaily%22%2C%22RSSBOOK_BOOK_THEME%22%3A%22redbook%22%2C%22RSSBOOK_BOOK_CONFIG%22%3A%22none%22%2C%22RSSBOOK_META_TITLE%22%3A%22RSSBook%22%2C%22RSSBOOK_META_DESCRIPTION%22%3A%22A+simple+RSS+feed+aggregator+and+reader.%22%7D&envDescription=Configure+the+RSSBook+app.+RSSBOOK_BOOK_CONFIG+is+a+comma-separated+list+of+key%3Dvalue+pairs+for+source+tokens+%28e.g.+GITHUB_TOKEN%3Dghp_xxx%2CDISCORD_AUTHORIZATION%3Dxxx%29.+The+default+value+%22none%22+is+a+no-op+placeholder%3B+replace+it+with+your+tokens+or+leave+it+to+skip+source-level+authentication.&envLink=https%3A%2F%2Fgithub.com%2FHackHTU%2FRSSBook%23initial-configuration)
 
 ##### Netlify
 
@@ -223,11 +239,11 @@ Netlify 的入口文件在 `platform-netlify` 包中：`platform/netlify/index.t
 
 在找到对应的入口文件后（各平台入口文件分布在不同的包中），你就可以开始配置 RSSBook 程序了。
 
-在对应的入口文件中，你应该看到了一个 `RSSBookApp` 函数，这个函数用于创建 RSSBook 应用实例，你可以根据你的需要进行修改。
+在对应的入口文件中，你应该看到了一个 `createRSSBookApp` 函数，这个函数用于创建 RSSBook 应用实例，你可以根据你的需要进行修改。
 
 ```ts
 /* ... */
-RSSBookApp({
+createRSSBookApp({
     // 这里是配置项
 })
 /* ... */
@@ -239,7 +255,7 @@ RSSBookApp({
 
 #### 配置说明
 
-各平台入口文件中的 `RSSBookApp` 函数接受一个配置对象，本指南让你熟悉在各个功能模块中的常用配置项。
+各平台入口文件中的 `createRSSBookApp` 函数接受一个配置对象，本指南让你熟悉在各个功能模块中的常用配置项。
 
 #### 环境变量
 

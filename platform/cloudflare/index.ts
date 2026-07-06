@@ -11,14 +11,6 @@ import cloudflareKVBindingDriver from "unstorage/drivers/cloudflare-kv-binding";
 
 export const app = createRSSBookApp({
 	adapter: CloudflareAdapter,
-	book: {
-		config: {},
-		feeds: ["https://github.blog/feed/"],
-		meta: {
-			description: "A simple RSS feed aggregator and reader.",
-			title: "RSSBook",
-		},
-	},
 	cache: new Cache(
 		createStorage({
 			driver: cloudflareKVBindingDriver({

@@ -52,7 +52,7 @@
 
 > [!CAUTION]
 >
-> Before version 1.0, this project is not yet stable. We haven't implemented features like an online generator, Puppeteer integration, AI support, environment variables, automatic upstream sync, and better library support yet. We still have a long way to go, and your help in improving the project is welcome.
+> Before version 1.0, this project is not yet stable. We haven't implemented features like an online generator, Puppeteer integration, AI support, automatic upstream sync, and better library support yet. We still have a long way to go, and your help in improving the project is welcome.
 
 ## Project Structure
 
@@ -160,6 +160,10 @@ bun run --filter @rssbook/platform-netlify deploy     # Netlify
 
 #### Platform-Specific Notes
 
+> [!TIP]
+>
+> Before diving into the platform-specific notes below, please read the [Initial Configuration](#initial-configuration) section first to learn how to configure RSSBook via the `RSSBookApp` function and [Environment Variables](#environment-variables).
+
 ##### Bun
 
 The entry file for Bun is in the `rssbook` core package: `pkgs/rssbook/src/index.ts`.
@@ -191,9 +195,9 @@ I personally love [CloudFlare Workers](https://workers.cloudflare.com/). It's a 
 
 The entry file for CloudFlare Workers is in the `platform-cloudflare` package: `platform/cloudflare/index.ts`.
 
-For production, you can directly click the button below to deploy to CloudFlare Workers, but this method does not support **custom configuration**.
+For production, you can directly click the button below to deploy to CloudFlare Workers. After deployment, you can customize RSSBook configuration through environment variables or a `wrangler` config file in the Cloudflare Workers settings (see the [Initial Configuration - Environment Variables](#environment-variables) section).
 
-[![Deploy to Cloudflare](https://deploy.workers.cloudflare.com/button)](https://deploy.workers.cloudflare.com/?url=https://github.com/HackHTU/RSSBook/tree/main/platform/cloudflare)
+[![Deploy to Cloudflare](https://deploy.workers.cloudflare.com/button)](https://deploy.workers.cloudflare.com/?url=https://github.com/HackHTU/RSSBook)
 
 A better approach is to fork this repository, modify the configuration in [Github CodeSpace](https://github.com/codespaces/new/) or locally, then configure your own GitHub repository in Cloudflare Workers settings for deployment (or you can use GitHub Workflow).
 
@@ -201,7 +205,9 @@ A better approach is to fork this repository, modify the configuration in [Githu
 
 Vercel is a popular serverless computing platform that also provides a generous free tier.
 
-The entry file for Vercel is in the `platform-vercel` package: `platform/vercel/index.ts`.
+The entry file for Vercel is in the `platform-vercel` package: `platform/vercel/api/index.ts`.
+
+Vercel deployment settings are defined in `platform/vercel/vercel.json`, which sets the Framework Preset to Other.
 
 [![Deploy with Vercel](https://vercel.com/button)](https://vercel.com/new/clone?repository-url=https%3A%2F%2Fgithub.com%2FHackHTU%2FRSSBook&root-directory=platform%2Fvercel)
 
@@ -235,6 +241,27 @@ RSSBookApp({
 
 The `RSSBookApp` function in each platform's entry file accepts a configuration object. This guide helps you understand common configuration options across feature modules.
 
+#### Environment Variables
+
+You can also configure RSSBook via environment variables. All available variables defined in `pkgs/rssbook/src/app.ts` are listed below.
+
+| Name | Type | Description | Default | Example |
+| --- | --- | --- | --- | --- |
+| `RSSBOOK_BOOK_CACHE_MAX_AGE_MS` | Number (ms) | Cache TTL in milliseconds for aggregated book feed data. | `600000` (10 minutes) | `RSSBOOK_BOOK_CACHE_MAX_AGE_MS="600000"` |
+| `RSSBOOK_BOOK_CONFIG` | `key=value` list | Feed source config values, as comma-separated `key=value` pairs. | `{}` | `RSSBOOK_BOOK_CONFIG="GITHUB_TOKEN=token,DISCORD_TOKEN=token"` |
+| `RSSBOOK_BOOK_FEEDS` | URL list | Feed URLs aggregated by the book page, as a comma-separated string. | `https://rssbook.htu.me/feeds/programming/github/trending/daily` | `RSSBOOK_BOOK_FEEDS="https://rssbook.htu.me/feeds/programming/github/trending/daily"` |
+| `RSSBOOK_BOOK_THEME` | Theme name | Built-in book theme. Allowed values: `gallery` `magazine` `masonry` `minimal` `reader` `redbook`. | `redbook` | `RSSBOOK_BOOK_THEME="redbook"` |
+| `RSSBOOK_META_DESCRIPTION` | String | Page description rendered in HTML metadata. | not rendered | `RSSBOOK_META_DESCRIPTION="A simple RSS feed aggregator and reader."` |
+| `RSSBOOK_META_KEYWORDS` | String list | Page keywords rendered in HTML metadata, as a comma-separated string. | not rendered | `RSSBOOK_META_KEYWORDS="rss,reader,feeds"` |
+| `RSSBOOK_META_LANG` | String | HTML language value. | not rendered | `RSSBOOK_META_LANG="en"` |
+| `RSSBOOK_META_TITLE` | String | Page title rendered in HTML metadata. | not rendered | `RSSBOOK_META_TITLE="RSSBook"` |
+| `RSSBOOK_OPENAPI_ENABLE_FETCH_ONLINE_SERVER` | Boolean | Enable fetching public online server entries for the OpenAPI server list. | `true` | `RSSBOOK_OPENAPI_ENABLE_FETCH_ONLINE_SERVER="true"` |
+| `RSSBOOK_STATIC` | Boolean | Enable static asset serving. | `true` | `RSSBOOK_STATIC="false"` |
+
+> [!NOTE]
+>
+> Array-shaped values (e.g. `RSSBOOK_BOOK_FEEDS`, `RSSBOOK_META_KEYWORDS`) are provided as comma-separated strings. Source config values use comma-separated `key=value` pairs. Booleans accept `true` `false` `1` `0` `yes` `no` `on` `off` (case-insensitive); any other value is ignored.
+
 #### Using the Personal Homepage
 
 Typically, your blog and social platform activities (like YouTube, Reddit, and Mastodon) provide Feed links. For platforms without Feed support, you can generate Feed links through this project.
@@ -264,6 +291,10 @@ In the OpenAPI documentation, you can find and generate them under the `utils` c
 #### Creating Routes
 
 For how to write new routes, route specifications, and writing tests, see [How to Create a Feed](./docs/how-to-create-a-feed.md).
+
+> [!TIP]
+>
+> If you use an AI coding assistant (Cursor, Claude Code, Codex, opencode, etc.) to generate or modify feed routes, ask it to read this repo's [create-feed skill](./.agents/skills/create-feed/SKILL.md) first. The skill describes the Source code structure, registration location, naming conventions, available utilities (`cache` `date` `ofetch` `load` `formatHTML` `parse` `toAbsoluteURL`, etc.), and testing guidelines, so the AI can produce code that follows the project conventions in one pass and avoid introducing new dependencies or reinventing the wheel.
 
 ### Advanced Tutorial
 
@@ -301,7 +332,69 @@ RSSBook can be used not only as your Feed reader but also for many other purpose
 
 ### Creating Your Personal Activity Feed
 
+RSSBook's Book feature aggregates any number of feeds and renders them as a personal homepage through a theme template, making it perfect as your "digital living room."
+
+Typical steps:
+
+1. Configure the feeds you want to aggregate via the `RSSBOOK_BOOK_FEEDS` environment variable (or by calling `RSSBookApp({ book: { feeds: [...] } })` in your entry file). For example:
+   ```bash
+   RSSBOOK_BOOK_FEEDS="https://your-instance/feeds/programming/github/events/vercel,https://your-instance/feeds/programming/github/trending/daily,https://your-instance/feeds/multimedia/sspai/matrix"
+   ```
+2. (Optional) Pick a built-in theme with `RSSBOOK_BOOK_THEME`:
+   ```bash
+   RSSBOOK_BOOK_THEME="redbook"
+   ```
+   Allowed values: `gallery` `magazine` `masonry` `minimal` `reader` `redbook`.
+3. (Optional) Customize page metadata via `RSSBOOK_META_TITLE` / `RSSBOOK_META_DESCRIPTION` / `RSSBOOK_META_LANG` / `RSSBOOK_META_KEYWORDS`:
+   ```bash
+   RSSBOOK_META_TITLE="My Personal Feed"
+   RSSBOOK_META_DESCRIPTION="My personal activity aggregator"
+   RSSBOOK_META_LANG="en"
+   RSSBOOK_META_KEYWORDS="rss,reader,personal"
+   ```
+4. After deployment, visit your instance's homepage to see the aggregated page. You can also force HTML rendering with `?type=html` and enable the XSL stylesheet with `styled=true`.
+
+If some feed sources require authentication (e.g., a GitHub Token), inject them into `RSSBOOK_BOOK_CONFIG` as `key=value` pairs:
+
+```bash
+RSSBOOK_BOOK_CONFIG="GITHUB_TOKEN=ghp_xxx"
+```
+
+Each feed source reads the config keys it declares (see `GITHUB_TOKEN` usage in `pkgs/rssbook/src/routers/feeds/programming/github/index.ts`).
+
 ### Syncing to IM Platforms Using Automation Tools
+
+RSSBook itself only "produces feeds," but since the output is standard RSS 2.0, you can plug it into any automation tool that supports RSS subscriptions — the most common one is [IFTTT](https://ifttt.com/).
+
+As an example, let's sync **GitHub Trending to a Discord channel**:
+
+1. **Get your feed URL.** RSSBook ships with a GitHub Trending Daily Feed by default:
+   ```
+   https://your-instance/feeds/programming/github/trending/daily
+   ```
+   Append `?type=rss` to explicitly request the RSS 2.0 format.
+2. **Create an Applet on IFTTT**: go to [Create](https://ifttt.com/create) → **If This** → choose **RSS Feed** → select the **New feed item** trigger → paste the URL above into *Feed URL*.
+3. **Configure the IM action** (**Then That**). Pick one of the following:
+   - **Discord**: choose **Discord** → **Post message to channel** → pick the target server and channel → in *Message*, use IFTTT placeholders, e.g.:
+     ```
+     📰 {{EntryTitle}}
+     {{EntryURL}}
+     ```
+     You can also prepend `{{FeedTitle}}` to tag the source.
+   - **Telegram**: choose **Telegram** → **Send message** → connect your bot → in *Message text*, use `{{EntryTitle}}` / `{{EntryURL}}` / `{{EntryContent}}`.
+   - **Slack**: choose **Slack** → **Post to channel** → in *Message*:
+     ```
+     *{{EntryTitle}}* — {{EntryURL}}
+     ```
+   - **Webhooks / WeCom / Feishu bot**: choose **Webhooks** → **Make a web request**, paste the IM bot's webhook URL into *URL*, handcraft the JSON body in *Body* (you can use `{{EntryTitle}}` and friends), set *Method* to `POST` and *Content Type* to `application/json`.
+4. **Finish and enable.** IFTTT will poll the RSS source on its update cadence (typically every 15–30 minutes) and push new entries to your IM platform.
+
+> [!TIP]
+>
+> - You can create one Applet per RSSBook route, so "GitHub → Discord", "V2EX → Telegram", "Sspai → Slack" stay independent.
+> - If your IM platform has no official IFTTT service (e.g., Feishu, DingTalk), prefer the **Webhooks** action — IFTTT will substitute `{{EntryTitle}}` / `{{EntryURL}}` / `{{EntryContent}}` / `{{EntryPublished}}` / `{{FeedTitle}}` into your custom request body.
+> - To avoid duplicate pushes, enable *Filter code* (JavaScript) in the Applet settings and gate the trigger on `EntryPublished` being within the last N hours.
+
 
 ## Standards
 

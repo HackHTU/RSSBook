@@ -52,7 +52,7 @@
 
 > [!CAUTION]
 >
-> 在版本号在 1.0 前，本项目还不稳定，我们还没有实现诸如在线生成器、Puppeteer 的集成、AI 的支持、环境变量、自动与上游同步和更好的库支持等，我们还有很长的路要走，欢迎你帮助我们改进项目。
+> 在版本号在 1.0 前，本项目还不稳定，我们还没有实现诸如在线生成器、Puppeteer 的集成、AI 的支持、自动与上游同步和更好的库支持等，我们还有很长的路要走，欢迎你帮助我们改进项目。
 
 ## 项目结构
 
@@ -160,6 +160,10 @@ bun run --filter @rssbook/platform-netlify deploy     # Netlify
 
 #### 平台特定说明
 
+> [!TIP]
+>
+> 在开始以下平台特定说明之前，请先阅读 [初始配置](#初始配置) 一节，了解如何通过 `RSSBookApp` 函数与 [环境变量](#环境变量) 进行配置。
+
 ##### Bun
 
 Bun 的入口文件在 `rssbook` 核心包中：`pkgs/rssbook/src/index.ts`。
@@ -191,9 +195,9 @@ Deno 是一个继 Node.js 之后的另一个运行时环境。
 
 CloudFlare Workers 的入口文件在 `platform-cloudflare` 包中：`platform/cloudflare/index.ts`。
 
-在生产时，你可以直接点击下面的按钮来部署到 CloudFlare Workers，但是这种方式不支持**自定义配置**。
+在生产时，你可以直接点击下面的按钮来部署到 CloudFlare Workers。部署完成后，你可以在 Cloudflare Workers 的设置中通过环境变量或 `wrangler` 配置文件来自定义 RSSBook 的配置项（请参考 [初始配置 - 环境变量](#环境变量) 一节）。
 
-[![Deploy to Cloudflare](https://deploy.workers.cloudflare.com/button)](https://deploy.workers.cloudflare.com/?url=https://github.com/HackHTU/RSSBook/tree/main/platform/cloudflare)
+[![Deploy to Cloudflare](https://deploy.workers.cloudflare.com/button)](https://deploy.workers.cloudflare.com/?url=https://github.com/HackHTU/RSSBook)
 
 更好的方法是自己 Fork 本仓库，在 [Github CodeSpace](https://github.com/codespaces/new/) 或本地修改配置后，然后使用在 Cloudflare Workers 的设置中绑定你自己的 GitHub 仓库进行部署（或者你可以使用 GitHub Workflow）。
 
@@ -201,7 +205,9 @@ CloudFlare Workers 的入口文件在 `platform-cloudflare` 包中：`platform/c
 
 Vercel 是一个非常流行的 Serverless 计算平台，也提供了慷慨的免费使用额度。
 
-Vercel 的入口文件在 `platform-vercel` 包中：`platform/vercel/index.ts`。
+Vercel 的入口文件在 `platform-vercel` 包中：`platform/vercel/api/index.ts`。
+
+Vercel 部署配置已写入 `platform/vercel/vercel.json`，会将 Framework Preset 设置为 Other。
 
 [![Deploy with Vercel](https://vercel.com/button)](https://vercel.com/new/clone?repository-url=https%3A%2F%2Fgithub.com%2FHackHTU%2FRSSBook&root-directory=platform%2Fvercel)
 
@@ -235,6 +241,27 @@ RSSBookApp({
 
 各平台入口文件中的 `RSSBookApp` 函数接受一个配置对象，本指南让你熟悉在各个功能模块中的常用配置项。
 
+#### 环境变量
+
+你也可以通过环境变量来配置 RSSBook，`pkgs/rssbook/src/app.ts` 中定义的所有可用环境变量如下。
+
+| 名称 | 类型 | 说明 | 默认 | 示例 |
+| --- | --- | --- | --- | --- |
+| `RSSBOOK_BOOK_CACHE_MAX_AGE_MS` | 数字 (毫秒) | 聚合 Book Feed 数据的缓存 TTL。 | `600000` (10 分钟) | `RSSBOOK_BOOK_CACHE_MAX_AGE_MS="600000"` |
+| `RSSBOOK_BOOK_CONFIG` | `key=value` 列表 | Feed 源配置项，使用逗号分隔的 `key=value` 对。 | `{}` | `RSSBOOK_BOOK_CONFIG="GITHUB_TOKEN=token,DISCORD_TOKEN=token"` |
+| `RSSBOOK_BOOK_FEEDS` | URL 列表 | Book 页面聚合的 Feed 链接，使用逗号分隔。 | `https://rssbook.htu.me/feeds/programming/github/trending/daily` | `RSSBOOK_BOOK_FEEDS="https://rssbook.htu.me/feeds/programming/github/trending/daily"` |
+| `RSSBOOK_BOOK_THEME` | 主题名 | 内置 Book 主题，可选值：`gallery` `magazine` `masonry` `minimal` `reader` `redbook`。 | `redbook` | `RSSBOOK_BOOK_THEME="redbook"` |
+| `RSSBOOK_META_DESCRIPTION` | 字符串 | HTML `<meta>` 中的页面描述。 | 不渲染 | `RSSBOOK_META_DESCRIPTION="一个简单的 RSS Feed 聚合阅读器。"` |
+| `RSSBOOK_META_KEYWORDS` | 字符串列表 | HTML `<meta>` 中的页面关键词，使用逗号分隔。 | 不渲染 | `RSSBOOK_META_KEYWORDS="rss,reader,feeds"` |
+| `RSSBOOK_META_LANG` | 字符串 | HTML `<html lang="...">` 的语言值。 | 不渲染 | `RSSBOOK_META_LANG="en"` |
+| `RSSBOOK_META_TITLE` | 字符串 | HTML `<title>` 与 `<meta>` 中的页面标题。 | 不渲染 | `RSSBOOK_META_TITLE="RSSBook"` |
+| `RSSBOOK_OPENAPI_ENABLE_FETCH_ONLINE_SERVER` | 布尔值 | 是否在 OpenAPI 中拉取公网在线实例列表。 | `true` | `RSSBOOK_OPENAPI_ENABLE_FETCH_ONLINE_SERVER="true"` |
+| `RSSBOOK_STATIC` | 布尔值 | 是否启用静态资源服务。 | `true` | `RSSBOOK_STATIC="false"` |
+
+> [!NOTE]
+>
+> 数组类型的变量（如 `RSSBOOK_BOOK_FEEDS`、`RSSBOOK_META_KEYWORDS`）使用逗号分隔的字符串表示；源配置项 `RSSBOOK_BOOK_CONFIG` 使用逗号分隔的 `key=value` 对；布尔值接受 `true` `false` `1` `0` `yes` `no` `on` `off`（大小写不敏感），其他值会被忽略。
+
 #### 使用个人主页
 
 通常，你的博客，一些社交平台的动态（如 YouTube、Reddit 和 Mastodon）都提供了 Feed 链接。而没有提供 Feed 的平台，你可以通过本项目来生成 Feed 链接。
@@ -264,6 +291,10 @@ RSSBookApp({
 #### 创建路由
 
 关于如何编写新路由，路由的规范以及测试的编写，请看 [如何编写一个 Feed](./docs/how-to-create-a-feed.md)。
+
+> [!TIP]
+>
+> 如果你使用 AI 编码助手（Cursor、Claude Code、Codex、opencode 等）来生成或修改 Feed 路由，请让它先阅读本仓库的 [create-feed skill](./.agents/skills/create-feed/SKILL.md)。该 skill 描述了 Source 的代码结构、注册位置、命名约定、可用工具（`cache` `date` `ofetch` `load` `formatHTML` `parse` `toAbsoluteURL` 等）以及测试规范，能让 AI 一次性产出符合本项目约定的代码，并避免引入新依赖或重复造轮子。
 
 ### 高级教程
 
@@ -301,7 +332,69 @@ RSSBook 不仅可以用作你的 Feed 阅读器，还可以用来做很多事情
 
 ### 创建自己的个人动态
 
+RSSBook 的 Book 功能可以把任意数量的 Feed 聚合并以主题模板渲染为一个个人主页，非常适合作为你的「数字客厅」。
+
+典型步骤：
+
+1. 在你部署的实例中，通过 `RSSBOOK_BOOK_FEEDS` 环境变量（或在入口文件中调用 `RSSBookApp({ book: { feeds: [...] } })`）配置你想要聚合的 Feed 链接。例如：
+   ```bash
+   RSSBOOK_BOOK_FEEDS="https://你的实例/feeds/programming/github/events/vercel,https://你的实例/feeds/programming/github/trending/daily,https://你的实例/feeds/multimedia/sspai/matrix"
+   ```
+2. （可选）通过 `RSSBOOK_BOOK_THEME` 选择一个内置主题：
+   ```bash
+   RSSBOOK_BOOK_THEME="redbook"
+   ```
+   可选值：`gallery` `magazine` `masonry` `minimal` `reader` `redbook`。
+3. （可选）通过 `RSSBOOK_META_TITLE` / `RSSBOOK_META_DESCRIPTION` / `RSSBOOK_META_LANG` / `RSSBOOK_META_KEYWORDS` 自定义页面元信息：
+   ```bash
+   RSSBOOK_META_TITLE="My Personal Feed"
+   RSSBOOK_META_DESCRIPTION="我的个人动态聚合页"
+   RSSBOOK_META_LANG="zh-CN"
+   RSSBOOK_META_KEYWORDS="rss,reader,personal"
+   ```
+4. 部署后访问你实例的首页即可看到聚合后的页面，也可以通过 `?type=html` 强制走主题渲染、`styled=true` 启用 XSL 样式。
+
+如果某些 Feed 源需要鉴权（如 GitHub Token），可以在 `RSSBOOK_BOOK_CONFIG` 中以 `key=value` 的形式注入：
+
+```bash
+RSSBOOK_BOOK_CONFIG="GITHUB_TOKEN=ghp_xxx"
+```
+
+Feed 源在代码里读取自己声明的 config key（参考 `pkgs/rssbook/src/routers/feeds/programming/github/index.ts` 的 `GITHUB_TOKEN` 用法）。
+
 ### 使用自动化工具同步到 IM 平台
+
+RSSBook 本身只负责「生成 Feed」，但由于输出的就是标准 RSS 2.0，你可以把它接入任何支持 RSS 订阅的自动化工具，最常见的就是 [IFTTT](https://ifttt.com/)。
+
+以「把 GitHub Trending 同步到 Discord 频道」为例：
+
+1. **拿到你的 Feed URL**。RSSBook 默认已经提供 GitHub Trending Daily Feed：
+   ```
+   https://你的实例/feeds/programming/github/trending/daily
+   ```
+   添加 `?type=rss` 显式指定输出 RSS 2.0 格式。
+2. **在 IFTTT 创建 Applet**：[Create](https://ifttt.com/create) → **If This** 选 **RSS Feed** → 选择 **New feed item** 触发器 → 把上面的 URL 填入 *Feed URL*。
+3. **配置 IM 动作**（**Then That**）。下面任选一个：
+   - **Discord**：选 **Discord** → **Post message to channel** → 选择目标服务器与频道 → *Message* 模板使用 IFTTT 提供的占位符，例如：
+     ```
+     📰 {{EntryTitle}}
+     {{EntryURL}}
+     ```
+     也可加上 `{{FeedTitle}}` 来标记来源。
+   - **Telegram**：选 **Telegram** → **Send message** → 连接 bot → *Message text* 同样使用 `{{EntryTitle}}` / `{{EntryURL}}` / `{{EntryContent}}`。
+   - **Slack**：选 **Slack** → **Post to channel** → *Message* 模板：
+     ```
+     *{{EntryTitle}}* — {{EntryURL}}
+     ```
+   - **Webhook / 企业微信 / 飞书机器人**：选 **Webhooks** → **Make a web request**，把 IM 机器人提供的 webhook URL 填入 *URL*，在 *Body* 里手工拼装 JSON（可使用 `{{EntryTitle}}` 等占位符），*Method* 选 `POST`，*Content Type* 选 `application/json`。
+4. **完成并启用**。IFTTT 会按 RSS 源更新节奏（通常 15–30 分钟）拉取一次，发现新条目就触发 IM 推送。
+
+> [!TIP]
+>
+> - 同一个 RSSBook 实例的不同路由可以分别建多个 Applet，做到「GitHub → Discord」「V2EX → Telegram」「少数派 → Slack」互不打扰。
+> - 如果你的 IM 平台没有 IFTTT 官方服务（如飞书、钉钉），优先用 **Webhooks** 动作，IFTTT 会把 `{{EntryTitle}}` / `{{EntryURL}}` / `{{EntryContent}}` / `{{EntryPublished}}` / `{{FeedTitle}}` 注入到你自定义的请求体里。
+> - 想避免重复推送，可以在 IFTTT 的 Applet 设置里开启 *Filter code*（JavaScript）判断 `EntryPublished` 是否在最近 N 小时内。
+
 
 ## 规范
 

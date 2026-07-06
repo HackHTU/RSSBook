@@ -1,7 +1,9 @@
 import { Elysia } from "elysia";
-import { defaultTheme } from "@/books/theme";
+import { DEFAULT_THEME, getThemeByName, type ThemeName } from "@/books/themes";
 import type { Meta, Theme } from "@/types";
 import { Cache } from "@/utils";
+
+export type { ThemeName };
 
 /**
  * Book initialization configuration.
@@ -17,7 +19,7 @@ export interface RSSBookBookConfig {
 	/** Custom configuration key-value pairs */
 	config?: Record<string, string>;
 	/** Theme for rendering feed pages */
-	theme?: Theme;
+	theme?: ThemeName | Theme;
 }
 
 export interface RSSBook {
@@ -36,13 +38,19 @@ export interface RSSBookInitConfig {
 	cache?: Cache;
 }
 
+function resolveTheme(theme?: ThemeName | Theme): Theme {
+	if (!theme) return DEFAULT_THEME;
+	if (typeof theme === "string") return getThemeByName(theme);
+	return theme;
+}
+
 export function createRSSBook(init?: RSSBookInitConfig): RSSBook {
 	return {
 		books: {
 			cacheMaxAgeMs: init?.book?.cacheMaxAgeMs || 10 * 60 * 1000,
 			feeds: init?.book?.feeds || [],
 			meta: init?.book?.meta || {},
-			theme: init?.book?.theme || defaultTheme,
+			theme: resolveTheme(init?.book?.theme),
 		},
 		cache: init?.cache || new Cache(),
 		config: init?.book?.config || {},

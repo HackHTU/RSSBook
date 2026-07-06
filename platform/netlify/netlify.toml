@@ -1,6 +1,6 @@
 [build]
-  publish = "."
-  edge_functions = "."
+  publish = "platform/netlify/public"
+  edge_functions = "platform/netlify/netlify/edge-functions"
 
 [[edge_functions]]
   function = "index"

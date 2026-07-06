@@ -1,13 +1,13 @@
 {
 	"dependencies": {
 		"elysia": "^1.4.29",
-		"rssbook": "latest"
+		"rssbook": "workspace:*"
 	},
 	"devDependencies": {},
 	"name": "@rssbook/platform-vercel",
 	"private": true,
 	"scripts": {
-		"build": "bun build --define process.env.NODE_ENV='\"production\"' --minify-whitespace --minify-syntax --outfile ../../dist/vercel/index.js --target bun index.ts",
+		"build": "bun build --define process.env.NODE_ENV='\"production\"' --minify-whitespace --minify-syntax --outfile ../../dist/vercel/index.js --target node api/index.ts",
 		"deploy": "bunx vercel --prod",
 		"dev": "bunx vercel dev"
 	},

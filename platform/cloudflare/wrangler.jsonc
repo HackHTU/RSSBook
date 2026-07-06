@@ -9,8 +9,7 @@
 	// KV Namespace
 	"kv_namespaces": [
 		{
-			"binding": "RSSBookKV",
-			"id": "3f8938b2584a4570a80ba6b1df5e3963"
+			"binding": "RSSBookKV"
 		}
 	],
 	"main": "index.ts",

@@ -1,14 +1,14 @@
 {
 	"dependencies": {
-		"rssbook": "latest"
+		"rssbook": "workspace:*"
 	},
 	"devDependencies": {},
 	"name": "@rssbook/platform-netlify",
 	"private": true,
 	"scripts": {
-		"build": "bunx netlify build --offline",
+		"build": "bunx netlify build --offline --filter @rssbook/platform-netlify",
 		"deploy": "bunx netlify deploy --prod",
-		"dev": "bunx netlify dev"
+		"dev": "bunx netlify dev --filter @rssbook/platform-netlify"
 	},
 	"type": "module"
 }

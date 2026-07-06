@@ -1,10 +1,13 @@
 {
 	"$schema": "https://openapi.vercel.sh/vercel.json",
-	"bunVersion": "1.x",
-	"framework": "elysia",
+	"buildCommand": "echo \"No build required\"",
+	"devCommand": "vercel dev",
+	"framework": null,
+	"installCommand": "bun install",
+	"outputDirectory": "../../pkgs/rssbook/src/public",
 	"rewrites": [
 		{
-			"destination": "/index.ts",
+			"destination": "/api",
 			"source": "/(.*)"
 		}
 	]

@@ -1,32 +1,21 @@
 /**
- * Bun Entry - Default app instance for Bun runtime
- */
-import { createRSSBookApp } from "./RSSBookApp";
-
-export const app = createRSSBookApp({
-	book: {
-		config: {},
-		feeds: ["https://github.blog/feed/"],
-		meta: {
-			description: "A simple RSS feed aggregator and reader.",
-			title: "RSSBook",
-		},
-	},
-	openapi: {
-		enableFetchOnlineServer: true,
-	},
-});
-
-// For Bun's built-in fetch server
-export default {
-	fetch: app.fetch,
-	port: 3000,
-};
-
-/**
  * RSSBook - RSS Feed Generator, Toolkit and Blog Platform
  * @module rssbook
  */
+import { createRSSBookApp } from "./app";
+
+let app: ReturnType<typeof createRSSBookApp> | undefined;
+
+const getApp = () => {
+	app ??= createRSSBookApp();
+	return app;
+};
+
+// For Bun's built-in fetch server. The app is created lazily on the first request.
+export default {
+	fetch: (request: Request) => getApp().fetch(request),
+	port: 3000,
+};
 
 export type { RSSBook, RSSBookBookConfig, RSSBookInitConfig } from "@/plugins/init";
 export { createRSSBook } from "@/plugins/init";
@@ -56,6 +45,6 @@ export { logger } from "@/utils/logger";
 export { ofetch } from "@/utils/ofetch";
 export { Source } from "@/utils/source";
 export { toAbsoluteURL } from "@/utils/toAbsoluteURL";
-export type { RSSBookAppConfig } from "./RSSBookApp";
+export type { RSSBookAppConfig } from "./app";
 // Core App
-export { createRSSBookApp } from "./RSSBookApp";
+export { createRSSBookApp } from "./app";

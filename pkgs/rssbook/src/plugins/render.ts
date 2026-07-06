@@ -1,5 +1,5 @@
 import { Elysia, t } from "elysia";
-import { type Data, dataSchema, feedType } from "@/types";
+import { type Data, feedType } from "@/types";
 import { render } from "@/utils";
 
 export const renderQuery = {
@@ -18,8 +18,6 @@ export const renderPlugin = new Elysia({
 	.guard({
 		as: "scoped",
 		query: t.Object(renderQuery),
-		// TODO: improve response type
-		response: t.Union([t.String(), dataSchema]),
 		schema: "standalone",
 	})
 	.onAfterHandle(

@@ -6,7 +6,6 @@ import { EMPTY_DATA } from "@/types";
 import { Source } from "@/utils";
 import {
 	Browser,
-	BrowserRouteNotEnabledError,
 	BrowserUnavailableError,
 	blockResources,
 	cookieHeaderToParams,
@@ -155,6 +154,33 @@ describe("browser", () => {
 		}
 	});
 
+	test("Browser accepts an async provider factory lazily", async () => {
+		puppeteerCalls.connect = [];
+		const endpoint = "wss://browser.example/devtools/browser/from-provider";
+		const provider = mock(async () => ({ endpoint }));
+		const browser = new Browser(provider);
+
+		expect(provider).toHaveBeenCalledTimes(0);
+		await browser.getBrowser();
+		await browser.getBrowser();
+
+		expect(provider).toHaveBeenCalledTimes(1);
+		expect(puppeteerCalls.connect).toEqual([endpoint]);
+		await browser.close();
+		expect(remoteBrowser.disconnect).toHaveBeenCalled();
+	});
+
+	test("Browser close does not resolve an unopened provider", async () => {
+		const provider = mock(async () => ({
+			endpoint: "wss://browser.example/devtools/browser/unopened",
+		}));
+		const browser = new Browser(provider);
+
+		await browser.close();
+
+		expect(provider).toHaveBeenCalledTimes(0);
+	});
+
 	test("Browser accepts an async factory and disconnects by default", async () => {
 		const launchCount = puppeteerCalls.launch;
 		const factoryBrowser = createFakeBrowser();
@@ -169,6 +195,21 @@ describe("browser", () => {
 		await browser.close();
 		expect(factoryBrowser.disconnect).toHaveBeenCalledTimes(1);
 		expect(factoryBrowser.close).toHaveBeenCalledTimes(0);
+	});
+
+	test("Browser shares concurrent first open across provider and browser factories", async () => {
+		const factoryBrowser = createFakeBrowser();
+		const create = mock(async () => {
+			await Promise.resolve();
+			return factoryBrowser;
+		});
+		const provider = mock(async () => ({ create }));
+		const browser = new Browser(provider);
+
+		await Promise.all([browser.getBrowser(), browser.getBrowser()]);
+
+		expect(provider).toHaveBeenCalledTimes(1);
+		expect(create).toHaveBeenCalledTimes(1);
 	});
 
 	test("Browser supports custom async disposer for SaaS sessions", async () => {
@@ -307,7 +348,7 @@ describe("browser source route", () => {
 		);
 	});
 
-	test("throws clear error when a route uses browser without browser metadata", async () => {
+	test("allows browser use without browser route metadata", async () => {
 		const browser = new TestBrowser();
 		const source = new Source({
 			description: "Test description",
@@ -333,15 +374,13 @@ describe("browser source route", () => {
 		const app = new Elysia().use(initPlugin({ browser })).use(source.getApp());
 		const response = await app.handle(new Request("https://example.com/example/plain"));
 
-		expect(response.status).toBe(500);
-		expect(await response.text()).toContain(
-			new BrowserRouteNotEnabledError("/example/plain").message,
-		);
+		expect(response.status).toBe(200);
 	});
 
-	test("accepts an async browser factory from app initialization", async () => {
+	test("accepts an async browser provider factory from app initialization lazily", async () => {
 		const factoryBrowser = createFakeBrowser();
 		const create = mock(async () => factoryBrowser);
+		const provider = mock(async () => ({ create }));
 		const source = new Source({
 			description: "Test description",
 			domain: "https://example.com",
@@ -364,10 +403,14 @@ describe("browser source route", () => {
 				}),
 		);
 
-		const app = new Elysia().use(initPlugin({ browser: create })).use(source.getApp());
+		const app = new Elysia().use(initPlugin({ browser: provider })).use(source.getApp());
+		expect(provider).toHaveBeenCalledTimes(0);
+		expect(create).toHaveBeenCalledTimes(0);
+
 		const response = await app.handle(new Request("https://example.com/example/rendered"));
 
 		expect(response.status).toBe(200);
+		expect(provider).toHaveBeenCalledTimes(1);
 		expect(create).toHaveBeenCalledTimes(1);
 	});
 

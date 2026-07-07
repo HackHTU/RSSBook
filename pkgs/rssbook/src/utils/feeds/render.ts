@@ -1,39 +1,5 @@
 import { Feed } from "feed";
 import { type Data, type FeedType, isFeedType, parseData } from "@/types/data";
-import { uuid } from "../uuid";
-
-/**
- * Add `xslt` stylesheet link to the feed XML.
- *
- * @todo: [May Be Deprecated](https://github.com/whatwg/html/issues/11523)
- *
- * @param xml the raw XML string
- * @param type the feed type: "rss" or "atom"
- * @returns styled XML string
- */
-export function addStylesheet(xml: string, type: "rss" | "atom"): string {
-	if (type !== "rss" && type !== "atom") {
-		return xml;
-	}
-	if (xml.includes("xml-stylesheet")) {
-		return xml;
-	}
-
-	const pi = `<?xml-stylesheet href="/xsl/${type}.xsl" type="text/xsl" media="screen"?>`;
-
-	// Look for an XML declaration near the start and insert after it if present.
-	const head = xml.slice(0, 200);
-	const declMatch = head.match(/^<\?xml[^?]*\?>/i);
-
-	if (declMatch) {
-		const declEnd = declMatch[0].length;
-		// insert PI after declaration, trim any immediate whitespace after decl
-		return `${xml.slice(0, declEnd)}\n${pi}\n${xml.slice(declEnd).replace(/^\s+/, "")}`;
-	}
-
-	// no declaration — prepend PI
-	return `${pi}\n${xml}`;
-}
 
 /**
  * Render feed data into specified format.
@@ -56,7 +22,7 @@ export function render(data: Data, format: FeedType = "rss", styled: boolean = t
 	const feed = new Feed({
 		copyright: "RSSBook",
 		generator: "RSSBook",
-		id: uuid(),
+		stylesheet: styled ? `/xsl/${format}.xsl` : undefined,
 
 		...validDate,
 	});
@@ -69,15 +35,11 @@ export function render(data: Data, format: FeedType = "rss", styled: boolean = t
 
 	try {
 		switch (format) {
-			case "rss": {
-				const rss = feed.rss2();
-				return styled ? addStylesheet(rss, "rss") : rss;
-			}
+			case "rss":
+				return feed.rss2();
 
-			case "atom": {
-				const atom = feed.atom1();
-				return styled ? addStylesheet(atom, "atom") : atom;
-			}
+			case "atom":
+				return feed.atom1();
 			case "json":
 				return feed.json1();
 

@@ -105,8 +105,9 @@ export interface RSSBookAppConfig {
 	 *
 	 * `undefined` behaves like `true` and creates a lazy Puppeteer-backed
 	 * browser. `false` disables browser routes. Pass a `Browser` instance,
-	 * `Browser` options, or an async factory to use Browser as a Service or
-	 * serverless providers.
+	 * `Browser` provider options, an async provider factory, or an async
+	 * Puppeteer browser factory to use Browser as a Service or serverless
+	 * providers.
 	 */
 	browser?: boolean | Browser | BrowserOptions;
 	book?: RSSBookBookConfig;

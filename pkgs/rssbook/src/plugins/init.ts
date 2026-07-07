@@ -1,6 +1,7 @@
 import { Elysia } from "elysia";
 import { DEFAULT_THEME, getThemeByName, type ThemeName } from "@/books/themes";
 import { Browser, type BrowserOptions } from "@/browser/browser";
+import { BrowserUnavailableError, createUnavailableBrowser } from "@/browser/errors";
 import type { Meta, Theme } from "@/types";
 import { Cache } from "@/utils";
 
@@ -24,7 +25,7 @@ export interface RSSBookBookConfig {
 }
 
 export interface RSSBook {
-	browser?: Browser;
+	browser: Browser;
 	books: {
 		cacheMaxAgeMs: number;
 		feeds: string[];
@@ -42,8 +43,8 @@ export interface RSSBookInitConfig {
 	 *
 	 * `undefined` and `true` create RSSBook's lazy Puppeteer-backed `Browser`.
 	 * `false` disables browser routes. Pass a `Browser` instance, `Browser`
-	 * options, or an async factory to use Browser as a Service or serverless
-	 * browser providers.
+	 * provider options, an async provider factory, or an async Puppeteer browser
+	 * factory to use Browser as a Service or serverless browser providers.
 	 */
 	browser?: boolean | Browser | BrowserOptions;
 	book?: RSSBookBookConfig;
@@ -56,8 +57,11 @@ function resolveTheme(theme?: ThemeName | Theme): Theme {
 	return theme;
 }
 
-function resolveBrowser(browser?: boolean | Browser | BrowserOptions): Browser | undefined {
-	if (browser === false) return undefined;
+function resolveBrowser(browser?: boolean | Browser | BrowserOptions): Browser {
+	if (browser === false) {
+		return createUnavailableBrowser(() => new BrowserUnavailableError());
+	}
+
 	if (browser instanceof Browser) return browser;
 	if (browser === undefined || browser === true) return new Browser();
 

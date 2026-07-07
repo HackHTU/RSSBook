@@ -12,6 +12,7 @@
 import { Category } from "@/utils";
 
 import _api from "./_api";
+import _browser from "./_browser";
 import _html from "./_html";
 
 /**
@@ -38,5 +39,6 @@ import _html from "./_html";
  */
 export default new Category("_example", "This is an example feed category.").use({
 	_api, // Source that fetches data from an API / 从 API 获取数据的源
+	_browser, // Source that renders JavaScript pages with the browser / 使用浏览器渲染 JavaScript 页面的源
 	_html, // Source that scrapes data from HTML pages / 从 HTML 页面抓取数据的源
 });

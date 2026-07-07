@@ -280,6 +280,11 @@ export const dataSchema = t.Object(
 		title: "Feed Data Schema",
 	},
 );
+
+export const feedData = t.Union([dataSchema, t.String()], {
+	description: "The feed data to be rendered.",
+	title: "Feed Data",
+});
 export type Data = Static<typeof dataSchema>;
 export const dataValidator = getSchemaValidator(dataSchema);
 

@@ -4,8 +4,10 @@ export {
 	type BrowserDisposer,
 	type BrowserFactory,
 	type BrowserOptions,
+	type BrowserProviderFactory,
+	type BrowserProviderOptions,
 } from "./browser";
-export { BrowserRouteNotEnabledError, BrowserUnavailableError } from "./errors";
+export { BrowserUnavailableError } from "./errors";
 export {
 	blockResources,
 	cookieHeaderToParams,

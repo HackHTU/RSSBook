@@ -15,7 +15,23 @@ export default new Source({
 		withImage: "If-Present",
 	},
 	(app) =>
-		app.get("/user/:username", async ({ meta: { domain }, params: { username }, browser }) => {
-			
-		}),
+		app.get(
+			"/user/:username",
+			async ({ meta: { domain }, browser, params: { username } }) => {
+				const link = `https://${domain}/user/${username}`;
+				const description = await browser.renderHTML(link);
+
+				return {
+					description,
+					item: [] satisfies DataItem[],
+					link,
+					title: "Hello World",
+				} satisfies Data;
+			},
+			{
+				params: t.Object({
+					username: t.String({}),
+				}),
+			},
+		),
 );

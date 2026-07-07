@@ -4,6 +4,23 @@ import { Elysia, t } from "elysia";
 import { renderPlugin } from "./render";
 
 describe("renderPlugin", () => {
+	test("honors styled=false query after boolean coercion", async () => {
+		const app = new Elysia().use(renderPlugin).get("/demo", () => ({
+			description: "Demo feed",
+			item: [],
+			link: "https://example.com",
+			title: "Demo",
+		}));
+
+		const response = await app.handle(
+			new Request("http://localhost/demo?styled=false&type=rss"),
+		);
+		const xml = await response.text();
+
+		expect(response.status).toBe(200);
+		expect(xml).not.toContain("xml-stylesheet");
+	});
+
 	test("keeps route query schema when adding render query parameters to OpenAPI", async () => {
 		const app = new Elysia()
 			.use(openapi())

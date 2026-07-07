@@ -47,14 +47,13 @@ export interface RouteConfig {
 	withImage?: "Always" | "If-Present" | "None";
 	language: MaybeArray<Language>;
 	/**
-	 * Authorize Puppeteer browser access for this feed route.
+	 * Mark this feed route as using Puppeteer browser rendering.
 	 *
-	 * Feed handlers always receive a non-optional `ctx.browser` type. This flag
-	 * marks the route as allowed to use it and shows Browser capability in
-	 * OpenAPI route documentation. Accessing `ctx.browser` from a route without
-	 * `browser: true` throws a clear metadata error; declaring `browser: true`
-	 * while the app was created with `browser: false` throws a browser
-	 * unavailable error when the browser is used.
+	 * Feed handlers receive a non-optional `ctx.browser` from the app context.
+	 * This flag is route metadata for OpenAPI documentation and source readers;
+	 * it does not sandbox access at runtime. If the app was created with
+	 * `browser: false`, using `ctx.browser` still throws a browser unavailable
+	 * error.
 	 */
 	browser?: boolean;
 }

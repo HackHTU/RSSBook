@@ -1,67 +1,28 @@
 import { describe, expect, test } from "bun:test";
 import type { Data } from "@/types";
-import { addStylesheet, render } from "@/utils";
+import { render } from "@/utils";
 
 describe("render", () => {
-	describe("addStylesheet", () => {
-		test("adds stylesheet to RSS feed with XML declaration", () => {
-			const xml = '<?xml version="1.0" encoding="UTF-8"?>\n<rss version="2.0"></rss>';
-			const result = addStylesheet(xml, "rss");
-
-			expect(result).toContain(
-				'<?xml-stylesheet href="/xsl/rss.xsl" type="text/xsl" media="screen"?>',
-			);
-			expect(result).toMatch(/^<\?xml[^?]*\?>\n<\?xml-stylesheet/);
-		});
-
-		test("adds stylesheet to Atom feed with XML declaration", () => {
-			const xml = '<?xml version="1.0" encoding="UTF-8"?>\n<feed></feed>';
-			const result = addStylesheet(xml, "atom");
-
-			expect(result).toContain(
-				'<?xml-stylesheet href="/xsl/atom.xsl" type="text/xsl" media="screen"?>',
-			);
-			expect(result).toMatch(/^<\?xml[^?]*\?>\n<\?xml-stylesheet/);
-		});
-
-		test("adds stylesheet to RSS feed without XML declaration", () => {
-			const xml = '<rss version="2.0"></rss>';
-			const result = addStylesheet(xml, "rss");
-
-			expect(result).toContain(
-				'<?xml-stylesheet href="/xsl/rss.xsl" type="text/xsl" media="screen"?>',
-			);
-			expect(result).toMatch(/^<\?xml-stylesheet/);
-		});
-
-		test("does not add duplicate stylesheet", () => {
-			const xml =
-				'<?xml version="1.0"?>\n<?xml-stylesheet href="/xsl/rss.xsl" type="text/xsl"?>\n<rss></rss>';
-			const result = addStylesheet(xml, "rss");
-
-			expect(result).toBe(xml);
-			const count = (result.match(/xml-stylesheet/g) || []).length;
-			expect(count).toBe(1);
-		});
-
-		test("returns unchanged XML for invalid type", () => {
-			const xml = '<?xml version="1.0"?>\n<rss></rss>';
-			// @ts-expect-error Testing invalid type
-			const result = addStylesheet(xml, "json");
-
-			expect(result).toBe(xml);
-		});
-
-		test("trims whitespace after XML declaration", () => {
-			const xml = '<?xml version="1.0"?>    \n\n  <rss></rss>';
-			const result = addStylesheet(xml, "rss");
-
-			expect(result).not.toContain("?>    \n\n");
-			expect(result).toMatch(/\?>\n<\?xml-stylesheet.*\?>\n<rss/);
-		});
-	});
-
 	describe("render", () => {
+		test("adds RSS stylesheet through feed options when styled", () => {
+			const rss = render(exampleData1(), "rss");
+
+			expect(rss).toContain('<?xml-stylesheet href="/xsl/rss.xsl" type="text/xsl"?>');
+			expect(rss).toMatch(/^<\?xml[^?]*\?><\?xml-stylesheet/);
+		});
+
+		test("adds Atom stylesheet through feed options when styled", () => {
+			const atom = render(exampleData1(), "atom");
+
+			expect(atom).toContain('<?xml-stylesheet href="/xsl/atom.xsl" type="text/xsl"?>');
+			expect(atom).toMatch(/^<\?xml[^?]*\?><\?xml-stylesheet/);
+		});
+
+		test("does not add stylesheet when styled is false", () => {
+			expect(render(exampleData1(), "rss", false)).not.toContain("xml-stylesheet");
+			expect(render(exampleData1(), "atom", false)).not.toContain("xml-stylesheet");
+		});
+
 		describe("exampleData1 (simple fields)", () => {
 			describe("RSS", () => {
 				const rss = render(exampleData1(), "rss", false);

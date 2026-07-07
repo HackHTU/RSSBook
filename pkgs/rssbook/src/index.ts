@@ -22,6 +22,8 @@ export {
 	type BrowserDisposer,
 	type BrowserFactory,
 	type BrowserOptions,
+	type BrowserProviderFactory,
+	type BrowserProviderOptions,
 	blockResources,
 	cookieHeaderToParams,
 	cookiesToHeader,

@@ -3,8 +3,12 @@ export type DeepPartial<T> = T extends object
 			[P in keyof T]?: DeepPartial<T[P]>;
 		}
 	: T;
-
 export type MaybeArray<T> = T | T[];
+export type NonEmptyArray<T> = [T, ...T[]];
+export type Awaitable<T> = T | Promise<T>;
+export type Prettify<T> = {
+	[K in keyof T]: T[K];
+} & {};
 
 // Validate slug format: only lowercase letters, numbers, and hyphens are allowed.
 type Lower =
@@ -54,9 +58,3 @@ type _IsValid<S extends string> = S extends "" ? false : _IsValidInternal<S>;
  * Only allows lowercase letters, numbers, and hyphens.
  */
 export type Slug<S extends string> = _IsValid<S> extends true ? S : never;
-
-export type NonEmptyArray<T> = [T, ...T[]];
-
-export type Prettify<T> = {
-	[K in keyof T]: T[K];
-} & {};

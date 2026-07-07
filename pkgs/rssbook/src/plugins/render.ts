@@ -1,5 +1,5 @@
 import { Elysia, t } from "elysia";
-import { type Data, dataSchema, feedType } from "@/types";
+import { type Data, feedData, feedType } from "@/types";
 import { render } from "@/utils";
 
 export const renderQuery = {
@@ -16,16 +16,12 @@ export const renderPlugin = new Elysia({
 	name: "RSSBook/Render",
 })
 	.model({
-		feedData: t.Union([dataSchema, t.String()], {
-			description: "The feed data to be rendered.",
-			title: "Feed Data",
-		}),
-		feedQuery: t.Object(renderQuery),
+		feedData,
 		feedType,
 	})
 	.guard({
 		as: "scoped",
-		query: "feedQuery",
+		query: t.Object(renderQuery),
 		response: "feedData",
 		schema: "standalone",
 	})
@@ -34,7 +30,7 @@ export const renderPlugin = new Elysia({
 			as: "scoped",
 		},
 		({ responseValue, set, query: { type, styled } }) => {
-			const isStyled = styled !== "false";
+			const isStyled = !!(styled ?? true);
 
 			switch (type) {
 				case "json":

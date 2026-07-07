@@ -1,15 +1,8 @@
 import { type AnyElysia, Elysia } from "elysia";
-import { createUnavailableBrowser } from "@/browser/context";
-import { BrowserRouteNotEnabledError } from "@/browser/errors";
 import { injectPlugin, renderPlugin } from "@/plugins";
 import type { Config, GeneratedConfig, RouteConfig, Slug, SourceConfigs } from "@/types";
 import { detectLanguage } from "@/utils";
 import { logger } from "./logger";
-
-function normalizeRoutePath(path: string): string {
-	if (path === "") return "/";
-	return path.startsWith("/") ? path : `/${path}`;
-}
 
 /**
  * Source class to manage routes and configurations.
@@ -41,7 +34,6 @@ export class Source<
 	Configs extends Record<string, Config> = Record<string, Config>,
 > {
 	private routes: RouteConfig[] = [];
-	private browserRoutes = new Set<string>();
 	/**
 	 * Collection of Elysia app for each route.
 	 * Initialized as empty array, populated via addRoute() calls.
@@ -51,8 +43,6 @@ export class Source<
 
 	/**
 	 * Constructor for the Source class.
-	 *
-	 * The `slug` becomes the URL prefix for every feed route on this source.
 	 *
 	 * @example
 	 * ```ts
@@ -83,7 +73,7 @@ export class Source<
 			.use(injectPlugin)
 			.use(renderPlugin)
 			// map config
-			.resolve(({ browser: injectedBrowser, config, headers, route }) => {
+			.resolve(({ config, headers }) => {
 				// generate config with default values
 				const mapConfig = Object.fromEntries(
 					Object.entries(sourceConfig.config ?? {}).map(([key, value]) => {
@@ -98,12 +88,7 @@ export class Source<
 					headers["Content-Language"] ??
 					"";
 
-				const browser = this.isBrowserRoute(route)
-					? injectedBrowser
-					: createUnavailableBrowser(() => new BrowserRouteNotEnabledError(route));
-
 				return {
-					browser,
 					lang: detectLanguage(acceptLanguage),
 					meta: {
 						...this.sourceConfig,
@@ -145,8 +130,7 @@ export class Source<
 	 * @param handler - A function that receives and extends the internal Elysia app instance for this route.
 	 * @returns Returns the current Source instance for chaining.
 	 */
-	public feed(routeConfig: RouteConfig, handler: (_app: typeof this._app) => AnyElysia): this;
-	public feed(routeConfig: RouteConfig, handler: (_app: AnyElysia) => AnyElysia): this {
+	public feed(routeConfig: RouteConfig, handler: (_app: typeof this._app) => AnyElysia): this {
 		if (this.routes.some((route) => route.title === routeConfig.title)) {
 			throw new Error(`Duplicate Route Title: ${routeConfig.title}.`);
 		}
@@ -158,31 +142,12 @@ export class Source<
 			},
 			name: `RSSBook/${this.sourceConfig.title}/${routeConfig.title}`,
 		});
-
-		const resultApp = handler(newApp);
+		const resultApp = handler.call(newApp, newApp as AnyElysia);
 
 		this.routes.push(routeConfig);
-		if (routeConfig.browser === true) {
-			this.addBrowserRoutes(resultApp);
-		}
 		this.handlers.push(resultApp);
 
 		return this;
-	}
-
-	private addBrowserRoutes(app: AnyElysia) {
-		for (const route of app.routes) {
-			const path = normalizeRoutePath(route.path);
-			const sourcePrefix = normalizeRoutePath(this.sourceConfig.slug);
-
-			this.browserRoutes.add(path);
-			this.browserRoutes.add(`${sourcePrefix}${path === "/" ? "" : path}`);
-			this.browserRoutes.add(`${sourcePrefix}${path}`);
-		}
-	}
-
-	private isBrowserRoute(route: string): boolean {
-		return this.browserRoutes.has(normalizeRoutePath(route));
 	}
 
 	private buildFeedDescription(routeConfig: RouteConfig) {
@@ -200,7 +165,7 @@ export class Source<
 			"---",
 			`<details><summary>🔍 About This Feed</summary>`,
 			// Maintainers section
-			...(maintainers.length > 0
+			...(maintainers.length
 				? [
 						"### ❤️ Maintainers",
 						maintainers.map((m) =>

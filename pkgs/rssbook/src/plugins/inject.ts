@@ -1,6 +1,4 @@
 import { Elysia } from "elysia";
-import { createUnavailableBrowser } from "@/browser/context";
-import { BrowserUnavailableError } from "@/browser/errors";
 import { initPlugin } from "@/plugins";
 import { date, formatHTML, load, logger, ofetch, toAbsoluteURL, uuid } from "@/utils";
 
@@ -13,26 +11,19 @@ export const injectPlugin = new Elysia({
 	name: "RSSBook/Inject",
 })
 	.use(initPlugin()) // type inference
-	// transform `Context` type, and only keep add some props
-	.decorate(({ rssbook }) => {
-		const { cache, config, browser } = rssbook;
-
-		const utils = {
-			date,
-			formatHTML,
-			load,
-			logger,
-			ofetch,
-			toAbsoluteURL,
-			uuid,
-		};
-
-		return {
-			browser,
-			cache,
-			config,
-
-			// from `@/utils`
-			...utils,
-		};
-	});
+	// Static utilities from `@/utils`.
+	.decorate({
+		date,
+		formatHTML,
+		load,
+		logger,
+		ofetch,
+		toAbsoluteURL,
+		uuid,
+	})
+	// Runtime values must follow the actual app-level initPlugin config.
+	.resolve({ as: "scoped" }, ({ rssbook }) => ({
+		browser: rssbook.browser,
+		cache: rssbook.cache,
+		config: rssbook.config,
+	}));

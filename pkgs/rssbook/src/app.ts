@@ -2,6 +2,7 @@ import { serverTiming } from "@elysiajs/server-timing";
 import { Elysia, type ElysiaAdapter } from "elysia";
 import { bookPlugin } from "@/books";
 import type { ThemeName } from "@/books/themes";
+import type { Browser, BrowserOptions } from "@/browser";
 import {
 	assetsPlugin,
 	errorHandlerPlugin,
@@ -99,6 +100,15 @@ const RSSBOOK_APP_ENV = {
  */
 export interface RSSBookAppConfig {
 	adapter?: ElysiaAdapter;
+	/**
+	 * Browser capability for feed routes that declare `browser: true`.
+	 *
+	 * `undefined` behaves like `true` and creates a lazy Puppeteer-backed
+	 * browser. `false` disables browser routes. Pass a `Browser` instance,
+	 * `Browser` options, or an async factory to use Browser as a Service or
+	 * serverless providers.
+	 */
+	browser?: boolean | Browser | BrowserOptions;
 	book?: RSSBookBookConfig;
 	cache?: Cache;
 	openapi?: {
@@ -261,7 +271,7 @@ export const createRSSBookApp = (init?: RSSBookAppConfig) => {
 			.use(openAPIPlugin(config.openapi?.enableFetchOnlineServer))
 
 			// init RSSBook instance
-			.use(initPlugin({ book: config.book, cache: config.cache }))
+			.use(initPlugin({ book: config.book, browser: config.browser, cache: config.cache }))
 			// book plugin
 			.use(bookPlugin)
 			// sign routes plugin

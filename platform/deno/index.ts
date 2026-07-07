@@ -31,6 +31,7 @@ const storage = createStorage({
 });
 
 export const app = createRSSBookApp({
+	browser: false,
 	cache: new Cache(storage),
 });
 export default app;

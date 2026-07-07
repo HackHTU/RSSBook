@@ -1,11 +1,23 @@
 import { type AnyElysia, Elysia } from "elysia";
+import { createUnavailableBrowser } from "@/browser/context";
+import { BrowserRouteNotEnabledError } from "@/browser/errors";
 import { injectPlugin, renderPlugin } from "@/plugins";
 import type { Config, GeneratedConfig, RouteConfig, Slug, SourceConfigs } from "@/types";
 import { detectLanguage } from "@/utils";
 import { logger } from "./logger";
 
+function normalizeRoutePath(path: string): string {
+	if (path === "") return "/";
+	return path.startsWith("/") ? path : `/${path}`;
+}
+
 /**
  * Source class to manage routes and configurations.
+ *
+ * The source `slug` is mounted as the route prefix. Feed paths registered with
+ * {@link Source.feed} are appended to that prefix, so a source with
+ * `slug: "example"` and `app.get("/latest/:category", ...)` is exposed at
+ * `/example/latest/:category`.
  *
  * @example
  * ```ts
@@ -13,9 +25,9 @@ import { logger } from "./logger";
  *   slug: "example", // only allows lowercase letters, numbers, and hyphens
  *   title: "Example Source",
  *   description: `An example source`, // markdown supported
- *   rootURL: "https://example.com", // root URL of the source
+ *   domain: "example.com", // source website domain
  *   config: {
- *     category: {
+ *     EXAMPLE_CATEGORY: {
  *       description: "Category of the feed",
  *       required: true,
  *       default: "general",
@@ -29,6 +41,7 @@ export class Source<
 	Configs extends Record<string, Config> = Record<string, Config>,
 > {
 	private routes: RouteConfig[] = [];
+	private browserRoutes = new Set<string>();
 	/**
 	 * Collection of Elysia app for each route.
 	 * Initialized as empty array, populated via addRoute() calls.
@@ -39,15 +52,17 @@ export class Source<
 	/**
 	 * Constructor for the Source class.
 	 *
+	 * The `slug` becomes the URL prefix for every feed route on this source.
+	 *
 	 * @example
 	 * ```ts
 	 * export default new Source({
 	 *   slug: "example", // only allows lowercase letters, numbers, and hyphens
 	 *   title: "Example Source",
 	 *   description: `An example source`, // markdown supported
-	 *   rootURL: "https://example.com", // root URL of the source
+	 *   domain: "example.com", // source website domain
 	 *   config: {
-	 *     category: {
+	 *     EXAMPLE_CATEGORY: {
 	 *       description: "Category of the feed",
 	 *       required: true,
 	 *       default: "general",
@@ -68,7 +83,7 @@ export class Source<
 			.use(injectPlugin)
 			.use(renderPlugin)
 			// map config
-			.resolve(({ config, headers }) => {
+			.resolve(({ browser: injectedBrowser, config, headers, route }) => {
 				// generate config with default values
 				const mapConfig = Object.fromEntries(
 					Object.entries(sourceConfig.config ?? {}).map(([key, value]) => {
@@ -83,7 +98,12 @@ export class Source<
 					headers["Content-Language"] ??
 					"";
 
+				const browser = this.isBrowserRoute(route)
+					? injectedBrowser
+					: createUnavailableBrowser(() => new BrowserRouteNotEnabledError(route));
+
 				return {
+					browser,
 					lang: detectLanguage(acceptLanguage),
 					meta: {
 						...this.sourceConfig,
@@ -101,6 +121,9 @@ export class Source<
 	 * Add a new feed item (route) to this source.
 	 *
 	 * Each item represents a route definition, along with its metadata and handler.
+	 * The path passed to `app.get()` is mounted below the source prefix. For
+	 * example, source slug `example` plus feed path `/latest/:category` creates
+	 * the final route URL `/example/latest/:category`.
 	 *
 	 * @example
 	 * ```ts
@@ -113,7 +136,8 @@ export class Source<
 	 *     language: "en", // language of the feed
 	 *     maintainer: { name: "RSSBook" }, // maintainer information
 	 *   },
-	 *   (app) => app.get("/example", () => "Hello World"), // route handler
+	 *   // Final route URL: /example/latest/:category
+	 *   (app) => app.get("/latest/:category", () => "Hello World"),
 	 * );
 	 * ```
 	 *
@@ -121,7 +145,8 @@ export class Source<
 	 * @param handler - A function that receives and extends the internal Elysia app instance for this route.
 	 * @returns Returns the current Source instance for chaining.
 	 */
-	public feed(routeConfig: RouteConfig, handler: (_app: typeof this._app) => AnyElysia): this {
+	public feed(routeConfig: RouteConfig, handler: (_app: typeof this._app) => AnyElysia): this;
+	public feed(routeConfig: RouteConfig, handler: (_app: AnyElysia) => AnyElysia): this {
 		if (this.routes.some((route) => route.title === routeConfig.title)) {
 			throw new Error(`Duplicate Route Title: ${routeConfig.title}.`);
 		}
@@ -133,12 +158,31 @@ export class Source<
 			},
 			name: `RSSBook/${this.sourceConfig.title}/${routeConfig.title}`,
 		});
-		const resultApp = handler.call(newApp, newApp as AnyElysia);
+
+		const resultApp = handler(newApp);
 
 		this.routes.push(routeConfig);
+		if (routeConfig.browser === true) {
+			this.addBrowserRoutes(resultApp);
+		}
 		this.handlers.push(resultApp);
 
 		return this;
+	}
+
+	private addBrowserRoutes(app: AnyElysia) {
+		for (const route of app.routes) {
+			const path = normalizeRoutePath(route.path);
+			const sourcePrefix = normalizeRoutePath(this.sourceConfig.slug);
+
+			this.browserRoutes.add(path);
+			this.browserRoutes.add(`${sourcePrefix}${path === "/" ? "" : path}`);
+			this.browserRoutes.add(`${sourcePrefix}${path}`);
+		}
+	}
+
+	private isBrowserRoute(route: string): boolean {
+		return this.browserRoutes.has(normalizeRoutePath(route));
 	}
 
 	private buildFeedDescription(routeConfig: RouteConfig) {
@@ -156,7 +200,7 @@ export class Source<
 			"---",
 			`<details><summary>🔍 About This Feed</summary>`,
 			// Maintainers section
-			...(maintainers.length
+			...(maintainers.length > 0
 				? [
 						"### ❤️ Maintainers",
 						maintainers.map((m) =>
@@ -190,6 +234,7 @@ export class Source<
 			`- **Fulltext**: ${routeConfig.fulltext !== undefined ? (routeConfig.fulltext ? "Enabled" : "Disabled") : "Not specified"}`,
 			`- **With Image**: ${routeConfig.withImage ? `${routeConfig.withImage}` : "Not specified"}`,
 			`- **Language**: ${languages.join(", ")}`,
+			...(routeConfig.browser === true ? ["- **Browser**: Enabled"] : []),
 			`- **Generate From**: ${this.sourceConfig.domain}`,
 			"</details>",
 		].join("\n\n");

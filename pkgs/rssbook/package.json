@@ -17,6 +17,7 @@
 		"elysia": "^1.4.29",
 		"feed": "^5.2.1",
 		"ofetch": "^1.5.1",
+		"puppeteer": "^25.3.0",
 		"sanitize-html": "^2.17.5",
 		"unstorage": "1.17.5",
 		"uuid": "^13.0.2"

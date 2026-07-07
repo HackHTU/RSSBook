@@ -16,6 +16,19 @@ export default {
 	fetch: (request: Request) => getApp().fetch(request),
 };
 
+export {
+	Browser,
+	type BrowserDisposeMode,
+	type BrowserDisposer,
+	type BrowserFactory,
+	type BrowserOptions,
+	blockResources,
+	cookieHeaderToParams,
+	cookiesToHeader,
+	getCookieHeader,
+	setCookieHeader,
+	waitForResponseJSON,
+} from "@/browser";
 export type { RSSBook, RSSBookBookConfig, RSSBookInitConfig } from "@/plugins/init";
 export { createRSSBook } from "@/plugins/init";
 // Types

@@ -44,15 +44,26 @@ export interface SourceConfigs<
 	description: string;
 
 	/**
-	 * The root domain of the source
+	 * The website domain for this source.
 	 *
-	 * You can use `meta` in route handlers to get the root URL.
+	 * This is metadata for building upstream request URLs and feed links. It is
+	 * not the RSSBook route URL; feed routes are mounted with the source `slug`
+	 * as their prefix, for example `/example/latest`.
+	 *
+	 * You can read it from `meta.domain` in route handlers.
 	 *
 	 * @example
 	 * ```ts
-	 * app => app.get("/", ({ meta: { domain } }) => {
-	 *    const link = ``https://${domain}/some/path`;
-	 * }
+	 * (app) =>
+	 *   app.get("/latest", ({ meta: { domain } }) => {
+	 *     const link = `https://${domain}/some/path`;
+	 *
+	 *     return {
+	 *       title: "Latest",
+	 *       link,
+	 *       item: [],
+	 *     };
+	 *   });
 	 * ```
 	 */
 	domain: string;

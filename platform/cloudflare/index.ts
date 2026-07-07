@@ -11,6 +11,7 @@ import cloudflareKVBindingDriver from "unstorage/drivers/cloudflare-kv-binding";
 
 export const app = createRSSBookApp({
 	adapter: CloudflareAdapter,
+	browser: false,
 	cache: new Cache(
 		createStorage({
 			driver: cloudflareKVBindingDriver({

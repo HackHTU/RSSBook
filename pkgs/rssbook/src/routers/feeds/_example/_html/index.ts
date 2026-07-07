@@ -391,9 +391,12 @@ export default new Source({
 						// ),
 					}),
 					///
-					/// But do not define body, query or other parts
-					/// Defining these parts violates design principles and may cause errors
-					/// 但是不要定义 body query 等其他部分，定义这些部分违反了设计原则，还可能出现错误
+					/// You may define route-specific query parameters here when the feed needs them.
+					/// The render plugin adds its own `type` and `styled` query parameters as a
+					/// standalone schema, so they can coexist with this route schema.
+					/// 当 Feed 需要时，可以在这里定义路由自己的 query 参数。
+					/// render plugin 会以独立 schema 追加 `type` 和 `styled`，
+					/// 因此不会覆盖这里定义的路由 schema。
 					///
 				},
 			),

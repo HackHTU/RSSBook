@@ -70,31 +70,17 @@ export const openAPIPlugin = (enableFetchOnlineServer: boolean = true) => {
 								url: "https://github.com/HackHTU/RSSBook",
 							},
 							description: `
-## Welcome to RSSBook 📕
-![RSSBook Logo](/favicon.ico)
+# 📕 RSSBook
 
-📕 Your Feed Generator, Toolkits and Blogger, with Type-safe, Lightweight, and Serverless support✨
+Try to browse routes, inspect parameters, and test feeds.
 
-\`\`\`shell
-$ bun create github.com/HackHTU/RSSBook
-$ cd RSSBook && bun dev
+Can't find your feed? **Try making one yourself** and PR it.
+
+Send this prompt to your agent.
+
+\`\`\`plaintext
+Clone HackHTU/RSSBook repo and bun install, read create-feeds skill, ask user for new source URL, run source:new script, implement feed and test logic, push to GitHub and create a PR.
 \`\`\`
-
----
-
-📄 This is OpenAPI Documentation, every feed includes the following information:
-
-0. **The \`path\`, \`title\` and \`description\` of the feed** , you can use \`test request\` button to preview the feed.
-1. **Maintainers** Displays details about the feed's maintainers.
-2. **Configuration** Displays the feed's settings, which you must configure during RSSBook initialization.
-3. **Information** Displays details about the feed, including: Fulltext support, Image inclusion, and Supported/Display languages.
-
----
-> [!tip]
-> For more information, please see [**RSSBook**](https://github.com/HackHTU/RSSBook).
-
-![RSSBook](https://img.shields.io/badge/Powered%20by-RSSBook-red.svg)
-![GitHub Repo stars](https://img.shields.io/github/stars/HackHTU/RSSBook)
 `,
 							license: {
 								name: "MIT",

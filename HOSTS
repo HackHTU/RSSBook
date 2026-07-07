@@ -1,2 +1,4 @@
 url,description,online
-https://rssbook.htu.me,Official RSSBook Website,true
+https://rssbook.vercel.app,Official RSSBook Instance on Vercel,true
+https://rssbook.niapya.deno.net,Official RSSBook Instance on Deno,true
+https://rssbook.htu.me,Official RSSBook Instance on Cloudflare,true

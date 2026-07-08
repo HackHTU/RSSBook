@@ -43,6 +43,8 @@
       "name": "utils-feed-helper",
       "version": "1.0.50",
       "dependencies": {
+        "@elysiajs/static": "catalog:",
+        "elysia": "catalog:",
         "react": "^19",
         "react-dom": "^19",
       },

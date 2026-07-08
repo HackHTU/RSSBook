@@ -17,11 +17,12 @@ export const renderPlugin = new Elysia({
 })
 	.model({
 		feedData,
+		feedQuery: t.Object(renderQuery),
 		feedType,
 	})
 	.guard({
 		as: "scoped",
-		query: t.Object(renderQuery),
+		query: "feedQuery",
 		response: "feedData",
 		schema: "standalone",
 	})

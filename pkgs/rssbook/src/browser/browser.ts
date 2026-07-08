@@ -111,7 +111,6 @@ export class Browser {
 
 	public constructor(options: BrowserOptions = {}) {
 		this.options = options;
-		logger.info(`[Browser] Created browser provider: ${describeBrowserOptions(options)}.`);
 	}
 
 	/**

@@ -37,7 +37,6 @@ export function render(data: Data, format: FeedType = "rss", styled: boolean = t
 		switch (format) {
 			case "rss":
 				return feed.rss2();
-
 			case "atom":
 				return feed.atom1();
 			case "json":

@@ -12,8 +12,6 @@ const app = new Elysia()
 			prefix: "/",
 		}),
 	)
-	.listen(port, () =>
-		console.log(`Server running on http://localhost:${port}`),
-	);
+	.listen(port);
 
 export type App = typeof app;

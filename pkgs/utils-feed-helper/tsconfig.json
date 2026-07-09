@@ -1,35 +1,20 @@
 {
-  "compilerOptions": {
-    "ignoreDeprecations": "6.0",
-    "jsx": "react-jsx",
-    "jsxImportSource": "react",
-    "lib": [
-      "ESNext",
-      "DOM"
-    ],
-    "module": "Preserve",
-    "moduleDetection": "force",
-    "noEmit": true,
-    "paths": {
-      "@/*": [
-        "./src/*"
-      ]
-    },
-    "rootDir": ".",
-    "types": [
-      "bun",
-      "react"
-    ],
-    "verbatimModuleSyntax": true
-  },
-  "exclude": [
-    "dist",
-    "node_modules"
-  ],
-  "extends": "../../tsconfig.base.json",
-  "include": [
-    "public/**/*.tsx",
-    "src/**/*.ts",
-    "src/**/*.tsx"
-  ]
+	"compilerOptions": {
+		"ignoreDeprecations": "6.0",
+		"jsx": "react-jsx",
+		"jsxImportSource": "react",
+		"lib": ["ESNext", "DOM"],
+		"module": "Preserve",
+		"moduleDetection": "force",
+		"noEmit": true,
+		"paths": {
+			"@/*": ["./src/*"]
+		},
+		"rootDir": ".",
+		"types": ["bun", "react"],
+		"verbatimModuleSyntax": true
+	},
+	"exclude": ["dist", "node_modules"],
+	"extends": "../../tsconfig.base.json",
+	"include": ["public/**/*.tsx", "src/**/*.ts", "src/**/*.tsx"]
 }

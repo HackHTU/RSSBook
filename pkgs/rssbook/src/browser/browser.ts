@@ -301,11 +301,6 @@ export class Browser {
 	}
 }
 
-function describeBrowserOptions(options: BrowserOptions): string {
-	if (typeof options === "function") return "factory";
-	return describeProviderOptions(options);
-}
-
 function describeBrowserSource(source: BrowserSource): string {
 	return isPuppeteerBrowserInstance(source)
 		? "puppeteer-instance"

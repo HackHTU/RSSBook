@@ -2,7 +2,7 @@ import { serverTiming } from "@elysiajs/server-timing";
 import { Elysia, type ElysiaAdapter } from "elysia";
 import { bookPlugin } from "@/books";
 import type { ThemeName } from "@/books/themes";
-import type { Browser, BrowserOptions } from "@/browser";
+import type { Browser } from "@/browser";
 import {
 	assetsPlugin,
 	errorHandlerPlugin,
@@ -103,13 +103,12 @@ export interface RSSBookAppConfig {
 	/**
 	 * Browser capability for feed routes that declare `browser: true`.
 	 *
-	 * `undefined` behaves like `true` and creates a lazy Puppeteer-backed
-	 * browser. `false` disables browser routes. Pass a `Browser` instance,
-	 * `Browser` provider options, an async provider factory, or an async
-	 * Puppeteer browser factory to use Browser as a Service or serverless
-	 * providers.
+	 * `undefined` behaves like `true` and creates a lazy local Puppeteer Core
+	 * browser using `PUPPETEER_EXECUTABLE_PATH` or the installed stable Chrome.
+	 * `false` disables browser routes. Pass a `Browser` instance for CDP
+	 * services or Puppeteer-compatible serverless SDKs.
 	 */
-	browser?: boolean | Browser | BrowserOptions;
+	browser?: boolean | Browser;
 	book?: RSSBookBookConfig;
 	cache?: Cache;
 	openapi?: {

@@ -1,6 +1,7 @@
 import { type AnyElysia, Elysia } from "elysia";
 import { injectPlugin, renderPlugin } from "@/plugins";
 import type { Config, GeneratedConfig, RouteConfig, Slug, SourceConfigs } from "@/types";
+import { DuplicateRouteTitleError, InvalidSourceSlugError } from "@/utils/error";
 import { detectLanguage } from "@/utils";
 import { logger } from "./logger";
 
@@ -96,9 +97,9 @@ export class Source<
 					},
 				};
 			}),
-	) {
+		) {
 		if (!/^[a-z0-9]+(?:-[a-z0-9]+)*$/.test(sourceConfig.slug)) {
-			throw new Error(`Error Source Slug: ${sourceConfig.slug}.`);
+			throw new InvalidSourceSlugError(sourceConfig.slug);
 		}
 	}
 
@@ -132,7 +133,7 @@ export class Source<
 	 */
 	public feed(routeConfig: RouteConfig, handler: (_app: typeof this._app) => AnyElysia): this {
 		if (this.routes.some((route) => route.title === routeConfig.title)) {
-			throw new Error(`Duplicate Route Title: ${routeConfig.title}.`);
+			throw new DuplicateRouteTitleError(routeConfig.title);
 		}
 
 		const newApp = new Elysia({

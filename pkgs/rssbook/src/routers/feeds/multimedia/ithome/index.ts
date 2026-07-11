@@ -1,5 +1,6 @@
 import type { Data, DataItem } from "@/types";
 import { Source, t } from "@/utils";
+import { InvalidRankingTypeError } from "./errors";
 
 const CATEGORIES: Record<string, string> = {
 	android: "Android",
@@ -153,7 +154,7 @@ export default new Source({
 									? "d-3"
 									: undefined;
 					if (!id) {
-						throw new Error(`Invalid ranking type: ${type}`);
+						throw new InvalidRankingTypeError(type);
 					}
 
 					const rankingUrl = "https://www.ithome.com/block/rank.html";

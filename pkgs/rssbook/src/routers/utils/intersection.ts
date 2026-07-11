@@ -2,7 +2,12 @@ import { Elysia, t } from "elysia";
 import { ofetch } from "ofetch";
 import { injectPlugin, renderQuery } from "@/plugins";
 import type { Data } from "@/types";
-import { intersection, parse } from "@/utils";
+import {
+	IntersectionFeedError,
+	InvalidOverrideJsonError,
+	parse,
+	intersection,
+} from "@/utils";
 
 export default new Elysia({
 	detail: {
@@ -21,7 +26,7 @@ Returns only items that appear in **all** provided feeds, based on item ID, titl
 		"/",
 		async ({ query: { feeds, override }, logger }) => {
 			if (feeds.length < 2) {
-				throw new Error("At least 2 feeds are required for intersection");
+				throw new IntersectionFeedError("At least 2 feeds are required for intersection");
 			}
 
 			try {
@@ -46,7 +51,7 @@ Returns only items that appear in **all** provided feeds, based on item ID, titl
 					.filter((result): result is Data => result !== null);
 
 				if (datas.length < 2) {
-					throw new Error("At least 2 valid feeds are required for intersection");
+					throw new IntersectionFeedError("At least 2 valid feeds are required for intersection");
 				}
 
 				// Parse override if provided
@@ -55,7 +60,10 @@ Returns only items that appear in **all** provided feeds, based on item ID, titl
 					try {
 						overrideData = JSON.parse(override);
 					} catch (error) {
-						throw new Error(`Invalid override JSON: ${error}`);
+						throw new InvalidOverrideJsonError(
+							`Invalid override JSON: ${error instanceof Error ? error.message : String(error)}`,
+							error,
+						);
 					}
 				}
 
@@ -65,7 +73,10 @@ Returns only items that appear in **all** provided feeds, based on item ID, titl
 
 				return result;
 			} catch (error) {
-				throw new Error(`Failed to compute intersection: ${error}`);
+				throw new IntersectionFeedError(
+					`Failed to compute intersection: ${error instanceof Error ? error.message : String(error)}`,
+					error,
+				);
 			}
 		},
 		{

@@ -1,5 +1,6 @@
 {
 	"dependencies": {
+		"@cloudflare/puppeteer": "^1.1.0",
 		"elysia": "^1.4.29",
 		"rssbook": "workspace:*",
 		"unstorage": "^1.17.5"

@@ -1,6 +1,6 @@
 import { describe, expect, test } from "bun:test";
 import { Elysia } from "elysia";
-import type { Page } from "puppeteer";
+import type { BrowserContext, Page, Browser as PuppeteerBrowser, Target } from "puppeteer-core";
 import { Browser } from "@/browser";
 import { initPlugin } from "@/plugins";
 import type { Data } from "@/types";
@@ -31,19 +31,53 @@ const bilibiliDynamicHTML = /* html */ `
 
 class StaticHTMLBrowser extends Browser {
 	public constructor(private readonly html: string) {
-		super(() => {
-			throw new Error("StaticHTMLBrowser does not create a Puppeteer browser.");
-		});
+		super({ maxBrowsers: 1, maxContextsPerBrowser: 1, maxPagesPerContext: 1 });
 	}
 
-	public override async withPage<T>(callback: (page: Page) => Promise<T>): Promise<T> {
-		return callback({
-			close: async () => {},
-			content: async () => this.html,
-			goto: async () => null,
-			waitForSelector: async () => null,
-		} as unknown as Page);
+	protected createBrowser(): Promise<PuppeteerBrowser> {
+		return Promise.resolve(createStaticHTMLPuppeteerBrowser(this.html));
 	}
+}
+
+function createStaticHTMLPuppeteerBrowser(html: string): PuppeteerBrowser {
+	let browser: PuppeteerBrowser;
+	let contextClosed = false;
+	let pageClosed = false;
+	const target = {
+		page: async () => page,
+		type: () => "page",
+	} as Target;
+	const page = {
+		close: async () => {
+			pageClosed = true;
+		},
+		content: async () => html,
+		goto: async () => null,
+		isClosed: () => pageClosed,
+		once: () => page,
+		target: () => target,
+		waitForSelector: async () => null,
+	} as unknown as Page;
+	let context: BrowserContext;
+	context = {
+		close: async () => {
+			contextClosed = true;
+		},
+		get closed() {
+			return contextClosed;
+		},
+		newPage: async () => page,
+		on: () => context,
+	} as unknown as BrowserContext;
+
+	browser = {
+		close: async () => {},
+		createBrowserContext: async () => context,
+		newPage: async () => page,
+		once: () => browser,
+	} as unknown as PuppeteerBrowser;
+
+	return browser;
 }
 
 describe("Browser example", () => {

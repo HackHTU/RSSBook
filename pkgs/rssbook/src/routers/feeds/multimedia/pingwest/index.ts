@@ -1,4 +1,5 @@
 import type { Data, DataItem } from "@/types";
+import { FeedNotFoundError } from "@/utils/error";
 import type { Cache } from "@/utils";
 import { Source, t } from "@/utils";
 
@@ -220,7 +221,7 @@ export default new Source({
 					});
 
 					if (!tagInfo.tagId) {
-						throw new Error(`Pingwest tag not found: ${tag}`);
+						throw new FeedNotFoundError(`Pingwest tag not found: ${tag}`);
 					}
 
 					const apiUrl = `${ROOT_URL}/api/tag_article_list?id=${tagInfo.tagId}&type=${Number(type) - 1}`;
@@ -289,7 +290,7 @@ export default new Source({
 					});
 
 					if (!userInfo.realUid) {
-						throw new Error(`Pingwest user not found: ${uid}`);
+						throw new FeedNotFoundError(`Pingwest user not found: ${uid}`);
 					}
 
 					const apiUrl = `${ROOT_URL}/api/user_data?page=1&user_id=${userInfo.realUid}&tab=${type}`;

@@ -2,6 +2,7 @@ import { Elysia, t } from "elysia";
 import { ofetch } from "ofetch";
 import { injectPlugin, renderQuery } from "@/plugins";
 import type { Data } from "@/types";
+import { FilterFeedError, InvalidOverrideJsonError } from "@/utils/error";
 import { filter, parse } from "@/utils";
 import type { FilterOptions } from "@/utils/feeds/filter";
 
@@ -91,7 +92,10 @@ Filter feed items by keywords, date, author, categories, or limit count.
 					try {
 						overrideData = JSON.parse(override);
 					} catch (error) {
-						throw new Error(`Invalid override JSON: ${error}`);
+						throw new InvalidOverrideJsonError(
+							`Invalid override JSON: ${error instanceof Error ? error.message : String(error)}`,
+							error,
+						);
 					}
 				}
 
@@ -100,7 +104,10 @@ Filter feed items by keywords, date, author, categories, or limit count.
 
 				return filtered;
 			} catch (error) {
-				throw new Error(`Failed to fetch or filter feed: ${error}`);
+				throw new FilterFeedError(
+					`Failed to fetch or filter feed: ${error instanceof Error ? error.message : String(error)}`,
+					error,
+				);
 			}
 		},
 		{

@@ -1,18 +1,15 @@
+export type { Browser as PuppeteerBrowser } from "puppeteer-core";
 export {
 	Browser,
-	type BrowserDisposeMode,
-	type BrowserDisposer,
-	type BrowserFactory,
-	type BrowserOptions,
-	type BrowserProviderFactory,
-	type BrowserProviderOptions,
+	type BrowserAcquireOptions,
+	type BrowserConcurrencyOptions,
 } from "./browser";
-export { BrowserUnavailableError } from "./errors";
 export {
-	blockResources,
-	cookieHeaderToParams,
-	cookiesToHeader,
-	getCookieHeader,
-	setCookieHeader,
-	waitForResponseJSON,
-} from "./helpers";
+	CDPBrowser,
+	type CDPBrowserEndpoint,
+	type CDPBrowserEndpointResolver,
+	type CDPBrowserOptions,
+} from "./cdp";
+export { BrowserClosedError, BrowserUnavailableError } from "./errors";
+export { BrowserContextLease, BrowserPageLease } from "./lease";
+export { LocalPuppeteerBrowser, type LocalPuppeteerBrowserOptions } from "./local";

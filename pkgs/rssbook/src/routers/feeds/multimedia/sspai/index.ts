@@ -1,4 +1,5 @@
 import type { Data, DataItem } from "@/types";
+import { FeedNotFoundError } from "@/utils/error";
 import { Source, t } from "@/utils";
 
 type SSPAIAuthor = {
@@ -210,7 +211,7 @@ export default new Source({
 						});
 
 						if (userResponse.error !== 0 || !userResponse.data?.id) {
-							throw new Error(`SSPAI author not found: ${id}`);
+							throw new FeedNotFoundError(`SSPAI author not found: ${id}`);
 						}
 
 						authorId = String(userResponse.data.id);

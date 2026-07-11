@@ -296,7 +296,7 @@ export function parseData(obj: unknown): Data {
 	const result = dataValidator.safeParse(obj);
 
 	if (!result.success) {
-		throw new Error(`Data Validation Error: ${result.error}`);
+		throw new DataValidationError(`Data Validation Error: ${result.error}`);
 	}
 	return {
 		...EMPTY_DATA,
@@ -320,3 +320,4 @@ export type FeedType = Static<typeof feedType>;
 export function isFeedType(type: string): type is FeedType {
 	return (allFeedTypes as readonly string[]).includes(type);
 }
+import { DataValidationError } from "@/utils/error";

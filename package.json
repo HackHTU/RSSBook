@@ -30,7 +30,7 @@
 		"@kitajs/ts-html-plugin": "catalog:",
 		"@types/bun": "catalog:",
 		"@types/sanitize-html": "catalog:",
-		"typescript": "^7.0.2"
+		"typescript": "^6.0.3"
 	},
 	"name": "rssbook-monorepo",
 	"packageManager": "bun@1.3.2",

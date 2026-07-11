@@ -2,6 +2,7 @@ import { Elysia, t } from "elysia";
 import { ofetch } from "ofetch";
 import { injectPlugin, renderQuery } from "@/plugins";
 import type { Data } from "@/types";
+import { InvalidOverrideJsonError, SortFeedError } from "@/utils/error";
 import { parse, sort } from "@/utils";
 
 export default new Elysia({
@@ -29,7 +30,10 @@ By default, sorts items in **descending order** (newest first).`,
 					try {
 						overrideData = JSON.parse(override);
 					} catch (error) {
-						throw new Error(`Invalid override JSON: ${error}`);
+						throw new InvalidOverrideJsonError(
+							`Invalid override JSON: ${error instanceof Error ? error.message : String(error)}`,
+							error,
+						);
 					}
 				}
 
@@ -41,7 +45,10 @@ By default, sorts items in **descending order** (newest first).`,
 					...overrideData,
 				};
 			} catch (error) {
-				throw new Error(`Failed to fetch or sort feed: ${error}`);
+				throw new SortFeedError(
+					`Failed to fetch or sort feed: ${error instanceof Error ? error.message : String(error)}`,
+					error,
+				);
 			}
 		},
 		{

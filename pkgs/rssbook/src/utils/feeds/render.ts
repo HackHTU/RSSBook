@@ -1,5 +1,6 @@
 import { Feed } from "feed";
 import { type Data, type FeedType, isFeedType, parseData } from "@/types/data";
+import { FeedFormatError, FeedRenderError, InvalidFeedFormatError } from "@/utils/error";
 
 /**
  * Render feed data into specified format.
@@ -10,7 +11,7 @@ import { type Data, type FeedType, isFeedType, parseData } from "@/types/data";
  */
 export function render(data: Data, format: FeedType = "rss", styled: boolean = true): string {
 	if (!isFeedType(format)) {
-		throw new Error(`Invalid feed format: ${format}.`);
+		throw new InvalidFeedFormatError(format);
 	}
 
 	if (format === "raw") {
@@ -43,13 +44,9 @@ export function render(data: Data, format: FeedType = "rss", styled: boolean = t
 				return feed.json1();
 
 			default:
-				throw new Error(`Unsupported feed format: ${format}.`);
+				throw new FeedFormatError(format);
 		}
 	} catch (error) {
-		throw new Error(
-			`Failed to generate ${format} feed: ${
-				error instanceof Error ? error.message : String(error)
-			}`,
-		);
+		throw new FeedRenderError(format, error);
 	}
 }

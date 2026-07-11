@@ -1,6 +1,7 @@
 import { Elysia, t } from "elysia";
 import { injectPlugin, renderQuery } from "@/plugins";
 import { allFeedTypes, type Data, type FeedType } from "@/types";
+import { TransformFeedError } from "@/utils/error";
 import { parse } from "@/utils";
 
 export default new Elysia({
@@ -32,7 +33,10 @@ Transform feed items to a different format.
 
 				return data;
 			} catch (error) {
-				throw new Error(`Failed to fetch or parse feed from ${feed}: ${error}`);
+				throw new TransformFeedError(
+					`Failed to fetch or parse feed from ${feed}: ${error instanceof Error ? error.message : String(error)}`,
+					error,
+				);
 			}
 		},
 		{

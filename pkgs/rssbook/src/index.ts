@@ -18,18 +18,19 @@ export default {
 
 export {
 	Browser,
-	type BrowserDisposeMode,
-	type BrowserDisposer,
-	type BrowserFactory,
-	type BrowserOptions,
-	type BrowserProviderFactory,
-	type BrowserProviderOptions,
-	blockResources,
-	cookieHeaderToParams,
-	cookiesToHeader,
-	getCookieHeader,
-	setCookieHeader,
-	waitForResponseJSON,
+	type BrowserAcquireOptions,
+	BrowserClosedError,
+	type BrowserConcurrencyOptions,
+	BrowserContextLease,
+	BrowserPageLease,
+	BrowserUnavailableError,
+	CDPBrowser,
+	type CDPBrowserEndpoint,
+	type CDPBrowserEndpointResolver,
+	type CDPBrowserOptions,
+	LocalPuppeteerBrowser,
+	type LocalPuppeteerBrowserOptions,
+	type PuppeteerBrowser,
 } from "@/browser";
 export type { RSSBook, RSSBookBookConfig, RSSBookInitConfig } from "@/plugins/init";
 export { createRSSBook } from "@/plugins/init";
@@ -46,6 +47,20 @@ export type { Meta } from "@/types/meta";
 export type { RouteConfig } from "@/types/route";
 export type { Config, SourceConfigs } from "@/types/source";
 export type { Theme, ThemeProps } from "@/types/theme";
+export {
+	allowResources,
+	blockResources,
+	cookieHeaderToCookies,
+	cookiesToHeader,
+	getCookieHeader,
+	resolveBrowserWSEndpoint,
+	setColorDepth,
+	setCookieHeader,
+	setDeviceMemory,
+	setHardwareConcurrency,
+	setLanguages,
+	waitForResponse,
+} from "@/utils/browser";
 // Classes
 export { Cache } from "@/utils/cache";
 export { Category } from "@/utils/category";

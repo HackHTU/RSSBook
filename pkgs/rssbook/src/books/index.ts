@@ -1,5 +1,6 @@
 import Elysia, { t } from "elysia";
 import { initPlugin } from "@/plugins";
+import { DataValidationError, SourceFetchError } from "@/utils/error";
 import {
 	type Data,
 	type DataItem,
@@ -119,7 +120,7 @@ function encodeCachedBooksData(data: CachedBooksData): string {
 function decodeCachedBooksData(data: string): CachedBooksData {
 	const parsed: unknown = JSON.parse(data, reviveBooksDate);
 	if (!isRecord(parsed)) {
-		throw new Error("Invalid cached books data");
+		throw new DataValidationError("Invalid cached books data");
 	}
 
 	return {
@@ -132,7 +133,7 @@ async function refreshBooksData(feeds: string[], cache: Cache, lastSuccessKey: s
 	const rawData = await getAllFeedData(feeds);
 
 	if (rawData === null) {
-		throw new Error("Unable to fetch or parse any configured books feeds");
+		throw new SourceFetchError("Unable to fetch or parse any configured books feeds");
 	}
 
 	const processedData = processBooksData(rawData);

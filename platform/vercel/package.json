@@ -1,6 +1,8 @@
 {
 	"dependencies": {
+		"@sparticuz/chromium-min": "149.0.0",
 		"elysia": "^1.4.29",
+		"puppeteer-core": "25.3.0",
 		"rssbook": "workspace:*"
 	},
 	"devDependencies": {},

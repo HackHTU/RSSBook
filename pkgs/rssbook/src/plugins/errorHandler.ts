@@ -5,6 +5,7 @@ const { version } = pkg;
 
 import { defaultErrorPage } from "@/books/error";
 import type { ErrorPageProps } from "@/types";
+import { RSSBookError } from "@/utils/error";
 
 /**
  * Error Handler Plugin
@@ -16,6 +17,10 @@ export const errorHandlerPlugin = new Elysia({ name: "RSSBook/ErrorHandler" }).o
 		as: "global",
 	},
 	({ code, error, set }) => {
+		if (error instanceof RSSBookError) {
+			set.status = error.status;
+		}
+
 		set.headers["content-type"] = "text/html";
 
 		const props: ErrorPageProps = {

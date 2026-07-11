@@ -2,7 +2,7 @@ import { Elysia, t } from "elysia";
 import { ofetch } from "ofetch";
 import { injectPlugin, renderQuery } from "@/plugins";
 import type { Data } from "@/types";
-import { parse, union } from "@/utils";
+import { InvalidOverrideJsonError, UnionFeedError, parse, union } from "@/utils";
 
 export default new Elysia({
 	detail: {
@@ -20,7 +20,7 @@ Returns all unique items from the provided feeds, removing duplicates based on i
 		"/",
 		async ({ query: { feeds, override }, logger }) => {
 			if (feeds.length < 2) {
-				throw new Error("At least 2 feeds are required for union");
+				throw new UnionFeedError("At least 2 feeds are required for union");
 			}
 
 			const promises = feeds.map(async (feedUrl) => {
@@ -50,7 +50,10 @@ Returns all unique items from the provided feeds, removing duplicates based on i
 				try {
 					overrideData = JSON.parse(override);
 				} catch (error) {
-					throw new Error(`Invalid override JSON: ${error}`);
+					throw new InvalidOverrideJsonError(
+						`Invalid override JSON: ${error instanceof Error ? error.message : String(error)}`,
+						error,
+					);
 				}
 			}
 

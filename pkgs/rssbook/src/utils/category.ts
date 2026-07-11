@@ -1,4 +1,5 @@
 import { type AnyElysia, Elysia } from "elysia";
+import { DuplicateSourceError } from "@/utils/error";
 import type { Source } from "./source";
 
 // biome-ignore lint/suspicious/noExplicitAny: Source can be any type
@@ -22,9 +23,7 @@ export class Category {
 			if (!this.sources.includes(source)) {
 				this.sources.push(source);
 			} else {
-				throw new Error(
-					`Source ${source.getConfig().title} is already added to category ${this.name}`,
-				);
+				throw new DuplicateSourceError(source.getConfig().title, this.name);
 			}
 		}
 

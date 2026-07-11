@@ -1,486 +1,161 @@
 import { describe, expect, mock, test } from "bun:test";
-import { Elysia } from "elysia";
-import type { Cookie, HTTPResponse, Page, Browser as PuppeteerBrowserInstance } from "puppeteer";
-import { initPlugin } from "@/plugins";
-import { EMPTY_DATA } from "@/types";
-import { Source } from "@/utils";
+import type { Browser as PuppeteerBrowser } from "puppeteer-core";
+import { BrowserClosedError } from "@/utils/error";
+import { Browser } from "./browser";
 import {
-	Browser,
-	BrowserUnavailableError,
-	blockResources,
-	cookieHeaderToParams,
-	cookiesToHeader,
-	waitForResponseJSON,
-} from ".";
+	createFakePage,
+	createFakePuppeteerBrowser,
+	createFakeTarget,
+	emitContextTarget,
+	tick,
+} from "./test-helpers";
 
-const puppeteerCalls = {
-	connect: [] as string[],
-	launch: 0,
-};
+describe("Browser", () => {
+	test("enforces Browser and Context capacity and wakes FIFO waiters", async () => {
+		const browser = createTestBrowser(2, 1, 1);
+		const first = await browser.acquireContext();
+		const second = await browser.acquireContext();
+		expect(browser.created).toHaveLength(2);
 
-let localBrowser: PuppeteerBrowserInstance;
-localBrowser = {
-	close: mock(async () => {}),
-	disconnect: mock(async () => {}),
-	newPage: mock(async () => createFakePage()),
-	once: mock(() => localBrowser),
-} as unknown as PuppeteerBrowserInstance;
+		const order: number[] = [];
+		const thirdPromise = browser.acquireContext().then((lease) => {
+			order.push(3);
+			return lease;
+		});
+		const fourthPromise = browser.acquireContext().then((lease) => {
+			order.push(4);
+			return lease;
+		});
+		await tick();
+		expect(order).toEqual([]);
 
-let remoteBrowser: PuppeteerBrowserInstance;
-remoteBrowser = {
-	close: mock(async () => {}),
-	disconnect: mock(async () => {}),
-	newPage: mock(async () => createFakePage()),
-	once: mock(() => remoteBrowser),
-} as unknown as PuppeteerBrowserInstance;
+		await first.close();
+		const third = await thirdPromise;
+		expect(order[0]).toBe(3);
+		await second.close();
+		const fourth = await fourthPromise;
+		expect(order).toEqual([3, 4]);
 
-mock.module("puppeteer", () => ({
-	connect: mock(async ({ browserWSEndpoint }: { browserWSEndpoint: string }) => {
-		puppeteerCalls.connect.push(browserWSEndpoint);
-		return remoteBrowser;
-	}),
-	launch: mock(async () => {
-		puppeteerCalls.launch += 1;
-		return localBrowser;
-	}),
-}));
+		await third.close();
+		await fourth.close();
+		await browser.deinit();
+	});
+
+	test("enforces Page capacity within one Context", async () => {
+		const browser = createTestBrowser(1, 1, 1);
+		const context = await browser.acquireContext();
+		const first = await context.acquirePage();
+		let acquired = false;
+		const secondPromise = context.acquirePage().then((lease) => {
+			acquired = true;
+			return lease;
+		});
+		await tick();
+		expect(acquired).toBeFalse();
+
+		await first.close();
+		const second = await secondPromise;
+		expect(acquired).toBeTrue();
+		await second.close();
+		await context.close();
+		await browser.deinit();
+	});
+
+	test("releases a Page reservation when newPage fails", async () => {
+		const browser = createTestBrowser(1, 1, 1);
+		const context = await browser.acquireContext();
+		const createPage = context.context.newPage.bind(context.context);
+		let attempts = 0;
+		context.context.newPage = mock(async () => {
+			attempts += 1;
+			if (attempts === 1) throw new Error("target failed");
+			return createPage();
+		});
+
+		await expect(context.acquirePage()).rejects.toThrow("target failed");
+		const page = await context.acquirePage();
+		expect(attempts).toBe(2);
+		await page.close();
+		await context.close();
+		await browser.deinit();
+	});
+
+	test("closes popups that exceed Page capacity", async () => {
+		const browser = createTestBrowser(1, 1, 1);
+		const context = await browser.acquireContext();
+		const page = await context.acquirePage();
+		const popup = createFakePage();
+		emitContextTarget(context.context, "targetcreated", createFakeTarget(popup));
+		await tick();
+		expect(popup.close).toHaveBeenCalledTimes(1);
+
+		await page.close();
+		await context.close();
+		await browser.deinit();
+	});
+
+	test("supports aborting a queued acquisition", async () => {
+		const browser = createTestBrowser(1, 1, 1);
+		const context = await browser.acquireContext();
+		const controller = new AbortController();
+		const waiting = browser.acquireContext({ signal: controller.signal });
+		controller.abort(new Error("cancelled"));
+		await expect(waiting).rejects.toThrow("cancelled");
+		await context.close();
+		await browser.deinit();
+	});
+
+	test("acquirePage releases its private Context when Page closes externally", async () => {
+		const browser = createTestBrowser(1, 1, 1);
+		const first = await browser.acquirePage();
+		await first.page.close();
+		await tick();
+
+		const second = await browser.acquirePage();
+		await second.close();
+		await browser.deinit();
+	});
+
+	test("does not initialize an unused pool during deinit", async () => {
+		const browser = createTestBrowser(1, 1, 1);
+		await browser.deinit();
+		expect(browser.created).toHaveLength(0);
+		await expect(browser.acquireContext()).rejects.toBeInstanceOf(BrowserClosedError);
+	});
+
+	test("replaces a disconnected physical Browser", async () => {
+		const browser = createTestBrowser(1, 1, 1);
+		const first = await browser.acquireContext();
+		browser.created[0]?.disconnect();
+		await tick();
+		const second = await browser.acquireContext();
+		expect(browser.created).toHaveLength(2);
+		await first.close();
+		await second.close();
+		await browser.deinit();
+	});
+
+	test("validates direct capacity props", () => {
+		expect(() => createTestBrowser(0, 1, 1)).toThrow("maxBrowsers");
+		expect(() => createTestBrowser(1, 0, 1)).toThrow("maxContextsPerBrowser");
+		expect(() => createTestBrowser(1, 1, 0)).toThrow("maxPagesPerContext");
+	});
+});
 
 class TestBrowser extends Browser {
-	public closeCount = 0;
-	public page = createFakePage();
+	public readonly created: ReturnType<typeof createFakePuppeteerBrowser>[] = [];
 
-	public async getBrowser(): Promise<PuppeteerBrowserInstance> {
-		return {
-			newPage: async () => this.page,
-		} as PuppeteerBrowserInstance;
-	}
-
-	public async close(): Promise<void> {
-		this.closeCount += 1;
+	protected createBrowser(): Promise<PuppeteerBrowser> {
+		const fake = createFakePuppeteerBrowser();
+		this.created.push(fake);
+		return Promise.resolve(fake.browser);
 	}
 }
 
-function createFakePage(overrides: Partial<Page> = {}): Page {
-	return {
-		close: mock(async () => {}),
-		content: mock(async () => "<html></html>"),
-		goto: mock(async () => null),
-		...overrides,
-	} as Page;
+function createTestBrowser(
+	maxBrowsers: number,
+	maxContextsPerBrowser: number,
+	maxPagesPerContext: number,
+): TestBrowser {
+	return new TestBrowser({ maxBrowsers, maxContextsPerBrowser, maxPagesPerContext });
 }
-
-function createFakeBrowser(): PuppeteerBrowserInstance {
-	let browser: PuppeteerBrowserInstance;
-	browser = {
-		close: mock(async () => {}),
-		disconnect: mock(async () => {}),
-		newPage: mock(async () => createFakePage()),
-		once: mock(() => browser),
-	} as unknown as PuppeteerBrowserInstance;
-
-	return browser;
-}
-
-describe("browser", () => {
-	test("withPage closes page on success and failure", async () => {
-		const browser = new TestBrowser();
-
-		await expect(browser.withPage(async () => "ok")).resolves.toBe("ok");
-		expect(browser.page.close).toHaveBeenCalledTimes(1);
-
-		browser.page = createFakePage();
-		await expect(
-			browser.withPage(async () => {
-				throw new Error("boom");
-			}),
-		).rejects.toThrow("boom");
-		expect(browser.page.close).toHaveBeenCalledTimes(1);
-	});
-
-	test("renderHTML navigates with network idle by default", async () => {
-		const browser = new TestBrowser();
-
-		await expect(browser.renderHTML("https://example.com")).resolves.toBe("<html></html>");
-		expect(browser.page.goto).toHaveBeenCalledWith("https://example.com", {
-			waitUntil: "networkidle2",
-		});
-	});
-
-	test("Browser launches local browser lazily", async () => {
-		puppeteerCalls.launch = 0;
-		const browser = new Browser();
-
-		expect(puppeteerCalls.launch).toBe(0);
-		await browser.getBrowser();
-		await browser.getBrowser();
-
-		expect(puppeteerCalls.launch).toBe(1);
-		await browser.close();
-		expect(localBrowser.close).toHaveBeenCalled();
-	});
-
-	test("Browser connects to ws endpoint and disconnects on close", async () => {
-		puppeteerCalls.connect = [];
-		const endpoint = "wss://browser.example/devtools/browser/session";
-		const browser = new Browser({ endpoint });
-
-		await browser.getBrowser();
-		expect(puppeteerCalls.connect).toEqual([endpoint]);
-
-		await browser.close();
-		expect(remoteBrowser.disconnect).toHaveBeenCalled();
-	});
-
-	test("Browser resolves http CDP endpoint through /json/version", async () => {
-		puppeteerCalls.connect = [];
-		const server = Bun.serve({
-			fetch: (request) => {
-				expect(new URL(request.url).pathname).toBe("/cdp/json/version");
-				return Response.json({
-					webSocketDebuggerUrl: "ws://127.0.0.1/devtools/browser/from-http",
-				});
-			},
-			port: 0,
-		});
-
-		try {
-			const browser = new Browser({
-				endpoint: `http://${server.hostname}:${server.port}/cdp`,
-			});
-			await browser.getBrowser();
-			expect(puppeteerCalls.connect).toEqual(["ws://127.0.0.1/devtools/browser/from-http"]);
-		} finally {
-			await server.stop();
-		}
-	});
-
-	test("Browser accepts an async provider factory lazily", async () => {
-		puppeteerCalls.connect = [];
-		const endpoint = "wss://browser.example/devtools/browser/from-provider";
-		const provider = mock(async () => ({ endpoint }));
-		const browser = new Browser(provider);
-
-		expect(provider).toHaveBeenCalledTimes(0);
-		await browser.getBrowser();
-		await browser.getBrowser();
-
-		expect(provider).toHaveBeenCalledTimes(1);
-		expect(puppeteerCalls.connect).toEqual([endpoint]);
-		await browser.close();
-		expect(remoteBrowser.disconnect).toHaveBeenCalled();
-	});
-
-	test("Browser close does not resolve an unopened provider", async () => {
-		const provider = mock(async () => ({
-			endpoint: "wss://browser.example/devtools/browser/unopened",
-		}));
-		const browser = new Browser(provider);
-
-		await browser.close();
-
-		expect(provider).toHaveBeenCalledTimes(0);
-	});
-
-	test("Browser accepts an async factory and disconnects by default", async () => {
-		const launchCount = puppeteerCalls.launch;
-		const factoryBrowser = createFakeBrowser();
-		const create = mock(async () => factoryBrowser);
-		const browser = new Browser(create);
-
-		await browser.getBrowser();
-		await browser.getBrowser();
-
-		expect(puppeteerCalls.launch).toBe(launchCount);
-		expect(create).toHaveBeenCalledTimes(1);
-		await browser.close();
-		expect(factoryBrowser.disconnect).toHaveBeenCalledTimes(1);
-		expect(factoryBrowser.close).toHaveBeenCalledTimes(0);
-	});
-
-	test("Browser shares concurrent first open across provider and browser factories", async () => {
-		const factoryBrowser = createFakeBrowser();
-		const create = mock(async () => {
-			await Promise.resolve();
-			return factoryBrowser;
-		});
-		const provider = mock(async () => ({ create }));
-		const browser = new Browser(provider);
-
-		await Promise.all([browser.getBrowser(), browser.getBrowser()]);
-
-		expect(provider).toHaveBeenCalledTimes(1);
-		expect(create).toHaveBeenCalledTimes(1);
-	});
-
-	test("Browser supports custom async disposer for SaaS sessions", async () => {
-		const factoryBrowser = createFakeBrowser();
-		const create = mock(async () => factoryBrowser);
-		const dispose = mock(async (browser: PuppeteerBrowserInstance) => {
-			expect(browser).toBe(factoryBrowser);
-		});
-		const browser = new Browser({ create, dispose });
-
-		await browser.getBrowser();
-		await browser.close();
-
-		expect(create).toHaveBeenCalledTimes(1);
-		expect(dispose).toHaveBeenCalledTimes(1);
-		expect(factoryBrowser.disconnect).toHaveBeenCalledTimes(0);
-		expect(factoryBrowser.close).toHaveBeenCalledTimes(0);
-	});
-});
-
-describe("browser helpers", () => {
-	test("blockResources aborts configured resource types", async () => {
-		const abort = mock(async () => {});
-		const continueRequest = mock(async () => {});
-		let requestHandler:
-			| ((request: {
-					resourceType: () => "image" | "script";
-					abort: typeof abort;
-					continue: typeof continueRequest;
-			  }) => void)
-			| undefined;
-		const page = createFakePage({
-			on: mock((event, handler) => {
-				if (event === "request") {
-					requestHandler = handler;
-				}
-				return page;
-			}),
-			setRequestInterception: mock(async () => {}),
-		});
-
-		await blockResources(page, ["image"]);
-		requestHandler?.({
-			abort,
-			continue: continueRequest,
-			resourceType: () => "image",
-		});
-		requestHandler?.({
-			abort,
-			continue: continueRequest,
-			resourceType: () => "script",
-		});
-
-		expect(page.setRequestInterception).toHaveBeenCalledWith(true);
-		expect(abort).toHaveBeenCalledTimes(1);
-		expect(continueRequest).toHaveBeenCalledTimes(1);
-	});
-
-	test("waitForResponseJSON waits, triggers, and parses JSON", async () => {
-		const trigger = mock(async () => {});
-		const response = {
-			json: mock(async () => ({ ok: true })),
-		} satisfies Partial<HTTPResponse>;
-		const page = createFakePage({
-			waitForResponse: mock(async () => response as unknown as HTTPResponse),
-		});
-
-		await expect(waitForResponseJSON<{ ok: boolean }>(page, () => true, trigger)).resolves.toEqual({
-			ok: true,
-		});
-		expect(trigger).toHaveBeenCalled();
-	});
-
-	test("converts cookie headers", () => {
-		const cookies = [
-			{ name: "a", value: "1" },
-			{ name: "space", value: "hello world" },
-		] satisfies Pick<Cookie, "name" | "value">[];
-
-		expect(cookiesToHeader(cookies)).toBe("a=1; space=hello%20world");
-		expect(cookieHeaderToParams("a=1; space=hello%20world", "https://example.com")).toEqual([
-			{ name: "a", url: "https://example.com", value: "1" },
-			{ name: "space", url: "https://example.com", value: "hello world" },
-		]);
-	});
-});
-
-describe("browser source route", () => {
-	test("exposes browser context and enables it only for routes with browser metadata", async () => {
-		const browser = new TestBrowser();
-		const source = new Source({
-			description: "Test description",
-			domain: "https://example.com",
-			slug: "example",
-			title: "Example Source",
-		} as const);
-
-		source.feed(
-			{
-				browser: true,
-				description: "Rendered route",
-				language: "en",
-				maintainer: { name: "Tester" },
-				title: "rendered",
-			},
-			(app) =>
-				app.get("/rendered", ({ browser: injectedBrowser }) => {
-					expect(injectedBrowser).toBe(browser);
-					return EMPTY_DATA;
-				}),
-		);
-
-		source.feed(
-			{
-				description: "Plain route",
-				language: "en",
-				maintainer: { name: "Tester" },
-				title: "plain",
-			},
-			(app) =>
-				app.get("/plain", (ctx) => {
-					expect("browser" in ctx).toBe(true);
-					return EMPTY_DATA;
-				}),
-		);
-
-		const app = new Elysia().use(initPlugin({ browser })).use(source.getApp());
-
-		expect(await app.handle(new Request("https://example.com/example/rendered"))).toHaveProperty(
-			"status",
-			200,
-		);
-		expect(await app.handle(new Request("https://example.com/example/plain"))).toHaveProperty(
-			"status",
-			200,
-		);
-	});
-
-	test("allows browser use without browser route metadata", async () => {
-		const browser = new TestBrowser();
-		const source = new Source({
-			description: "Test description",
-			domain: "https://example.com",
-			slug: "example",
-			title: "Example Source",
-		} as const);
-
-		source.feed(
-			{
-				description: "Plain route",
-				language: "en",
-				maintainer: { name: "Tester" },
-				title: "plain",
-			},
-			(app) =>
-				app.get("/plain", async ({ browser }) => {
-					await browser.getBrowser();
-					return EMPTY_DATA;
-				}),
-		);
-
-		const app = new Elysia().use(initPlugin({ browser })).use(source.getApp());
-		const response = await app.handle(new Request("https://example.com/example/plain"));
-
-		expect(response.status).toBe(200);
-	});
-
-	test("accepts an async browser provider factory from app initialization lazily", async () => {
-		const factoryBrowser = createFakeBrowser();
-		const create = mock(async () => factoryBrowser);
-		const provider = mock(async () => ({ create }));
-		const source = new Source({
-			description: "Test description",
-			domain: "https://example.com",
-			slug: "example",
-			title: "Example Source",
-		} as const);
-
-		source.feed(
-			{
-				browser: true,
-				description: "Rendered route",
-				language: "en",
-				maintainer: { name: "Tester" },
-				title: "rendered",
-			},
-			(app) =>
-				app.get("/rendered", async ({ browser }) => {
-					expect(await browser.getBrowser()).toBe(factoryBrowser);
-					return EMPTY_DATA;
-				}),
-		);
-
-		const app = new Elysia().use(initPlugin({ browser: provider })).use(source.getApp());
-		expect(provider).toHaveBeenCalledTimes(0);
-		expect(create).toHaveBeenCalledTimes(0);
-
-		const response = await app.handle(new Request("https://example.com/example/rendered"));
-
-		expect(response.status).toBe(200);
-		expect(provider).toHaveBeenCalledTimes(1);
-		expect(create).toHaveBeenCalledTimes(1);
-	});
-
-	test("throws clear error when app disables browser for a browser route", async () => {
-		const source = new Source({
-			description: "Test description",
-			domain: "https://example.com",
-			slug: "example",
-			title: "Example Source",
-		} as const);
-
-		source.feed(
-			{
-				browser: true,
-				description: "Rendered route",
-				language: "en",
-				maintainer: { name: "Tester" },
-				title: "rendered",
-			},
-			(app) =>
-				app.get("/rendered", async ({ browser }) => {
-					await browser.getBrowser();
-					return EMPTY_DATA;
-				}),
-		);
-
-		const app = new Elysia().use(initPlugin({ browser: false })).use(source.getApp());
-		const response = await app.handle(new Request("https://example.com/example/rendered"));
-
-		expect(response.status).toBe(500);
-		expect(await response.text()).toContain(new BrowserUnavailableError().message);
-	});
-
-	test("adds Browser information to route description only when enabled", () => {
-		const source = new Source({
-			description: "Test description",
-			domain: "https://example.com",
-			slug: "example",
-			title: "Example Source",
-		} as const);
-
-		source.feed(
-			{
-				browser: true,
-				description: "Rendered route",
-				language: "en",
-				maintainer: { name: "Tester" },
-				title: "rendered",
-			},
-			(app) => app.get("/rendered", () => EMPTY_DATA),
-		);
-		source.feed(
-			{
-				description: "Plain route",
-				language: "en",
-				maintainer: { name: "Tester" },
-				title: "plain",
-			},
-			(app) => app.get("/plain", () => EMPTY_DATA),
-		);
-
-		const routes = source.getApp().routes;
-		const rendered = routes.find((route) => route.path === "/example/rendered") as
-			| { hooks?: { detail?: { description?: string } } }
-			| undefined;
-		const plain = routes.find((route) => route.path === "/example/plain") as
-			| { hooks?: { detail?: { description?: string } } }
-			| undefined;
-
-		expect(rendered?.hooks?.detail?.description).toContain("**Browser**: Enabled");
-		expect(plain?.hooks?.detail?.description).not.toContain("**Browser**");
-	});
-});

@@ -1,7 +1,8 @@
 import { Elysia } from "elysia";
 import { DEFAULT_THEME, getThemeByName, type ThemeName } from "@/books/themes";
-import { Browser, type BrowserOptions } from "@/browser/browser";
+import type { Browser } from "@/browser/browser";
 import { BrowserUnavailableError, createUnavailableBrowser } from "@/browser/errors";
+import { LocalPuppeteerBrowser } from "@/browser/local";
 import type { Meta, Theme } from "@/types";
 import { Cache } from "@/utils";
 
@@ -41,12 +42,12 @@ export interface RSSBookInitConfig {
 	 * Browser capability exposed to feed routes that declare
 	 * `RouteConfig.browser: true`.
 	 *
-	 * `undefined` and `true` create RSSBook's lazy Puppeteer-backed `Browser`.
-	 * `false` disables browser routes. Pass a `Browser` instance, `Browser`
-	 * provider options, an async provider factory, or an async Puppeteer browser
-	 * factory to use Browser as a Service or serverless browser providers.
+	 * `undefined` and `true` create RSSBook's lazy local Puppeteer Core
+	 * `Browser`, using `PUPPETEER_EXECUTABLE_PATH` or the installed stable
+	 * Chrome. `false` disables browser routes. Pass a `Browser` instance for
+	 * CDP services or Puppeteer-compatible serverless SDKs.
 	 */
-	browser?: boolean | Browser | BrowserOptions;
+	browser?: boolean | Browser;
 	book?: RSSBookBookConfig;
 	cache?: Cache;
 }
@@ -57,15 +58,13 @@ function resolveTheme(theme?: ThemeName | Theme): Theme {
 	return theme;
 }
 
-function resolveBrowser(browser?: boolean | Browser | BrowserOptions): Browser {
+function resolveBrowser(browser?: boolean | Browser): Browser {
 	if (browser === false) {
 		return createUnavailableBrowser(() => new BrowserUnavailableError());
 	}
 
-	if (browser instanceof Browser) return browser;
-	if (browser === undefined || browser === true) return new Browser();
-
-	return new Browser(browser);
+	if (browser === undefined || browser === true) return new LocalPuppeteerBrowser();
+	return browser;
 }
 
 export function createRSSBook(init?: RSSBookInitConfig): RSSBook {
@@ -87,13 +86,18 @@ export function createRSSBook(init?: RSSBookInitConfig): RSSBook {
  *
  * Init the RSSBook instance and decorate it to Elysia app.
  */
-export const initPlugin = (config?: RSSBookInitConfig) =>
-	new Elysia({ name: "RSSBook/Init" }).decorate(
-		{ as: "append" }, // Inject ONLY if not exixts
-		"rssbook",
-		createRSSBook({
-			book: config?.book,
-			browser: config?.browser,
-			cache: config?.cache,
-		}),
-	);
+export const initPlugin = (config?: RSSBookInitConfig) => {
+	const rssbook = createRSSBook({
+		book: config?.book,
+		browser: config?.browser,
+		cache: config?.cache,
+	});
+
+	return new Elysia({ name: "RSSBook/Init" })
+		.decorate(
+			{ as: "append" }, // Inject ONLY if not exixts
+			"rssbook",
+			rssbook,
+		)
+		.onStop(() => rssbook.browser.deinit());
+};

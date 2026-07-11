@@ -19,7 +19,16 @@ export default new Source({
 			"/user/:username",
 			async ({ meta: { domain }, browser, params: { username } }) => {
 				const link = `https://${domain}/user/${username}`;
-				const description = await browser.renderHTML(link);
+				const lease = await browser.acquirePage();
+				let description: string;
+
+				try {
+					const { page } = lease;
+					await page.goto(link, { waitUntil: "domcontentloaded" });
+					description = await page.content();
+				} finally {
+					await lease.close();
+				}
 
 				return {
 					description,

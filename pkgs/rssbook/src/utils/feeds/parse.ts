@@ -1,6 +1,7 @@
 import { parseFeed } from "@rowanmanning/feed-parser";
 import type { Data, DataItem, FeedType } from "@/types";
 import { EMPTY_DATA, parseData } from "@/types";
+import { ParseError } from "@/utils/error";
 import { detectLanguage } from "@/utils";
 
 export function parse<T extends object>(data: T | string, type: "raw"): Data;
@@ -26,23 +27,24 @@ export function parse(XMLString: string, type?: "rss" | "atom"): Data;
 export function parse<T extends object>(content: string | T, type: FeedType = "rss"): Data {
 	if (type === "raw") {
 		if (typeof content !== "string" && typeof content !== "object") {
-			throw new Error("Parse Error: Content must be a string or object for raw type");
+			throw new ParseError("Parse Error: Content must be a string or object for raw type");
 		}
 		if (content === null) {
-			throw new Error("Parse Error: Content cannot be null");
+			throw new ParseError("Parse Error: Content cannot be null");
 		}
 
 		let formattedContent: T;
 		try {
 			formattedContent = typeof content === "string" ? JSON.parse(content) : (content as T);
 		} catch (error) {
-			throw new Error(
+			throw new ParseError(
 				`Parse Error: Invalid JSON string - ${error instanceof Error ? error.message : String(error)}`,
+				error,
 			);
 		}
 
 		if (typeof formattedContent !== "object" || formattedContent === null) {
-			throw new Error("Parse Error: Parsed content must be an object");
+			throw new ParseError("Parse Error: Parsed content must be an object");
 		}
 
 		return parseData({
@@ -51,7 +53,7 @@ export function parse<T extends object>(content: string | T, type: FeedType = "r
 		});
 	} else {
 		if (typeof content !== "string") {
-			throw new Error("Parse Error: Content must be a string for feed types");
+			throw new ParseError("Parse Error: Content must be a string for feed types");
 		}
 
 		const parsedFeed = parseFeed(content);

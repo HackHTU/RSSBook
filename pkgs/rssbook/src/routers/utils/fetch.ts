@@ -2,6 +2,16 @@ import type { CheerioAPI } from "cheerio";
 import { Elysia, t } from "elysia";
 import { injectPlugin, renderQuery } from "@/plugins";
 import type { Data, DataItem } from "@/types";
+import {
+	FetchHtmlError,
+	InvalidDomainNameError,
+	InvalidDomainSuffixError,
+	InvalidProtocolError,
+	InvalidUrlError,
+	LocalAddressError,
+	LocalIpAddressError,
+	PrivateNetworkError,
+} from "@/utils/error";
 
 export default new Elysia({
 	detail: {
@@ -51,12 +61,12 @@ Check out the [📕 RSSBook](https://github.com/HackHTU/RSSBook) for more detail
 				try {
 					parsedUrl = new URL(urlString);
 				} catch {
-					throw new Error("Invalid URL format");
+					throw new InvalidUrlError();
 				}
 
 				// Only allow http and https protocols
 				if (!["http:", "https:"].includes(parsedUrl.protocol)) {
-					throw new Error("Only http and https protocols are allowed");
+					throw new InvalidProtocolError();
 				}
 
 				// Skip further validation in test environment
@@ -69,12 +79,12 @@ Check out the [📕 RSSBook](https://github.com/HackHTU/RSSBook) for more detail
 				// Disallow localhost and local hostnames
 				const localHostnames = ["localhost", "127.0.0.1", "::1", "0.0.0.0"];
 				if (localHostnames.includes(hostname)) {
-					throw new Error("Local addresses are not allowed");
+					throw new LocalAddressError();
 				}
 
 				// Disallow .local and .localhost TLDs
 				if (hostname.endsWith(".local") || hostname.endsWith(".localhost")) {
-					throw new Error("Local domain suffixes are not allowed");
+					throw new InvalidDomainSuffixError();
 				}
 
 				// Disallow IP addresses (IPv4 and IPv6)
@@ -84,11 +94,11 @@ Check out the [📕 RSSBook](https://github.com/HackHTU/RSSBook) for more detail
 				const ipv6Pattern = /^(\[)?[0-9a-f:]+(\])?$/i;
 
 				if (ipv4Pattern.test(hostname)) {
-					throw new Error("IP addresses are not allowed");
+					throw new LocalIpAddressError();
 				}
 
 				if (ipv6Pattern.test(hostname) || hostname.includes(":")) {
-					throw new Error("IP addresses are not allowed");
+					throw new LocalIpAddressError();
 				}
 
 				// Disallow private network ranges (additional check for edge cases)
@@ -103,13 +113,13 @@ Check out the [📕 RSSBook](https://github.com/HackHTU/RSSBook) for more detail
 
 				for (const pattern of privateIpPatterns) {
 					if (pattern.test(hostname)) {
-						throw new Error("Private network addresses are not allowed");
+						throw new PrivateNetworkError();
 					}
 				}
 
 				// Ensure hostname has at least one dot (is a proper domain)
 				if (!hostname.includes(".")) {
-					throw new Error("Invalid domain name");
+					throw new InvalidDomainNameError();
 				}
 			};
 
@@ -282,7 +292,7 @@ Check out the [📕 RSSBook](https://github.com/HackHTU/RSSBook) for more detail
 
 				return data;
 			} catch (error) {
-				throw new Error(`Failed to fetch or parse HTML from ${url}: ${error}`);
+				throw new FetchHtmlError(url, error);
 			}
 		},
 		{

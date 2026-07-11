@@ -13,8 +13,10 @@ Use this skill when adding or updating a Feed route in RSSBook, migrating route 
 2. Create the Source at `pkgs/rssbook/src/routers/feeds/{category}/{slug}/index.ts`; use `bun source:new` when scaffolding from an existing template is useful.
 3. Register it in `pkgs/rssbook/src/routers/feeds/{category}/index.ts`.
 4. Use RSSBook utilities from the handler context instead of importing alternate fetch/parser stacks.
-5. Add one explicit route test per Feed route.
-6. Run formatting and TypeScript. Run source route tests with `bun source:test` or `bun source:test:all` only when route network checks are intended.
+5. In `route_handler`, prefer predefined errors from `@/utils/error` over `new Error(...)` so the global handler can map `status`, `code`, and `retryable` consistently.
+6. When a route fails because of invalid input, missing upstream content, browser availability, cache misses, or parse/render issues, choose the closest existing `RSSBookError` subclass first; add a new one in `@/utils/error` only when no existing code fits.
+7. Add one explicit route test per Feed route.
+8. Run formatting and TypeScript. Run source route tests with `bun source:test` or `bun source:test:all` only when route network checks are intended.
 
 ## Feed Development Checklist
 
@@ -34,6 +36,8 @@ Read only the references needed for the task:
 
 - New Source structure, route migration patterns, metadata naming, and route testing: [references/feed-routes.md](references/feed-routes.md)
 - RSSBook utility APIs (`cache`, `date`, `ofetch`, `load`, `formatHTML`, feed transforms): [references/utils.md](references/utils.md)
+- Browser routes, bounded page concurrency, lifecycle, cookies, response waits, resource filtering, and fingerprint consistency: [references/browser.md](references/browser.md)
+- RSSBook error catalog and where to use each error: [references/errors.md](references/errors.md)
 
 ## Source Shape
 
@@ -118,6 +122,7 @@ The handler function receives these properties:
 - **Metadata**: `meta` (source metadata including `slug`, `title`, `description`, `domain`, `config`), `lang` (request language)
 - **Request**: `params` (route parameters), `query` (query parameters), `headers` (request headers)
 - **Utilities**: `cache`, `date`, `ofetch`, `load`, `formatHTML`, `toAbsoluteURL`, `parse`, `logger`, `uuid`, `config`
+- **Browser**: `browser` for routes whose Feed metadata declares `browser: true`; read [references/browser.md](references/browser.md) before using it
 
 ## Metadata Rules
 

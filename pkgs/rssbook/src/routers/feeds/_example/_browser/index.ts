@@ -77,13 +77,18 @@ export default new Source({
 			async ({ browser, cache, date, formatHTML, load, params: { mid } }) => {
 				const link = `https://space.bilibili.com/${mid}/dynamic`;
 
-				const html = await cache.tryGet(link, () =>
-					browser.withPage(async (page) => {
+				const html = await cache.tryGet(link, async () => {
+					const lease = await browser.acquirePage();
+
+					try {
+						const { page } = lease;
 						await page.goto(link, { waitUntil: "networkidle2" });
 						await page.waitForSelector(DYNAMIC_CARD_SELECTOR, { timeout: 15_000 }).catch(() => {});
 						return page.content();
-					}),
-				);
+					} finally {
+						await lease.close();
+					}
+				});
 				const $ = load(html);
 				const profileName = normalizeText(
 					$(".h-name, .n-name, .nickname, .username").first().text(),

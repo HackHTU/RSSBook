@@ -1,4 +1,5 @@
 import { routePlugin } from "@/routers";
+import { InvalidRoutePathError } from "@/utils/error";
 
 type LocalRoutePath = `/${string}`;
 
@@ -21,7 +22,7 @@ type LocalRoutePath = `/${string}`;
  */
 export function dispatchRoute(path: LocalRoutePath): Promise<Response> {
 	if (!path.startsWith("/")) {
-		throw new Error("Path must start with a leading slash (/).");
+		throw new InvalidRoutePathError();
 	}
 
 	const req = new Request(`http://rssbook.test${path}`, {

@@ -1,5 +1,6 @@
 import { createStorage, type Storage } from "unstorage";
 import lruCacheDriver from "unstorage/drivers/lru-cache";
+import { CacheMissError } from "@/utils/error";
 
 /**
  * Primitive types that can be stored directly
@@ -177,7 +178,7 @@ export class Cache {
 		}
 
 		if (!fetcher) {
-			throw new Error(`Cache miss for key "${key}" and no fetcher provided`);
+			throw new CacheMissError(key);
 		}
 
 		const fresh = await fetcher(key);

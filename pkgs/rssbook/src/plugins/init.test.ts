@@ -3,7 +3,7 @@ import { Elysia } from "elysia";
 import type { Browser as PuppeteerBrowser } from "puppeteer-core";
 import { Browser, BrowserClosedError } from "@/browser";
 import { BrowserUnavailableError } from "@/browser/errors";
-import { Cache } from "@/utils";
+import { MemoryCache } from "@/cache";
 import { initPlugin } from "./init";
 
 describe("initPlugin", () => {
@@ -49,7 +49,7 @@ describe("initPlugin", () => {
 	});
 
 	test("uses caller-provided book config, cache, and disabled browser", async () => {
-		const cache = new Cache();
+		const cache = new MemoryCache();
 		await cache.set("plugin:init:custom", "from-custom-cache");
 
 		const app = new Elysia()

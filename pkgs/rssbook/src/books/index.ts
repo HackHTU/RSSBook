@@ -1,6 +1,5 @@
 import Elysia, { t } from "elysia";
 import { initPlugin } from "@/plugins";
-import { DataValidationError, SourceFetchError } from "@/utils/error";
 import {
 	type Data,
 	type DataItem,
@@ -10,6 +9,7 @@ import {
 	type ThemeProps,
 } from "@/types";
 import { type Cache, filter, logger, ofetch, parse, render, sort, union, uuid } from "@/utils";
+import { DataValidationError, SourceFetchError } from "@/utils/error";
 
 const DEFAULT_META: ThemeProps["meta"] = {
 	atomFeed: "/books/atom",
@@ -163,7 +163,7 @@ export async function getCachedBooksData(
 		return decodeCachedBooksData(data);
 	} catch (error) {
 		const fallback = await cache.get<string>(lastSuccess);
-		if (fallback !== null) {
+		if (fallback !== undefined) {
 			logger.error("Failed to refresh books cache; using last successful data", error);
 			return decodeCachedBooksData(fallback);
 		}

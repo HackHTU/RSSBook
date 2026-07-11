@@ -1,8 +1,6 @@
 import { afterAll, beforeAll, describe, expect, test } from "bun:test";
-import { createStorage } from "unstorage";
-import lruCacheDriver from "unstorage/drivers/lru-cache";
 import { getCachedBooksData } from "@/books";
-import Cache from "@/utils/cache";
+import { MemoryCache } from "@/cache";
 
 let server: ReturnType<typeof Bun.serve> | null = null;
 let baseUrl = "";
@@ -18,13 +16,7 @@ let feedB = "";
 let invalidFeed = "not xml";
 
 function createCache() {
-	return new Cache(
-		createStorage({
-			driver: lruCacheDriver({
-				ttl: 7 * 24 * 60 * 60 * 1000,
-			}),
-		}),
-	);
+	return new MemoryCache({ defaultMaxAgeMs: 7 * 24 * 60 * 60 * 1000 });
 }
 
 function resetFeeds() {

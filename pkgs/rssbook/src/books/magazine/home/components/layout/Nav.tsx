@@ -1,4 +1,4 @@
-import { formatHTML } from "@/utils";
+import { formatHTML } from "@/utils/formatHTML";
 import type { Translations } from "../../i18n";
 
 interface NavProps {

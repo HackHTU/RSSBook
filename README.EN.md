@@ -390,6 +390,6 @@ This project would not be possible without the support and help of all contribut
 [![Github Contributors](https://contrib.rocks/image?repo=HackHTU/RSSBook)](https://github.com/HackHTU/RSSBook/graphs/contributors)
 
 This project's inspiration comes from RSSHub and RSSWorker.
-This project's development relies on Bun, Cheerio, dayjs, ElysiaJS, Kita/html, ofetch, sanitize-html, unstorage and other excellent open-source projects.
+This project's development relies on Bun, Cheerio, dayjs, ElysiaJS, Kita/html, lru-cache, ofetch, sanitize-html, and other excellent open-source projects.
 
 This project is licensed under the MIT License. See the [LICENSE](LICENSE) file for details.

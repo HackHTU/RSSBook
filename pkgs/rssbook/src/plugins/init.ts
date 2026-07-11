@@ -3,8 +3,8 @@ import { DEFAULT_THEME, getThemeByName, type ThemeName } from "@/books/themes";
 import type { Browser } from "@/browser/browser";
 import { BrowserUnavailableError, createUnavailableBrowser } from "@/browser/errors";
 import { LocalPuppeteerBrowser } from "@/browser/local";
+import { type Cache, MemoryCache } from "@/cache";
 import type { Meta, Theme } from "@/types";
-import { Cache } from "@/utils";
 
 export type { ThemeName };
 
@@ -76,7 +76,7 @@ export function createRSSBook(init?: RSSBookInitConfig): RSSBook {
 			theme: resolveTheme(init?.book?.theme),
 		},
 		browser: resolveBrowser(init?.browser),
-		cache: init?.cache || new Cache(),
+		cache: init?.cache || new MemoryCache(),
 		config: init?.book?.config || {},
 	};
 }
@@ -99,5 +99,7 @@ export const initPlugin = (config?: RSSBookInitConfig) => {
 			"rssbook",
 			rssbook,
 		)
-		.onStop(() => rssbook.browser.deinit());
+		.onStop(async () => {
+			await Promise.allSettled([rssbook.browser.deinit(), rssbook.cache.deinit()]);
+		});
 };

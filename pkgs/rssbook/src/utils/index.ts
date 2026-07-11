@@ -1,5 +1,5 @@
 export * from "./browser";
-export * from "./cache";
+export * from "../cache";
 export * from "./category";
 export * from "./date";
 export * from "./error";

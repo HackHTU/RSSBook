@@ -6,21 +6,16 @@
 import { env } from "cloudflare:workers";
 import type { BrowserWorker } from "@cloudflare/puppeteer";
 import { CloudflareAdapter } from "elysia/adapter/cloudflare-worker";
-import { Cache, createRSSBookApp } from "rssbook";
-import { createStorage } from "unstorage";
-import cloudflareKVBindingDriver from "unstorage/drivers/cloudflare-kv-binding";
+import { createRSSBookApp } from "rssbook";
 import { CloudflareBrowser } from "./browser";
+import { CloudflareKVCache } from "./cache";
+
+export { CloudflareKVCache } from "./cache";
 
 export const app = createRSSBookApp({
 	adapter: CloudflareAdapter,
 	browser: new CloudflareBrowser(env.BROWSER as unknown as BrowserWorker),
-	cache: new Cache(
-		createStorage({
-			driver: cloudflareKVBindingDriver({
-				binding: env.RSSBookKV,
-			}),
-		}),
-	),
+	cache: new CloudflareKVCache(env.RSSBookKV),
 	openapi: {
 		enableFetchOnlineServer: false,
 	},

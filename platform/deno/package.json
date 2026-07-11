@@ -1,0 +1,8 @@
+{
+	"dependencies": {
+		"rssbook": "workspace:*"
+	},
+	"name": "@rssbook/platform-deno",
+	"private": true,
+	"type": "module"
+}

@@ -62,7 +62,8 @@ export {
 	waitForResponse,
 } from "@/utils/browser";
 // Classes
-export { Cache } from "@/utils/cache";
+export { Cache, MemoryCache, NullCache } from "@/cache";
+export type { CacheOptions, CacheValue, MemoryCacheOptions } from "@/cache";
 export { Category } from "@/utils/category";
 export { detectLanguage } from "@/utils/detectLanguage";
 // Feed utilities

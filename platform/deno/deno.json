@@ -1,6 +1,5 @@
 {
 	"imports": {
-		"rssbook": "npm:rssbook@latest",
-		"unstorage": "npm:unstorage@^1.17.5"
+		"rssbook": "npm:rssbook@latest"
 	}
 }

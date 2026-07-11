@@ -390,6 +390,6 @@ RSSBook 本身只负责「生成 Feed」，但由于输出的就是标准 RSS 2.
 [![Github Contributors](https://contrib.rocks/image?repo=HackHTU/RSSBook)](https://github.com/HackHTU/RSSBook/graphs/contributors)
 
 本项目的灵感离不开 RSSHub 和 RSSWorker 项目。
-本项目的开发离不开 Bun, Cheerio, dayjs, ElysiaJS, Kita/html, ofetch, sanitize-html, unstorage 优秀的开源项目。
+本项目的开发离不开 Bun, Cheerio, dayjs, ElysiaJS, Kita/html, lru-cache, ofetch, sanitize-html 等优秀的开源项目。
 
 本项目采用 MIT 许可证，详情请查看 [LICENSE](LICENSE) 文件。

@@ -1,8 +1,8 @@
 import { type AnyElysia, Elysia } from "elysia";
 import { injectPlugin, renderPlugin } from "@/plugins";
 import type { Config, GeneratedConfig, RouteConfig, Slug, SourceConfigs } from "@/types";
-import { DuplicateRouteTitleError, InvalidSourceSlugError } from "@/utils/error";
 import { detectLanguage } from "@/utils";
+import { DuplicateRouteTitleError, InvalidSourceSlugError } from "@/utils/error";
 import { logger } from "./logger";
 
 /**
@@ -97,7 +97,7 @@ export class Source<
 					},
 				};
 			}),
-		) {
+	) {
 		if (!/^[a-z0-9]+(?:-[a-z0-9]+)*$/.test(sourceConfig.slug)) {
 			throw new InvalidSourceSlugError(sourceConfig.slug);
 		}

@@ -2,12 +2,7 @@ import { Elysia, t } from "elysia";
 import { ofetch } from "ofetch";
 import { injectPlugin, renderQuery } from "@/plugins";
 import type { Data } from "@/types";
-import {
-	IntersectionFeedError,
-	InvalidOverrideJsonError,
-	parse,
-	intersection,
-} from "@/utils";
+import { IntersectionFeedError, InvalidOverrideJsonError, intersection, parse } from "@/utils";
 
 export default new Elysia({
 	detail: {

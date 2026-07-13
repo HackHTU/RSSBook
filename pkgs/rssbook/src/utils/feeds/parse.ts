@@ -1,8 +1,8 @@
 import { parseFeed } from "@rowanmanning/feed-parser";
 import type { Data, DataItem, FeedType } from "@/types";
 import { EMPTY_DATA, parseData } from "@/types";
-import { ParseError } from "@/utils/error";
 import { detectLanguage } from "@/utils";
+import { ParseError } from "@/utils/error";
 
 export function parse<T extends object>(data: T | string, type: "raw"): Data;
 

@@ -320,4 +320,5 @@ export type FeedType = Static<typeof feedType>;
 export function isFeedType(type: string): type is FeedType {
 	return (allFeedTypes as readonly string[]).includes(type);
 }
+
 import { DataValidationError } from "@/utils/error";

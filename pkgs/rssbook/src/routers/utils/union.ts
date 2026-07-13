@@ -2,7 +2,7 @@ import { Elysia, t } from "elysia";
 import { ofetch } from "ofetch";
 import { injectPlugin, renderQuery } from "@/plugins";
 import type { Data } from "@/types";
-import { InvalidOverrideJsonError, UnionFeedError, parse, union } from "@/utils";
+import { InvalidOverrideJsonError, parse, UnionFeedError, union } from "@/utils";
 
 export default new Elysia({
 	detail: {

@@ -9,10 +9,7 @@
 		"binding": "BROWSER"
 	},
 	"compatibility_date": "2026-06-16",
-	"compatibility_flags": [
-		"nodejs_compat",
-		"nodejs_compat_populate_process_env"
-	],
+	"compatibility_flags": ["nodejs_compat", "nodejs_compat_populate_process_env"],
 	// KV Namespace
 	"kv_namespaces": [
 		{

@@ -32,6 +32,9 @@ export {
 	type LocalPuppeteerBrowserOptions,
 	type PuppeteerBrowser,
 } from "@/browser";
+export type { CacheOptions, CacheValue, MemoryCacheOptions } from "@/cache";
+// Classes
+export { Cache, MemoryCache, NullCache } from "@/cache";
 export type { RSSBook, RSSBookBookConfig, RSSBookInitConfig } from "@/plugins/init";
 export { createRSSBook } from "@/plugins/init";
 // Types
@@ -61,9 +64,6 @@ export {
 	setLanguages,
 	waitForResponse,
 } from "@/utils/browser";
-// Classes
-export { Cache, MemoryCache, NullCache } from "@/cache";
-export type { CacheOptions, CacheValue, MemoryCacheOptions } from "@/cache";
 export { Category } from "@/utils/category";
 export { detectLanguage } from "@/utils/detectLanguage";
 // Feed utilities

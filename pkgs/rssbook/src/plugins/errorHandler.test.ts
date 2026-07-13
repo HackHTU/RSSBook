@@ -1,7 +1,7 @@
 import { describe, expect, test } from "bun:test";
 import { Elysia } from "elysia";
-import { errorHandlerPlugin } from "./errorHandler";
 import { InvalidUrlError } from "@/utils/error";
+import { errorHandlerPlugin } from "./errorHandler";
 
 describe("errorHandlerPlugin", () => {
 	test("renders an HTML error response for thrown errors", async () => {

@@ -1,6 +1,6 @@
 import type { Data, DataItem } from "@/types";
-import { FeedNotFoundError } from "@/utils/error";
 import { Source, t } from "@/utils";
+import { FeedNotFoundError } from "@/utils/error";
 
 type SSPAIAuthor = {
 	nickname?: string;

@@ -1,5 +1,5 @@
 import { describe, expect, test } from "bun:test";
-import { type DenoKV, DenoKVCache } from "./cache.ts";
+import { type DenoKV, DenoKVCache } from "./cache";
 
 class FakeDenoKV implements DenoKV {
 	public readonly values = new Map<string, string>();
